@@ -43,7 +43,14 @@
 
                           {% else %}
 
-                          <li>
+                        <li>
+                            <a href="{% url 'register' %}">
+                                <i class="ti-medall"></i>
+                                <p>S'incrire</p>
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="{% url 'login' %}">
                                 <i class="ti-key"></i>
                                 <p>Se connecter</p>
