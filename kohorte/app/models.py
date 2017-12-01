@@ -1,31 +1,63 @@
+
+
+
+#######################
+
 # -*- coding: utf-8 -*-
 #a deplacer dans le dossier idouane
 from __future__ import unicode_literals
 from django.db import models
+import datetime
+
+from django.contrib.auth.models import User
+
+
+
 # Create your models here.
 
-class User(models.Model):
-    """FIXME Ce n'est qu'un classe creuse. Django est
-    censé gérer les utilisateurs d'une manière ou d'une 
-    autre (2017-11-22)"""
-    
-class PostVersionne(models.Model):
-    """Le post versionné est présent dans chaque fil de discussion
-    /noeud. Il doit pouvoir etre modifié par les utilisateurs,
-    tout en gardant une trace des résultats précédents
-    XXX : s'appuyer sur un système type git pour le versionner
-    en backend ?"""
-    contenu = models.TextField()
-    contributeurs = models.ManyToManyField(User)
-    
+class Utilisateur(models.Model):
+
+    """
+    Classe de définition d'un utilisateur. J'ai défini 3 types de droits. Admin est le plus haut niveau (le notre)
+    Questionneur ce sera pour les gens qui veulent poser des questions par exemple (Pourquoi pas leur donner un tableau de bord de leurs questions)
+    Contributeur ce sera pour toutes les autres personnes, celles qui répondent aux questions
+
+    """
+
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    DROITS = (
+        ('0', 'admin'),
+        ('1', 'questionneur'),
+        ('2', 'contributeur'),
+    )
+    profil = models.CharField(max_length=1, choices=DROITS, default='2')
+
+    def __unicode__(self):
+        return self.user.__unicode__() + u' -> ' + self.profil
+
+
+class Question(models.Model):
+    label = models.CharField(max_length=300)
+    auteur = models.ForeignKey(User)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return self.label + u' => ' + self.auteur.__unicode__() + u' => ' + self.date.__unicode__()
+
 class Noeud(models.Model):
-    """Classe générique dont héritent NoeudIdee et NoeudPb
+    """Classe qui contient à la fois les noeuds pb et les noeuds idee (c'est plus simple)
     Ne contient pour l'instant que le label et une méthode
     TODO détailler les attentes de la classe Noeud (2017-11-22)
     """
+    TYPE_NOEUD =  (
+        ('0', 'idee'),
+        ('1', 'probleme'),
+    )
+    type_noeud = models.CharField(max_length=1, choices=TYPE_NOEUD)
     label = models.CharField(max_length = 30)
+    question = models.ForeignKey(Question,related_name="Questiondebase")
     #valeur de max_length choisie arbitrairement
-    postVersionne = models.OneToOneField(PostVersionne)
     
     def recupPosts():
         """Permet d'accéder rapidement à l'ensemble des 
@@ -37,32 +69,52 @@ class Noeud(models.Model):
         (2017-11-22)
         TODO Qu'est-ce qui est différent entre les sous-classes
         NoeudIdee et NoeudPb qui justifie leur (prudente)
-        existence ? (2017-11-22)"""
+        existence ? (2017-11-22)
+        Je suis d'accord ça n'est pas vraiment justifié
+
+        """
         pass
 
-class NoeudIdee(Noeud):
-    """Pour les éventuelles spécificités des noeuds idée"""
-    pass
-
-class NoeudPb(Noeud):
-    """Pour les éventuelles spécificités des noeuds idée"""
-    pass
+    def __unicode__(self):
+        return self.type_noeud + u' => ' + self.label + u' => ' + self.question
 
     
-class TypeArrete(models.Model):
+class PostVersionne(models.Model):
+    """Le post versionné est présent dans chaque fil de discussion
+    /noeud. Il doit pouvoir etre modifié par les utilisateurs,
+    tout en gardant une trace des résultats précédents
+    XXX : s'appuyer sur un système type git pour le versionner
+    en backend ?"""
+    contenu = models.TextField()
+    contributeurs = models.ManyToManyField(User, )
+    noeud = models.ForeignKey(Noeud)
+
+    def __unicode__(self):
+        return self.noeud.__unicode__() + u' => Post versioné'
+    
+
+
+    
+class TypeArete(models.Model):
     """TypeArrete permet d'englober les types d'arrete du
     graphe de reflexion, dont on ne sait pas encore grand 
     chose (2017-11-22)"""
     label = models.CharField(max_length = 30)
     #valeur de max_length choisie arbitrairement
 
-class ArreteReflexion(models.Model):
+    def __unicode__(self):
+        return self.label
+
+
+class AreteReflexion(models.Model):
     """Ce sont les arretes du graphe de reflexion, 
     celles qui sont visibles par les utilisateurs"""
     ideeSource = models.ForeignKey(Noeud, related_name='source')
     ideeDest = models.ForeignKey(Noeud, related_name='dest')
-    typeArrete = models.ForeignKey(TypeArrete)
+    typeArete = models.ForeignKey(TypeArete,related_name="TypeArete")
     
+    def __unicode__(self):
+        return self.ideeSource.label + ' => ' +  self.ideeDest.label  + u' : ' + self.typeArete.label
 
 
 class Tag(models.Model):
@@ -72,11 +124,17 @@ class Tag(models.Model):
     label = models.CharField(max_length = 30)
     #valeur de max_length choisie arbitrairement
     
-    def postTagues():
-        """renvoie une collection (quelque soit son
+    def postTagues(self):
+        """renvoie un querySet (quelque soit son
         implementation) de posts tagués par un tag 
         particulier."""
-        pass
+        return self.posts_lies.all()
+
+    def __unicode__(self):
+        return self.label
+
+
+
 
 class Citation(models.Model):
     """Element qui relie des utilisateurs, et un post entre
@@ -88,23 +146,33 @@ class Citation(models.Model):
     #comme indiqué dans la documentation
     rapporteur = models.ForeignKey(User, related_name='userRapporteur')
 
+    def __unicode__(self):
+        return self.rapporteur.user.__unicode__() + u' cite ' + self.auteur.user.__unicode__() + u' dans ' + self.post.label
+
 class Post(models.Model):
     """Le post qui sera écrit et lu par des utilisateurs
     TODO choisir un langage de formatage du texte : 
     html ? bbCode ? autre ?. Il devra en outre traiter des 
     citations (2017-11-22)"""
     pere = models.ForeignKey('self', on_delete=models.CASCADE)
-    auteur = models.ForeignKey(User)
+    titre = models.CharField(max_length=100)
+    auteur = models.ForeignKey(Utilisateur)
     tag = models.ManyToManyField(Tag)
     contenu = models.TextField()
     citations = models.ManyToManyField(Citation, related_name='postsCites')
     date = models.DateTimeField(auto_now_add = True, auto_now = False)
+    question = models.ForeignKey(Question,related_name="Question_de_base")
+    noeud = models.ForeignKey(Noeud,related_name="Noeud")
     
     def insererCitation():
         """Transforme l'information qu'on a de l'user
         dans le contenu du post pour garder l'info de
         la citation"""
         pass
+
+    def __unicode__(self):
+        return self.titre + u' de ' + self.auteur.user.__unicode__()
+
 
 
 
@@ -117,6 +185,9 @@ class TypeVote(models.Model):
     #valeur de max_length choisie arbitrairement
     impact = models.IntegerField()
 
+    def __unicode__(self):
+        return self.label + u' - ' + str(self.impact)
+
 class Vote(models.Model):
     """Un vote permet est donné par un utilisateur à
     un post qui n'est pas de lui.
@@ -128,6 +199,9 @@ class Vote(models.Model):
     post = models.ForeignKey(Post)
     voteur = models.ForeignKey(User)
 
+    def __unicode__(self):
+        return self.typeVote.__unicode__() + u' sur ' + self.post.label + u' de ' + self.voteur.user.__unicode__()
+
 class Reputation(models.Model):
     """est ensuite associée à chaque utilisateur
     TODO mettre en place une association 
@@ -135,7 +209,11 @@ class Reputation(models.Model):
     * avec les votes
     * avec les citation ?(2017-11-22)
     Pour l'instant très mal définie"""
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(Utilisateur)
+    puissance = models.IntegerField()
+
+    def __unicode__(self):
+        return self.user.user.__unicode__() + u' : ' + str(self.puissance)
 
 class Suggestion(models.Model):
     """La suggestion est un outil très orienté utilisateur
@@ -144,18 +222,25 @@ class Suggestion(models.Model):
     voir ce dont il s'agit.
     Une suggestion sera le résultat du traitement du grand
     graphe."""
-    userVise = models.ForeignKey(User)
+    userVise = models.ForeignKey(Utilisateur)
     objet = models.ForeignKey(Noeud)
     pertinence = models.IntegerField()
+
+    def __unicode__(self):
+        return self.userVise.user.__unicode__() + self.objet.label + str(self.pertinence)
 
 
 class Log(models.Model):
     """on sait qu'on doit en faire un donc le voilà.
     Il permettra des traitements par la suite.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(Utilisateur)
     action = models.CharField(max_length = 100)
+    date = models.DateTimeField(auto_now_add=True)
     #valeur de max_length choisie arbitrairement
+
+    def __unicode__(self):
+        return self.user.user.__unicode__() + self.action + u' - ' + self.date.__unicode__()
 
 class TypeLienSg(models.Model):
     label = models.CharField(max_length = 30)
@@ -169,4 +254,11 @@ class lienPostsSgraphe(models.Model):
     #noeudSg2
     typeLien = models.ForeignKey(TypeLienSg)
     poids = models.IntegerField()
+
+
+
+
+
+
+    
     
