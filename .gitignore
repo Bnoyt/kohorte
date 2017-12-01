@@ -1,0 +1,3 @@
+kohorte/app/__pycache__/*
+kohorte/kohorte/__pycache__/*
+kohorte/app/migrations/*
