@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect
@@ -17,6 +17,7 @@ def authentification(request):
 		return HttpResponseRedirect(reverse('index'))
 	else:
 		context['etat_connexion'] = 'pas_reussi'
+		context['titre_page': 'Se connecter']
 		# Return an 'invalid login' error message.
 		return render(request,'app/login.html',context)
 
@@ -27,7 +28,7 @@ def page_login(request):
 	if 'username' in request.POST:
 		return authentification(request)
 	else:
-		context={}
+		context={'titre_page': 'Se connecter'}
 		context['etat_connexion'] = 'pasessaye'
 		return render(request, 'app/login.html',context)
 
@@ -56,3 +57,25 @@ def page_register(request):
 def index(request):
     context = {}
     return render(request, 'app/content_index.html', context)
+
+
+def noeud(request,noeud_id):
+	if request.user.is_authenticated:
+		noeud = get_object_or_404(Noeud,pk=noeud_id)
+		context = {
+			'noeud': noeud,
+			'titre_page': noeud.label + ' - ' + noeud.question.label,
+		}
+		return render(request,'app/noeud.html',context)
+	else:
+		return HttpResponseRedirect(reverse('index'))
+
+
+def parametres(request):
+	if request.user.is_authenticated:
+		context={
+		'titre_page':'Paramètres',
+		}
+		return render(request,'app/parametres.html',context)
+	else:
+		return HttpResponseRedirect(reverse('index'))
