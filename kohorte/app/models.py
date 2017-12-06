@@ -5,7 +5,6 @@
 
 # -*- coding: utf-8 -*-
 #a deplacer dans le dossier idouane
-from __future__ import unicode_literals
 from django.db import models
 import datetime
 

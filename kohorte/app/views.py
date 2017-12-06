@@ -1,9 +1,11 @@
+from .models import *
+
 from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from .models import Utilisateur
+
 from django.contrib.auth.models import User
 
 def authentification(request):
