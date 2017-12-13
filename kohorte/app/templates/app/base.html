@@ -1,0 +1,35 @@
+{% load static %}
+{% include "app/header.html" %}
+<body>
+
+<div class="wrapper">
+        {% include "app/side-menu.html" %}
+
+    <div class="main-panel">
+        {% include "app/top-menu.html" %} 
+
+        {% block content %}
+
+        {% endblock %} 
+        
+
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <nav class="pull-left">
+                    <ul>
+
+                        
+                    </ul>
+                </nav>
+            
+            </div>
+        </footer>
+
+    </div>
+</div>
+
+
+</body>
+
+{% include "app/javascript.html" %}

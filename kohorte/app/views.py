@@ -58,7 +58,7 @@ def page_register(request):
 
 def index(request):
     context = {}
-    return render(request, 'app/content_index.html', context)
+    return render(request, 'app/index.html', context)
 
 
 def noeud(request,noeud_id):
