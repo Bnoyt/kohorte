@@ -57,7 +57,8 @@ def page_register(request):
 		return render(request, 'app/register.html', context)
 
 def index(request):
-    context = {}
+    context = {
+    }
     return render(request, 'app/index.html', context)
 
 
