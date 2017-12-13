@@ -64,10 +64,26 @@ def index(request):
 
 def noeud(request,noeud_id):
 	if request.user.is_authenticated:
+		posts = []
+		commentaires = []
+		reponses = []
 		noeud = get_object_or_404(Noeud,pk=noeud_id)
+		post = Post.objects.filter(noeud=noeud)
+		for p in post:
+			posts.append(p)
+			comment = Post.objects.filter(pere=p)
+			for c in comment:
+				commentaires.append(c)
+				reponse = Post.objects.filter(pere=c)
+				for r in reponse:
+					reponses.append(r)
+
 		context = {
 			'noeud': noeud,
 			'titre_page': noeud.label + ' - ' + noeud.question.label,
+			'posts': posts,
+			'commentaires': commentaires,
+			'reponses': reponses,
 		}
 		return render(request,'app/noeud.html',context)
 	else:
