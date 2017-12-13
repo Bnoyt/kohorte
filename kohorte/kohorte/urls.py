@@ -5,5 +5,5 @@ from markdownx import urls as markdownx
 urlpatterns = [
     url(r'^', include('app.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^markdownx/', include(markdownx.urls)),
+    url(r'^markdownx/', include(markdownx)),
 ]

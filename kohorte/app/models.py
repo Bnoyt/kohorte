@@ -82,7 +82,7 @@ class PostVersionne(models.Model):
     tout en gardant une trace des résultats précédents
     XXX : s'appuyer sur un système type git pour le versionner
     en backend ?"""
-    contenu = models.TextField()
+    contenu = MarkdownxField()
     contributeurs = models.ManyToManyField(User, )
     noeud = models.ForeignKey(Noeud)
 
