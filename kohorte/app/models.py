@@ -1,12 +1,10 @@
-
-
-
 #######################
 
 # -*- coding: utf-8 -*-
 #a deplacer dans le dossier idouane
 from django.db import models
 import datetime
+from markdownx.models import MarkdownxField
 
 from django.contrib.auth.models import User
 
@@ -157,7 +155,7 @@ class Post(models.Model):
     titre = models.CharField(max_length=100)
     auteur = models.ForeignKey(Utilisateur)
     tag = models.ManyToManyField(Tag)
-    contenu = models.TextField()
+    contenu = MarkdownxField()
     citations = models.ManyToManyField(Citation, related_name='postsCites')
     date = models.DateTimeField(auto_now_add = True, auto_now = False)
     question = models.ForeignKey(Question,related_name="Question_de_base")
@@ -229,7 +227,7 @@ class Suggestion(models.Model):
         return self.userVise.user.__unicode__() + self.objet.label + str(self.pertinence)
 
 
-class Log(models.Model):
+class Log(models.Model):#XXX existe une classe log 
     """on sait qu'on doit en faire un donc le voilà.
     Il permettra des traitements par la suite.
     """
