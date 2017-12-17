@@ -82,14 +82,23 @@ class PostVersionne(models.Model):
     tout en gardant une trace des résultats précédents
     XXX : s'appuyer sur un système type git pour le versionner
     en backend ?"""
-    contenu = MarkdownxField()
+    lastModified = models.DateTimeField(auto_now=True)
     contributeurs = models.ManyToManyField(User, )
     noeud = models.ForeignKey(Noeud)
+    
+    def addRevision():
+        pass
+    
+    def visuel():
+        pass
 
     def __unicode__(self):
         return self.noeud.__unicode__() + u' => Post versioné'
     
-
+class PostVersionRevision(models.Model):
+    contenu = MarkdownxField()
+    post = models.ForeignKey('PostVersionne')
+    title = models.CharField(max_length = 30)
 
     
 class TypeArete(models.Model):
