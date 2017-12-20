@@ -1,32 +1,27 @@
 
 
-<div class="col-md-9 col-xs-11 pull-right">
+<div class="col-md-8 col-xs-10 pull-right">
 	<div class="card">
-		<div class="header">
-
-			<p>{{r.auteur}}</p>
-
-		</div>
-
-
 
 		<div class="content">
 
-		<p>
+			<p>
 
-		{{r.contenu}}
+			{{r.contenu}}
 
-		</p>
+			</p>
+
+			
+
+
+			<div class="footer">
+				<hr />
+				<div class="stats">
+					<i class="ti-calendar"></i> Posté le {{r.date}} par {{r.auteur.user.username}}
+				</div>
+
+			</div>
 
 		</div>
-
-
-		<div class="footer">
-
-		{{r.date}}
-
-		</div>
-
-
 	</div>
 </div>

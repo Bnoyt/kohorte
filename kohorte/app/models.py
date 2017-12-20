@@ -160,12 +160,12 @@ class Post(models.Model):
     TODO choisir un langage de formatage du texte : 
     html ? bbCode ? autre ?. Il devra en outre traiter des 
     citations (2017-11-22)"""
-    pere = models.ForeignKey('self', on_delete=models.CASCADE)
+    pere = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
     titre = models.CharField(max_length=100)
     auteur = models.ForeignKey(Utilisateur)
-    tag = models.ManyToManyField(Tag)
+    tag = models.ManyToManyField(Tag,null=True, blank=True)
     contenu = MarkdownxField()
-    citations = models.ManyToManyField(Citation, related_name='postsCites')
+    citations = models.ManyToManyField(Citation, related_name='postsCites',null=True, blank=True)
     date = models.DateTimeField(auto_now_add = True, auto_now = False)
     question = models.ForeignKey(Question,related_name="Question_de_base")
     noeud = models.ForeignKey(Noeud,related_name="Noeud")

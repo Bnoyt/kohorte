@@ -1,38 +1,34 @@
 
 
-<div class="col-md-9  col-xs-11 pull-right">
+<div class="col-md-10  col-xs-11 pull-right">
 	<div class="card">
-		<div class="header">
-
-			<p>{{c.0.auteur}}</p>
-
-		</div>
-
 
 
 		<div class="content">
 
-		<p>
+			<p>
 
-		{{c.0.contenu}}
+			{{c.0.contenu}}
 
-		</p>
+			</p>
+
+			
+
+
+			<div class="footer">
+			<hr />
+				<div class="stats">
+					<i class="ti-calendar"></i> Posté le {{c.0.date}} par {{c.0.auteur.user.username}}
+				</div>
+
+			</div>
 
 		</div>
-
-
-		<div class="footer">
-
-		{{c.0.date}}
-
-		</div>
-
-
 	</div>
 
 		{% for r in c.1 %}
 
-			{% include "reponse.html" with r=r}
+			{% include "app/reponse.html" with r=r %}
 
 		{% endfor %}
 
