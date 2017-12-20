@@ -7,5 +7,5 @@ urlpatterns = [
     url(r'^login/$',views.page_login, name='login'),
     url(r'^register/$',views.page_register, name='register'),
     url(r'^noeud/(?P<noeud_id>[0-9]+)/$', views.noeud, name='noeud'),
-    url(r'^parametres/$',views.parametres,name='parametres'),    
+    url(r'^parametres/$',views.parametres,name='parametres'),
 ]

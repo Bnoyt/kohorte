@@ -41,7 +41,7 @@ def page_register(request):
 	post = request.POST
 	if 'username' in post and 'email' in post and 'prenom' in post and 'nom' in post and 'mdp' in post:
 		if User.objects.filter(email=post['email']).exists() or User.objects.filter(username=post['username']).exists():
-			
+
 			context['message'] = "L'email ou le pseudo spécifié existe déjà"
 			return render(request, 'app/register.html', context)
 		else:
@@ -57,8 +57,15 @@ def page_register(request):
 		return render(request, 'app/register.html', context)
 
 def index(request):
-    context = {
-    }
+    #call database
+    context = {}
+    if request.user.is_authenticated:
+        user = get_object_or_404(Utilisateur, user=request.user)
+        context['user'] = user
+    else:
+        #TODO: handle unlogged user
+        pass
+
     return render(request, 'app/index.html', context)
 
 
