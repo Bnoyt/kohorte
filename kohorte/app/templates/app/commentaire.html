@@ -1,0 +1,41 @@
+
+
+<div class="col-md-9  col-xs-11 pull-right">
+	<div class="card">
+		<div class="header">
+
+			<p>{{c.0.auteur}}</p>
+
+		</div>
+
+
+
+		<div class="content">
+
+		<p>
+
+		{{c.0.contenu}}
+
+		</p>
+
+		</div>
+
+
+		<div class="footer">
+
+		{{c.0.date}}
+
+		</div>
+
+
+	</div>
+
+		{% for r in c.1 %}
+
+			{% include "reponse.html" with r=r}
+
+		{% endfor %}
+
+
+
+</div>

@@ -1,0 +1,42 @@
+
+
+<div class="col-md-12">
+	<div class="card">
+		<div class="header">
+		<h4>{{p.0.titre}}</h4>
+			<p>{{p.auteur}}</p>
+
+		</div>
+
+
+
+		<div class="content">
+
+		<p>
+
+		{{p.0.contenu}}
+
+		</p>
+
+		</div>
+
+
+		<div class="footer">
+
+		{{p.0.date}}
+
+		</div>
+
+
+	</div>
+
+
+		{% for c in p.1 %}
+
+			{% include "commentaire.html" with c=c}
+
+		{% endfor %}
+
+
+
+</div>

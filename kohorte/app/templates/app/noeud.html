@@ -22,7 +22,11 @@
 	<div class="row">
 
 
-	
+		{% for p in posts %}
+
+			{% include "post.html" with p=p}
+
+		{% endfor %}
 
 
 
