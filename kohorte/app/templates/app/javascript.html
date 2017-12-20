@@ -19,13 +19,35 @@
     <!-- Paper Dashboard Core javascript and methods for Demo purpose -->
 	<script src="{% static 'app/js/paper-dashboard.js' %}"></script>
 
-	<!-- Paper Dashboard DEMO methods, don't include it in your project! -->
-	<script src="{% static 'app/js/demo.js' %}"></script>
+
 
 	<script type="text/javascript">
     	$(document).ready(function(){
 
-        	demo.initChartist();
+        	$( document ).ready(function() {
+
+    function notification(){
+            $.notify({
+                message: "Combinaison mot de passe / pseudo erronnée"
+
+            },{
+                type: 'danger',
+                timer: 4000,
+                placement: {
+                    from: 'top',
+                    align: 'center'
+                }
+            });
+        };
+
+    {% if etat_connexion %}
+
+    notification();
+
+    {% endif %}
+
+
+});
 
         	
 

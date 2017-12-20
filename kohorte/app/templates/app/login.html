@@ -4,8 +4,13 @@
     <div class="row">
         <div class="col-lg-12 col-sm-12" id="trucdegauche" type="hidden">
             <div class="card">
+            	<div class="header">
+            		<h1>Se connecter</h1>
+            	</div>
+
+
                 <div class="content">
-					<h1 class="card-header">Se connecter</h1>
+					
 					<form method="post" class="form card-body  ">
 					{% csrf_token %}
 					
@@ -27,6 +32,11 @@
 		</div>
 	</div>
 </div>
+
+{% if etat_connexion %}
+
+
+{% endif %}
 
 
 {% endblock %}

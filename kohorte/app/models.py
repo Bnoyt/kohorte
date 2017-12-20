@@ -176,8 +176,13 @@ class Post(models.Model):
         la citation"""
         pass
 
-    def __unicode__(self):
-        return self.titre + ' de ' + str(self.auteur.user)
+    def __str__(self):
+        if self.pere == None:
+            return "Post : " + self.titre + ' de ' + str(self.auteur.user)
+        elif self.pere.pere == None:
+            return "Commentaire sur " + self.pere.titre + ' de ' +  self.auteur.user.username
+        else:
+            return "Réponse de "  + self.auteur.user.username +  ' au ' + str(self.pere)
 
 
 

@@ -23,6 +23,8 @@
 			<hr />
 				<div class="stats">
 					<i class="ti-calendar"></i> Posté le {{p.0.date}} par {{p.0.auteur.user.username}}
+					<p><a href="#5" id="p_{{p.0.id}}"><i class="ti-angle-down"></i>Développer les commentaires</a></p>
+					<p class="masquer" hidden><a href="#5" id="p_{{p.0.id}}"><i class="ti-angle-up"></i>Masquer les réponses</a></p>
 				</div>
 
 			</div>
@@ -30,13 +32,13 @@
 
 	</div>
 
-
+	<div id="c_{{p.0.id}}">
 		{% for c in p.1 %}
 
 			{% include "app/commentaire.html" with c=c %}
 
 		{% endfor %}
-
+	</div>
 
 
 </div>

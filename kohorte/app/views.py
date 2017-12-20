@@ -18,8 +18,8 @@ def authentification(request):
 		# Redirect to a success page.
 		return HttpResponseRedirect(reverse('index'))
 	else:
-		context['etat_connexion'] = 'pas_reussi'
-		context['titre_page': 'Se connecter']
+		context['etat_connexion'] = True
+		context['titre_page'] = 'Se connecter'
 		# Return an 'invalid login' error message.
 		return render(request,'app/login.html',context)
 
@@ -31,7 +31,7 @@ def page_login(request):
 		return authentification(request)
 	else:
 		context={'titre_page': 'Se connecter'}
-		context['etat_connexion'] = 'pasessaye'
+		context['etat_connexion'] = False
 		return render(request, 'app/login.html',context)
 
 def page_register(request):
