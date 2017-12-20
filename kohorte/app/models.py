@@ -30,8 +30,8 @@ class Utilisateur(models.Model):
     )
     profil = models.CharField(max_length=1, choices=DROITS, default='2')
 
-    def __unicode__(self):
-        return self.user.__unicode__() + u' -> ' + self.profil
+    def __str__(self):
+        return str(self.user) + ' -> ' + self.profil
 
 
 class Question(models.Model):
@@ -39,8 +39,8 @@ class Question(models.Model):
     auteur = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
 
-    def __unicode__(self):
-        return self.label + u' => ' + self.auteur.__unicode__() + u' => ' + self.date.__unicode__()
+    def __str__(self):
+        return self.label + ' => ' + str(self.auteur)
 
 class Noeud(models.Model):
     """Classe qui contient à la fois les noeuds pb et les noeuds idee (c'est plus simple)
@@ -72,8 +72,8 @@ class Noeud(models.Model):
         """
         pass
 
-    def __unicode__(self):
-        return self.type_noeud + u' => ' + self.label + u' => ' + self.question
+    def __str__(self):
+        return self.type_noeud + ' => ' + self.label + ' => ' + self.question.label
 
     
 class PostVersionne(models.Model):
@@ -92,8 +92,8 @@ class PostVersionne(models.Model):
     def visuel():
         pass
 
-    def __unicode__(self):
-        return self.noeud.__unicode__() + u' => Post versioné'
+    def __str__(self):
+        return str(self.noeud) + ' => Post versionné'
     
 class PostVersionRevision(models.Model):
     contenu = MarkdownxField()
@@ -108,7 +108,7 @@ class TypeArete(models.Model):
     label = models.CharField(max_length = 30)
     #valeur de max_length choisie arbitrairement
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
 
@@ -119,8 +119,8 @@ class AreteReflexion(models.Model):
     ideeDest = models.ForeignKey(Noeud, related_name='dest')
     typeArete = models.ForeignKey(TypeArete,related_name="TypeArete")
     
-    def __unicode__(self):
-        return self.ideeSource.label + ' => ' +  self.ideeDest.label  + u' : ' + self.typeArete.label
+    def __str__(self):
+        return self.ideeSource.label + ' => ' +  self.ideeDest.label  + ' : ' + self.typeArete.label
 
 
 class Tag(models.Model):
@@ -136,7 +136,7 @@ class Tag(models.Model):
         particulier."""
         return self.posts_lies.all()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
 
@@ -152,8 +152,8 @@ class Citation(models.Model):
     #comme indiqué dans la documentation
     rapporteur = models.ForeignKey(User, related_name='userRapporteur')
 
-    def __unicode__(self):
-        return self.rapporteur.user.__unicode__() + u' cite ' + self.auteur.user.__unicode__() + u' dans ' + self.post.label
+    def __str__(self):
+        return str(self.rapporteur.user) + ' cite ' + str(self.auteur.user) + ' dans ' + self.post.label
 
 class Post(models.Model):
     """Le post qui sera écrit et lu par des utilisateurs
@@ -177,7 +177,7 @@ class Post(models.Model):
         pass
 
     def __unicode__(self):
-        return self.titre + u' de ' + self.auteur.user.__unicode__()
+        return self.titre + ' de ' + str(self.auteur.user)
 
 
 
@@ -191,8 +191,8 @@ class TypeVote(models.Model):
     #valeur de max_length choisie arbitrairement
     impact = models.IntegerField()
 
-    def __unicode__(self):
-        return self.label + u' - ' + str(self.impact)
+    def __str__(self):
+        return self.label + ' - ' + str(self.impact)
 
 class Vote(models.Model):
     """Un vote permet est donné par un utilisateur à
@@ -205,8 +205,8 @@ class Vote(models.Model):
     post = models.ForeignKey(Post)
     voteur = models.ForeignKey(User)
 
-    def __unicode__(self):
-        return self.typeVote.__unicode__() + u' sur ' + self.post.label + u' de ' + self.voteur.user.__unicode__()
+    def __str__(self):
+        return str(self.typeVote) + ' sur ' + self.post.label + ' de ' + str(self.voteur.user)
 
 class Reputation(models.Model):
     """est ensuite associée à chaque utilisateur
@@ -218,8 +218,8 @@ class Reputation(models.Model):
     user = models.OneToOneField(Utilisateur)
     puissance = models.IntegerField()
 
-    def __unicode__(self):
-        return self.user.user.__unicode__() + u' : ' + str(self.puissance)
+    def __str__(self):
+        return str(self.user.user) + ' : ' + str(self.puissance)
 
 class Suggestion(models.Model):
     """La suggestion est un outil très orienté utilisateur
@@ -232,8 +232,8 @@ class Suggestion(models.Model):
     objet = models.ForeignKey(Noeud)
     pertinence = models.IntegerField()
 
-    def __unicode__(self):
-        return self.userVise.user.__unicode__() + self.objet.label + str(self.pertinence)
+    def __str__(self):
+        return str(self.userVise.user) + self.objet.label + str(self.pertinence)
 
 
 class Log(models.Model):#XXX existe une classe log 
@@ -245,12 +245,15 @@ class Log(models.Model):#XXX existe une classe log
     date = models.DateTimeField(auto_now_add=True)
     #valeur de max_length choisie arbitrairement
 
-    def __unicode__(self):
-        return self.user.user.__unicode__() + self.action + u' - ' + self.date.__unicode__()
+    def __str__(self):
+        return str(self.user.user) + self.action + ' - ' + str(self.date)
 
 class TypeLienSg(models.Model):
     label = models.CharField(max_length = 30)
     #valeur de max_length choisie arbitrairement
+
+    def __str__(self):
+    	return self.label
 
 class lienPostsSgraphe(models.Model):
     """Sg pour supergraphe
@@ -261,10 +264,5 @@ class lienPostsSgraphe(models.Model):
     typeLien = models.ForeignKey(TypeLienSg)
     poids = models.IntegerField()
 
-
-
-
-
-
-    
-    
+    def __str__(self):
+    	return str(self.typeLien) + ' : ' + str(poids)
