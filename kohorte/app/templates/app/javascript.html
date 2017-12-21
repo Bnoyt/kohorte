@@ -19,26 +19,14 @@
     <!-- Paper Dashboard Core javascript and methods for Demo purpose -->
 	<script src="{% static 'app/js/paper-dashboard.js' %}"></script>
 
+    <script src="{% static 'app/js/core.js' %}"></script>
+
 
 
 	<script type="text/javascript">
-    	$(document).ready(function(){
 
-        	$( document ).ready(function() {
 
-    function notification(){
-            $.notify({
-                message: "Combinaison mot de passe / pseudo erronnée"
 
-            },{
-                type: 'danger',
-                timer: 4000,
-                placement: {
-                    from: 'top',
-                    align: 'center'
-                }
-            });
-        };
 
     {% if etat_connexion %}
 
@@ -47,11 +35,10 @@
     {% endif %}
 
 
-});
 
         	
 
-    	});
+
 	</script>
 
 </html>

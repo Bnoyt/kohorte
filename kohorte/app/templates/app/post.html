@@ -23,8 +23,8 @@
 			<hr />
 				<div class="stats">
 					<i class="ti-calendar"></i> Posté le {{p.0.date}} par {{p.0.auteur.user.username}}
-					<p><a href="#5" id="p_{{p.0.id}}"><i class="ti-angle-down"></i>Développer les commentaires</a></p>
-					<p class="masquer" hidden><a href="#5" id="p_{{p.0.id}}"><i class="ti-angle-up"></i>Masquer les réponses</a></p>
+					<p id="s_{{p.0.id}}"><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-down"></i>Développer les commentaires</a></p>
+					<p id="h_{{p.0.id}}" hidden><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-up"></i>Masquer les réponses</a></p>
 				</div>
 
 			</div>
@@ -32,7 +32,7 @@
 
 	</div>
 
-	<div id="c_{{p.0.id}}">
+	<div id="c_{{p.0.id}}" hidden>
 		{% for c in p.1 %}
 
 			{% include "app/commentaire.html" with c=c %}
@@ -42,3 +42,4 @@
 
 
 </div>
+
