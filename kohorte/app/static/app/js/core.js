@@ -23,12 +23,14 @@ function show_posts(id){
         a.hide(100);
         h.hide();
         s.show();
+
     } else {
         a.show(100);
         s.hide();
         h.show();
 
     }
+
 
 
 };
