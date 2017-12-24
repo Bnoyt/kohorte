@@ -29,3 +29,8 @@ class recommend_link(graph_modification):
 class remove_post(graph_modification):
     def __init__(self, sql_id):
         self.sql_id = sql_id
+
+class edit_post(graph_modification):
+    def __init__(self, sql_id, new_size):
+        self.sql_id = sql_id
+        self.new_size = new_size

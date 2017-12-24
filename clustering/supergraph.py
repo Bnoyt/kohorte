@@ -161,6 +161,14 @@ def write_to_graph(modif, g : nx.MultiDiGraph, uig : unique_id_generator, sql_id
         except nx.NetworkXError:
             raise err.inconsistent_graph(type=err.inconsistent_graph.graph_idMap_inconsistency, node=node, node_id=sql_id_map)
 
+    if(type(modif) == mods.edit_post):
+        if not (modif.sql_id in sql_id_map):
+            raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=modif.sql_id)
+        node = sql_id_map[modif.sql_id]
+        node.size = modif.new_size
+    
+
+
 
 def update_graph(the_graph, update_list, uig, sql_id_map):
     for modif in update_list:
