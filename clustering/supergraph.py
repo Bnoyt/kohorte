@@ -11,6 +11,7 @@ import random as rnd
 import networkx as nx
 import modifications as mods
 import errors as err
+import parameters as param
 
 
 class unique_id_generator:
@@ -68,10 +69,13 @@ class tg_node:
 
 
 class post_node(tg_node):
-    def __init__(self, uig, size, value, sql_id):
+    def __init__(self, uig, size, sql_id, **kwargs):
         super().__init__(uig)
         self.size = size
-        self.value = value
+        if "value" in kwargs:
+            self.value = kwargs["value"]
+        else:
+            self.value = param.post_node_default_value
         self.sql_id = sql_id
 
     def __str__(self):
@@ -126,7 +130,7 @@ def write_to_graph(modif, g : nx.MultiDiGraph, uig : unique_id_generator, sql_id
     if(type(modif) == mods.create_post):
         if (modif.sql_id in sql_id_map):
             raise err.inconsistent_graph(type=err.inconsistent_graph.node_exists, node_id=modif.sql_id)
-        new_node = post_node(uig, modif.size, modif.value, modif.sql_id)
+        new_node = post_node(uig, modif.size, modif.sql_id, value=modif.value)
         sql_id_map[modif.sql_id] = new_node
         g.add_node(new_node)
         if (modif.parent != -1):
@@ -134,7 +138,7 @@ def write_to_graph(modif, g : nx.MultiDiGraph, uig : unique_id_generator, sql_id
                 parent_node = sql_id_map[modif.parent]
             except KeyError:
                 raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=modif.parent, details="missing parent post")
-            g.add_edge(new_node, parent_node, key="parent_post")
+            g.add_edge(new_node, parent_node, key="parent_post", default_weight=param.default_edge_weight_parent)
         return
 
     if(type(modif) == mods.recommend_link):
@@ -147,7 +151,7 @@ def write_to_graph(modif, g : nx.MultiDiGraph, uig : unique_id_generator, sql_id
         k = 0
         while(("group_recommended", k) in g[n1][n2]):
             k += 1
-        g.add_edge(n1, n2, key=("group_recommended", k), weight=modif.weight)
+        g.add_edge(n1, n2, key=("group_recommended", k), default_weight=modif.weight)
         return
 
     if( type(modif) == mods.remove_post ):
@@ -166,6 +170,7 @@ def write_to_graph(modif, g : nx.MultiDiGraph, uig : unique_id_generator, sql_id
             raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=modif.sql_id)
         node = sql_id_map[modif.sql_id]
         node.size = modif.new_size
+        return
     
 
 

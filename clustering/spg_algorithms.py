@@ -292,12 +292,36 @@ def ec_closest(g, core_list):
 
 '''Edge improvment'''
 
+def ei_uphill(g, comp_list, **args):
+
+    if "mobile_nodes" in args:
+        mobile_nodes = args["mobile_nodes"]
+    else:
+        mobile_nodes = g.nodes
+
+    if "weight" in args:
+        weight = args["weight"]
+    else:
+        weight = "default_weight"
+
+    num_c = len(comp_list)
+    volume = [0]*num_c
+    cut_size = [0]*num_c
+    for i in range(num_c):
+        volume[i] = nx.volume(g, comp_list[i], weight)
+        cut_size[i] = nx.cut_size(g, comp_list[i], weight)
+    graph_volume = nx.volume(g, g.edges)
+    def conductance(i):
+        return( cut_size[i]/(min(volume[i])) )
+
+
+
 
 
 '''Utility'''
 
 def attr_list_gen(o, d):
-    """generates a list from a dictionnary, to use as nx.draw argument"""
+    """generates a list from a dictionnary, to use as a weight, size, color... argument for nx functions"""
     sample = d.popitem()
     d[sample[0]] = sample[1]
     is_edge_list = type(sample[0]) == tuple
