@@ -3,8 +3,10 @@ from .models import *
 from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
 from django.core.urlresolvers import reverse
+
+from django.template import loader
 
 from django.contrib.auth.models import User
 
@@ -78,7 +80,9 @@ def noeud(request,noeud_id):
 		posts = [[p,[[c,[r for r in Post.objects.filter(pere=c)]] for c in Post.objects.filter(pere=p)]] for p in post]
 
 		context = {
-			'posts': posts,			
+			'posts': posts,	
+			'noeud':noeud,
+			'question':noeud.question,		
 		}
 		return render(request,'noeud.html',context)
 	else:
@@ -93,3 +97,34 @@ def parametres(request):
 		return render(request,'parametres.html',context)
 	else:
 		return HttpResponseRedirect(reverse('index'))
+
+
+def ajouter_post(request):
+	if request.user.is_authenticated:
+		post = request.POST
+
+		publication="rien"
+
+		if post['titre'] != '' and post['contenu'] != '':
+			texte = "succes"
+			question = get_object_or_404(Question,pk=int(post['id_question']))
+			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+			auteur = get_object_or_404(Utilisateur,user=request.user)
+			p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
+			p.save()
+			template = loader.get_template('post.html')
+			context={'p':[p,[]]
+			}
+			publication = template.render(context,request)
+		elif post['titre'] == '' and post['contenu'] == '':
+			texte ="riendutout"
+		elif post['titre'] == '':
+			texte ='titre'
+		else:
+			texte = 'pasdecontenu'
+
+		print(publication)
+
+		return JsonResponse({'texte':texte,'post':publication})
+	else:
+		return JsonResponse({"texte":"vafanculo",'post':'arrete gros'})

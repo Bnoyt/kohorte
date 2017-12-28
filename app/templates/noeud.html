@@ -1,7 +1,42 @@
 {% extends 'base.html' %} {% load static%} {% block content %}
 
 
+<div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded" data-toggle="modal" data-target="#nouveau_post">Écrire un nouveau post</button></div>
+
+<div class="modal fade" id="nouveau_post" tabindex="-1" role="dialog" aria-labelledby="nouveau_postLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
+      </div>
+      <div class="modal-body">
+       		<form method="post" class="form card-body" id="#formajouterpost">
+				{% csrf_token %}
+				
+				<div class="input-group" style="margin-bottom:10px;">
+					<span class="input-group-addon"></span>
+					<input class="form-control" id="id_titre" maxlength="30" name="titre" placeholder="Titre" type="text"> 
+				</div>
+
+				<div class="input-group" style="margin-bottom:10px;">
+					<span class="input-group-addon"></span>
+					<textarea class="form-control" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
+				</div>
+				
+				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
+		 
+			</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
  <div class="container-fluid">
+
     <div class="row">
         <div class="col-md-6 col-sm-12">
             
@@ -47,7 +82,7 @@
 
 
 
-		<div class="col-md-6 col-sm-12 pull-right">
+		<div class="col-md-6 col-sm-12 pull-right" id="fildepost">
 
 
 			{% for p in posts %}
@@ -63,8 +98,6 @@
 
 
 </div>
-
-
 
 
 

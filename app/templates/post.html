@@ -31,13 +31,13 @@
 						
 						
 						<p id="s_{{p.0.id}}"><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-down"></i> Développer les commentaires</a></p>
-						<p id="h_{{p.0.id}}" hidden><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-up"></i> Masquer les réponses</a></p>
+						<p id="h_{{p.0.id}}" hidden><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-up"></i> Masquer les commentaires</a></p>
 
 						
 					</div>
 					{% endif %}
 					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
-						<a href="javascript:commenter('{{p.0.id}}'')"><p><i class="ti-comment"></i> Répondre</p></a>
+						<p id="r_{{p.0.id}}"><a href="javascript:commenter('{{p.0.id}}',1)"><i class="ti-comment"></i> Répondre</a></p>
 					</div>
 				</div>
 
@@ -61,4 +61,5 @@
 
 
 </div>
+
 

@@ -28,14 +28,14 @@
 					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
 						
 						
-						<p id="s_{{c.0.id}}"><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-down"></i> Développer les commentaires</a></p>
+						<p id="s_{{c.0.id}}"><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-down"></i> Développer les réponses</a></p>
 						<p id="h_{{c.0.id}}" hidden><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-up"></i> Masquer les réponses</a></p>
 
 						
 					</div>
 					{% endif %}
 					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
-						<a href="javascript:commenter('{{c.0.id}}'')"><p><i class="ti-comment"></i> Commenter</p></a>
+						<p id="r_{{c.0.id}}"><a href="javascript:repondre('{{c.0.id}}',1)"><i class="ti-comment"></i> Commenter</a></p>
 					</div>
 				</div>
 
