@@ -1,4 +1,4 @@
-{% extends 'app/base.html' %} {% load static%} {% block content %}
+{% extends 'base.html' %} {% load static%} {% block content %}
 
 
  <div class="container-fluid">
@@ -52,7 +52,7 @@
 
 			{% for p in posts %}
 
-				{% include "app/post.html" with p=p %}
+				{% include "post.html" with p=p %}
 
 			{% endfor %}
 

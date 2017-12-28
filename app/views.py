@@ -21,7 +21,7 @@ def authentification(request):
 		context['etat_connexion'] = True
 		context['titre_page'] = 'Se connecter'
 		# Return an 'invalid login' error message.
-		return render(request,'app/login.html',context)
+		return render(request,'login.html',context)
 
 
 def page_login(request):
@@ -32,18 +32,18 @@ def page_login(request):
 	else:
 		context={'titre_page': 'Se connecter'}
 		context['etat_connexion'] = False
-		return render(request, 'app/login.html',context)
+		return render(request, 'login.html',context)
 
 def page_register(request):
 	context = {}
 	if request.user.is_authenticated:
-		return render(request, 'app/content_index.html', context)
+		return render(request, 'content_index.html', context)
 	post = request.POST
 	if 'username' in post and 'email' in post and 'prenom' in post and 'nom' in post and 'mdp' in post:
 		if User.objects.filter(email=post['email']).exists() or User.objects.filter(username=post['username']).exists():
 
 			context['message'] = "L'email ou le pseudo spécifié existe déjà"
-			return render(request, 'app/register.html', context)
+			return render(request, 'register.html', context)
 		else:
 			user = User.objects.create_user(post['username'],post['email'],post['mdp'])
 			user.first_name = post['prenom']
@@ -54,7 +54,7 @@ def page_register(request):
 			return HttpResponseRedirect(reverse('index'))
 	else:
 		context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
-		return render(request, 'app/register.html', context)
+		return render(request, 'register.html', context)
 
 def index(request):
     #call database
@@ -66,7 +66,7 @@ def index(request):
         #TODO: handle unlogged user
         pass
 
-    return render(request, 'app/index.html', context)
+    return render(request, 'index.html', context)
 
 
 def noeud(request,noeud_id):
@@ -80,7 +80,7 @@ def noeud(request,noeud_id):
 		context = {
 			'posts': posts,			
 		}
-		return render(request,'app/noeud.html',context)
+		return render(request,'noeud.html',context)
 	else:
 		return HttpResponseRedirect(reverse('index'))
 
@@ -90,6 +90,6 @@ def parametres(request):
 		context={
 		'titre_page':'Paramètres',
 		}
-		return render(request,'app/parametres.html',context)
+		return render(request,'parametres.html',context)
 	else:
 		return HttpResponseRedirect(reverse('index'))
