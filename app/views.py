@@ -123,7 +123,6 @@ def ajouter_post(request):
 		else:
 			texte = 'pasdecontenu'
 
-		print(publication)
 
 		return JsonResponse({'texte':texte,'post':publication})
 	else:
