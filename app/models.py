@@ -56,21 +56,6 @@ class Noeud(models.Model):
     question = models.ForeignKey(Question,related_name="Questiondebase")
     #valeur de max_length choisie arbitrairement
     
-    def recupPosts():
-        """Permet d'accéder rapidement à l'ensemble des 
-        posts de cette discussion. 
-        TODO La relation entre Noeud et Post n'a pas 
-        encore ete etablie (2017-11-22)
-        TODO aux posts de cette discussion et de ses noeuds
-        fils récursivement ou uniquement de celle-là ?
-        (2017-11-22)
-        TODO Qu'est-ce qui est différent entre les sous-classes
-        NoeudIdee et NoeudPb qui justifie leur (prudente)
-        existence ? (2017-11-22)
-        Je suis d'accord ça n'est pas vraiment justifié
-
-        """
-        pass
 
     def __str__(self):
         return self.type_noeud + ' => ' + self.label + ' => ' + self.question.label
@@ -161,7 +146,7 @@ class Post(models.Model):
     html ? bbCode ? autre ?. Il devra en outre traiter des 
     citations (2017-11-22)"""
     pere = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
-    titre = models.CharField(max_length=100)
+    titre = models.CharField(max_length=100,blank=True)
     auteur = models.ForeignKey(Utilisateur)
     tag = models.ManyToManyField(Tag, blank=True)
     contenu = MarkdownxField()

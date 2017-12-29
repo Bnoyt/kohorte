@@ -127,3 +127,55 @@ def ajouter_post(request):
 		return JsonResponse({'texte':texte,'post':publication})
 	else:
 		return JsonResponse({"texte":"vafanculo",'post':'arrete gros'})
+
+def ajouter_commentaire(request):
+	if request.user.is_authenticated:
+		post = request.POST
+
+		publication="rien"
+
+		if post['contenu'] != '':
+			texte = "succes"
+			question = get_object_or_404(Question,pk=int(post['id_question']))
+			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+			auteur = get_object_or_404(Utilisateur,user=request.user)
+			pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
+			c = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
+			c.save()
+			template = loader.get_template('commentaire.html')
+			context={'c':[c,[]]
+			}
+			publication = template.render(context,request)
+		else:
+			texte = 'pasdecontenu'
+
+
+		return JsonResponse({'texte':texte,'post':publication,'id_pere':post['pere']})
+	else:
+		return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+
+def ajouter_reponse(request):
+	if request.user.is_authenticated:
+		post = request.POST
+
+		publication="rien"
+
+		if post['contenu'] != '':
+			texte = "succes"
+			question = get_object_or_404(Question,pk=int(post['id_question']))
+			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+			auteur = get_object_or_404(Utilisateur,user=request.user)
+			pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
+			r = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
+			r.save()
+			template = loader.get_template('reponse.html')
+			context={'r':[r,[]]
+			}
+			publication = template.render(context,request)
+		else:
+			texte = 'pasdecontenu'
+
+
+		return JsonResponse({'texte':texte,'post':publication,'id_pere':post['pere']})
+	else:
+		return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})

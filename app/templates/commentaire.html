@@ -1,7 +1,7 @@
 
 
-<div class="col-md-11 pull-right commentaire">
-	<div class="card">
+<div class="col-md-11 pull-right post">
+	<div class="card card-post">
 
 
 		<div class="content">
@@ -34,14 +34,32 @@
 						
 					</div>
 					{% endif %}
-					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
-						<p id="r_{{c.0.id}}"><a href="javascript:repondre('{{c.0.id}}',1)"><i class="ti-comment"></i> Commenter</a></p>
-					</div>
+					
 				</div>
 
 			</div>
 
 		</div>
+	</div>
+
+	<div class="card card-r col-md-11 pull-right" hidden>
+
+
+		<div class="content">
+
+			<form method="post" class="form-reponse">
+				
+				{% csrf_token %}
+
+				<input class="form-control reponse" type="text" placeholder="Répondre" />
+				<div style="padding-top:10px;padding-bottom:50px">
+					<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
+				</div>
+			</form>
+
+
+		</div>
+
 	</div>
 
 	<div id="c_{{c.0.id}}" hidden>
