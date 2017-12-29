@@ -118,13 +118,10 @@ $(document).ready(function(){
 
     crsftoken = $("[name='csrfmiddlewaretoken']").val();
 
-    lancer_jquery();
 
 
     function ajout_post(post,id_pere){
-        fil = $('#' + id_pere);
-        fil.prepend(post);
-        lancer_jquery();
+        setTimeout(function(){location.reload();},1000);
 
 
     }
@@ -140,10 +137,11 @@ $(document).ready(function(){
         $('body,html').scrollTop(354354354);
 
         if (text=="succes"){
-            ajout_post(post,"fildepost");
+            
             message = "Post ajouté avec succès";
             type = 'success';
-            
+            notifier(message,type);
+            ajout_post(post,"fildepost");
 
 
         } else {
@@ -157,10 +155,10 @@ $(document).ready(function(){
             else {
                 message = 'Soyez serieux, faites un vrai post, tout de même !';
             }
-
+            notifier(message,type);
         
         }
-        notifier(message,type);
+        
 
        
         
@@ -179,6 +177,7 @@ $(document).ready(function(){
         if (text=="succes"){
             message = "Commentaire ajouté avec succès";
             type = 'success';
+            notifier(message,type);
             ajout_post(commentaire,id_pere);
             
 
@@ -186,84 +185,82 @@ $(document).ready(function(){
         } else {
             type = "danger";
             message = "Il faut écrire quelque chose si vous voulez commenter ce post";
-
+            notifier(message,type);
         
         }
-        notifier(message,type);
+        
 
        
         
 
     }
 
-    function lancer_jquery(){
 
-        $("#form_button").click(function(event){
+    $("#form_button").click(function(event){
 
-            event.preventDefault();
+        event.preventDefault();
 
-            titre = $('#id_titre').val();
+        titre = $('#id_titre').val();
 
-            contenu = $('#id_contenu').val();
+        contenu = $('#id_contenu').val();
 
-            
+        
 
-            $.post('{% url "ajouter_post" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,titre:titre,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_post,'json');
+        $.post('{% url "ajouter_post" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,titre:titre,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_post,'json');
+
+
+
+
+    });
+
+
+
+    $(".post").hover(
+
+        function() {
+
+            $(this).children('.card-r').show(30);
+        },
+        function() {
+
+            $(this).children('.card-r').hide(30);
+        }
+
+
+
+        );
+
+    $(".form-commentaire").submit(function(event){
+        event.preventDefault();
+        formulaire = $(this);
+        texte_input = formulaire.children(".commentaire");
+        contenu = texte_input.val();
+        texte_input.val('');
+        suivant = formulaire.parent().parent().next();
+        pere = suivant.attr('id');
+
+         $.post('{% url "ajouter_commentaire" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
 
 
 
 
         });
 
+    $(".form-reponse").submit(function(event){
+        event.preventDefault();
+        formulaire = $(this);
+        texte_input = formulaire.children(".reponse");
+        contenu = texte_input.val();
+        texte_input.val('');
+        suivant = formulaire.parent().parent().next();
+        pere = suivant.attr('id');
 
-
-        $(".post").hover(
-
-            function() {
-
-                $(this).children('.card-r').show(30);
-            },
-            function() {
-
-                $(this).children('.card-r').hide(30);
-            }
-
-
-
-            );
-
-        $(".form-commentaire").submit(function(event){
-            event.preventDefault();
-            formulaire = $(this);
-            texte_input = formulaire.children(".commentaire");
-            contenu = texte_input.val();
-            texte_input.val('');
-            suivant = formulaire.parent().parent().next();
-            pere = suivant.attr('id');
-
-             $.post('{% url "ajouter_commentaire" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
+         $.post('{% url "ajouter_reponse" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
 
 
 
 
-            });
-
-        $(".form-reponse").submit(function(event){
-            event.preventDefault();
-            formulaire = $(this);
-            texte_input = formulaire.children(".reponse");
-            contenu = texte_input.val();
-            texte_input.val('');
-            suivant = formulaire.parent().parent().next();
-            pere = suivant.attr('id');
-
-             $.post('{% url "ajouter_reponse" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
-
-
-
-
-            });
-    };
+        });
 
 });
 
