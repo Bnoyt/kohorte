@@ -15,3 +15,6 @@ class inconsistent_graph(Exception):
             self.type = "unspecified"
 
         self.info = args
+
+class inadequate_partition(Exception):
+    pass
