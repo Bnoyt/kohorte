@@ -1,0 +1,77 @@
+
+
+<div class="col-md-11 pull-right post">
+	<div class="card card-post">
+
+
+		<div class="content">
+
+			<p>
+
+			{{c.0.contenu}}
+
+			</p>
+
+
+
+			
+
+
+			<div class="footer">
+			<hr />
+				<div class="stats">
+					<i class="ti-calendar"></i> Posté le {{c.0.date}} par {{c.0.auteur.user.username}}
+				</div>
+				</p>
+				<div class="row" style="width:100%">
+					{% if c.1 %}
+					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
+						
+						
+						<p id="s_{{c.0.id}}"><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-down"></i> Développer les réponses</a></p>
+						<p id="h_{{c.0.id}}" hidden><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-up"></i> Masquer les réponses</a></p>
+
+						
+					</div>
+					{% endif %}
+					
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+
+	<div class="card card-r col-md-11 pull-right" hidden>
+
+
+		<div class="content">
+
+			<form method="post" class="form-reponse">
+				
+				{% csrf_token %}
+
+				<input class="form-control reponse" type="text" placeholder="Répondre" />
+				<div style="padding-top:10px;padding-bottom:50px">
+					<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
+				</div>
+			</form>
+
+
+		</div>
+
+	</div>
+
+	<div id="c_{{c.0.id}}" hidden>
+		<div class="row">
+
+			{% for r in c.1 %}
+
+				{% include "reponse.html" with r=r %}
+
+			{% endfor %}
+		</div>
+
+	</div>
+
+</div>
