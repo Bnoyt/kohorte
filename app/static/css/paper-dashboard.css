@@ -1525,7 +1525,8 @@ textarea.form-control {
       margin-bottom: 5px; }
   .card .stats {
     color: #a9a9a9;
-    font-weight: 300; }
+    font-weight: 300;
+    font-size:11px; }
     .card .stats i {
       margin-right: 2px;
       min-width: 15px;

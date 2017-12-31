@@ -155,10 +155,19 @@ class Post(models.Model):
     question = models.ForeignKey(Question,related_name="Question_de_base")
     noeud = models.ForeignKey(Noeud,related_name="Noeud")
     
-    def insererCitation():
+    def insererCitation(self):
         """Transforme l'information qu'on a de l'user
         dans le contenu du post pour garder l'info de
         la citation"""
+        pass
+
+    def recup_post(self,user):
+        """
+        L'objectif de cette méthode est de pouvoir récuperer pour 
+        un post donné la liste ordonnée des posts fils à afficher.
+        Elle prend en plus en argument l'utilisateur concerné.
+        C'est ici qu'il faut faire tourner la machinerie
+        """
         pass
 
     def __str__(self):
