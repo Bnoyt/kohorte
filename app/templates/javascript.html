@@ -238,9 +238,10 @@ $(document).ready(function(){
         function() {
 
            
-           $("#btn-epingle-s").hide();
-           $("#btn-epingle-n").show();
+           $("#btn-epingle-s").hide(10);
+           $("#btn-epingle-n").show(10);
         
+        notifier("Vous suivez désormais ce noeud","success");
 
 
         });
@@ -250,8 +251,10 @@ $(document).ready(function(){
         function() {
 
            
-           $("#btn-epingle-n").hide();
-           $("#btn-epingle-s").show();
+           $("#btn-epingle-n").hide(10);
+           $("#btn-epingle-s").show(10);
+
+           notifier("Vous ne suivrez plus ce noeud","info");
         
 
 
