@@ -215,20 +215,23 @@ $(document).ready(function(){
 
 
 
-    $(".post").hover(
+    $(".btn-comment").click(
 
         function() {
 
-            $(this).children('.card-r').show(30);
-        },
-        function() {
-
-            $(this).children('.card-r').hide(30);
-        }
+            
+            champ = $(this).parent().next();
 
 
+            if(champ.is(":visible")){
+                champ.hide();
+            } else {
+                champ.show();
+            }
+        
 
-        );
+
+        });
 
     $(".form-commentaire").submit(function(event){
         event.preventDefault();
