@@ -233,6 +233,32 @@ $(document).ready(function(){
 
         });
 
+    $("#btn-epingle-s").click(
+
+        function() {
+
+           
+           $("#btn-epingle-s").hide();
+           $("#btn-epingle-n").show();
+        
+
+
+        });
+
+        $("#btn-epingle-n").click(
+
+        function() {
+
+           
+           $("#btn-epingle-n").hide();
+           $("#btn-epingle-s").show();
+        
+
+
+        });
+
+
+
     $(".form-commentaire").submit(function(event){
         event.preventDefault();
         formulaire = $(this);

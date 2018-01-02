@@ -82,7 +82,8 @@ def noeud(request,noeud_id):
 		context = {
 			'posts': posts,	
 			'noeud':noeud,
-			'question':noeud.question,		
+			'question':noeud.question,	
+			'titre_page':'Noeud : ' +  noeud.label,
 		}
 		return render(request,'noeud.html',context)
 	else:
@@ -122,6 +123,17 @@ def ajouter_post(request):
 			texte ='titre'
 		else:
 			texte = 'pasdecontenu'
+
+
+		return JsonResponse({'texte':texte,'post':publication})
+	else:
+		return JsonResponse({"texte":"vafanculo",'post':'arrete gros'})
+
+def epingler(request):
+	if request.user.is_authenticated:
+		post = request.POST
+
+
 
 
 		return JsonResponse({'texte':texte,'post':publication})
