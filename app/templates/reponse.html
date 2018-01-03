@@ -1,0 +1,30 @@
+{% load app_filter %}
+
+<div class="col-md-11 col-xs-11 pull-right">
+	<div class="card card-post">
+
+		<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Répondre</p></div>
+
+
+		<div class="content">
+
+			<p>
+
+			{{r.contenu|rendusafe|safe}}
+
+			</p>
+
+			
+
+
+			<div class="footer">
+				<hr />
+				<div class="stats">
+					<i class="ti-calendar"></i> Répondu le {{r.date}} par {{r.auteur.user.username}}
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>

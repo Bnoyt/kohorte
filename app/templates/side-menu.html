@@ -1,0 +1,44 @@
+{% load static %}
+
+<div class="sidebar" data-background-color="white" data-active-color="danger">
+
+<!--
+	Tip 1: you can change the color of the sidebar's background using: data-background-color="white | black"
+	Tip 2: you can change the color of the active button using the data-active-color="primary | info | success | warning | danger"
+-->
+
+	<div class="sidebar-wrapper">
+        <div class="logo">
+            <a href="#" class="simple-text">
+                Kohorte
+            </a>
+        </div>
+
+        <ul class="nav">
+            <li class="active">
+                <a href="{% url 'index' %}">
+                    <i class="ti-panel"></i>
+                    <p>Dashboard</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="ti-user"></i>
+                    <p>Mon profil</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="ti-help"></i>
+                    <p>What's up ?</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="ti-info"></i>
+                    <p>F.A.Q.</p>
+                </a>
+            </li>
+        </ul>
+	</div>
+</div>

@@ -1,0 +1,91 @@
+{% load app_filter %}
+
+<div class="col-md-12 post">
+	<div class="card card-post">
+
+		<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Commenter</p></div>
+
+
+		<div class="header">
+		<h4>{{p.0.titre}}</h4>
+		</div>
+
+
+
+		<div class="content">
+
+			<p>
+
+			{{p.0.contenu|rendusafe|safe}}
+
+			</p>
+
+			
+
+
+			<div class="footer">
+			<hr />
+				<div class="stats">
+					<i class="ti-calendar"></i> Posté le {{p.0.date}} par {{p.0.auteur.user.username}}
+				</div>
+				</p>
+				<div class="row" style="width:100%">
+					{% if p.1 %}
+					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
+						
+						
+						<p id="s_{{p.0.id}}"><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-down"></i> Développer les commentaires</a></p>
+						<p id="h_{{p.0.id}}" hidden><a href="javascript:show_posts('{{p.0.id}}')"><i class="ti-angle-up"></i> Masquer les commentaires</a></p>
+				
+						
+					</div>
+					{% endif %}
+					
+				</div>
+
+				
+				
+
+			</div>
+		</div>
+
+	</div>
+
+
+	<div class="card card-r col-md-11 pull-right" style="z-index:100" hidden>
+
+
+		<div class="content">
+
+			<form method="post" class="form-commentaire">
+			
+				{% csrf_token %}
+
+				<textarea class="form-control commentaire" rows="1" type="text" placeholder="Commenter"></textarea>
+				<div style="padding-top:10px;padding-bottom:50px">
+					<button type="submit" class="btn btn-primary btn-fill pull-right">Commenter</button>
+					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right">+</div>
+				</div>
+			
+			</form>
+
+		</div>
+
+	</div>
+
+
+
+	<div id="c_{{p.0.id}}" hidden>
+		<div class="row">
+			{% for c in p.1 %}
+
+				{% include "commentaire.html" with c=c %}
+
+			{% endfor %}
+		</div>
+	</div>
+
+
+</div>
+
+
