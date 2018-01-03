@@ -29,3 +29,37 @@
   padding:10px;
 
 }
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 400000;
+    top: 0;
+    right: 0;
+    background-color: #f3f4f1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    border-left-style: solid;
+    border-width: 1px;
+    border-color: #abaf9d; 
+}
+
+
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-right: 50px;
+}
+
+#main {
+    transition: margin-right .5s;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
