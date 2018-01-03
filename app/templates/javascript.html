@@ -225,8 +225,10 @@ $(document).ready(function(){
 
             if(champ.is(":visible")){
                 champ.hide();
+
             } else {
                 champ.show();
+                champ[0].scrollIntoView(true);
             }
         
 

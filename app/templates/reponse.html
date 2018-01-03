@@ -1,4 +1,4 @@
-
+{% load app_filter %}
 
 <div class="col-md-11 col-xs-11 pull-right">
 	<div class="card card-post">
@@ -10,7 +10,7 @@
 
 			<p>
 
-			{{r.contenu}}
+			{{r.contenu|rendusafe|safe}}
 
 			</p>
 

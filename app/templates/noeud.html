@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static%} {% block content %}
+{% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
 
 
 <div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded btn-fill btn-primary" data-toggle="modal" data-target="#nouveau_post">Écrire un nouveau post</button></div>
@@ -61,7 +61,9 @@
 
 					<p>
 
-					Contenu
+					Exemple de citation :
+
+					{{citation|safe}}
 
 					</p>
 

@@ -131,14 +131,16 @@ class Citation(models.Model):
     """Element qui relie des utilisateurs, et un post entre
     eux. Important car joue sur les arretes du grand graphe
     et/ou sur sa métrique"""
-    auteur = models.ForeignKey(User, related_name='userAuteur')#TODO user comme nom ?
+    auteur = models.ForeignKey(Utilisateur, related_name='userAuteur')#TODO user comme nom ?
     post = models.ForeignKey('Post', related_name='postSource') 
+
+    contenu = models.TextField(default=None)
     #j'utilise le nom de la classe car elle est définie après,
     #comme indiqué dans la documentation
-    rapporteur = models.ForeignKey(User, related_name='userRapporteur')
+    rapporteur = models.ForeignKey(Utilisateur, related_name='userRapporteur')
 
     def __str__(self):
-        return str(self.rapporteur.user) + ' cite ' + str(self.auteur.user) + ' dans ' + self.post.label
+        return str(self.rapporteur.user) + ' cite ' + str(self.auteur.user) + ' dans ' + self.contenu
 
 class Post(models.Model):
     """Le post qui sera écrit et lu par des utilisateurs

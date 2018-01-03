@@ -1,4 +1,7 @@
 from .models import *
+from bs4 import *
+from django.utils.safestring import mark_safe
+from markdownx.utils import markdownify
 
 from django.shortcuts import render, get_object_or_404
 
@@ -76,7 +79,7 @@ def noeud(request,noeud_id):
 		noeud = get_object_or_404(Noeud,pk=noeud_id)
 		post = Post.objects.filter(noeud=noeud,pere=None)
 		
-
+		print(markdownify(BeautifulSoup(post[0].contenu).text))
 		posts = [[p,[[c,[r for r in Post.objects.filter(pere=c)]] for c in Post.objects.filter(pere=p)]] for p in post]
 
 		context = {
@@ -84,6 +87,15 @@ def noeud(request,noeud_id):
 			'noeud':noeud,
 			'question':noeud.question,	
 			'titre_page':'Noeud : ' +  noeud.label,
+			'citation' : markdownify("""<blockquote>
+                             <p>
+                             Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.
+                             </p>
+                             <small>
+                             Steve Jobs, CEO Apple
+                             </small>
+
+                            </blockquote>""")
 		}
 		return render(request,'noeud.html',context)
 	else:
