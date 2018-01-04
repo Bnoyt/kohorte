@@ -14,11 +14,13 @@
 
 		<div class="content">
 
-			<p>
+			<div class="contenu" style="padding:5px" name="{{p.0.id}}">
+				<p>
 
-			{{p.0.contenu|rendusafe|safe}}
+				{{p.0.contenu|rendusafe|safe}}
 
-			</p>
+				</p>
+			</div>
 
 			
 
@@ -61,10 +63,10 @@
 			
 				{% csrf_token %}
 
-				<textarea class="form-control commentaire" rows="1" type="text" placeholder="Commenter"></textarea>
+				<textarea class="form-control commentaire" rows="1" type="text" id="champ_{{p.0.id}}" placeholder="Commenter"></textarea>
 				<div style="padding-top:10px;padding-bottom:50px">
 					<button type="submit" class="btn btn-primary btn-fill pull-right">Commenter</button>
-					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right">+</div>
+					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
 				</div>
 			
 			</form>

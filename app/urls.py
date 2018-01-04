@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^ajouter_post/$',views.ajouter_post,name='ajouter_post'),
     url(r'^ajouter_commentaire/$',views.ajouter_commentaire,name='ajouter_commentaire'),
     url(r'^ajouter_reponse/$',views.ajouter_reponse,name='ajouter_reponse'),
+    url(r'^sauvegarder_citation/$',views.sauvegarder_citation,name='sauvegarder_citation'),
+    url(r'^faq/$',views.faq,name='faq'),
 ]

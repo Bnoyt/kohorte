@@ -63,7 +63,7 @@ def page_register(request):
 
 def index(request):
     #call database
-    context = {}
+    context = {'dashboard':True}
     if request.user.is_authenticated:
         user = get_object_or_404(Utilisateur, user=request.user)
         context['user'] = user
@@ -78,16 +78,20 @@ def noeud(request,noeud_id):
 	if request.user.is_authenticated:
 		noeud = get_object_or_404(Noeud,pk=noeud_id)
 		post = Post.objects.filter(noeud=noeud,pere=None)
+		user = get_object_or_404(Utilisateur,user=request.user)
 		
-		print(markdownify(BeautifulSoup(post[0].contenu).text))
 		posts = [[p,[[c,[r for r in Post.objects.filter(pere=c)]] for c in Post.objects.filter(pere=p)]] for p in post]
 
+		citations = Citation.objects.filter(rapporteur=user)
+
 		context = {
+			'dashboard':True,
 			'posts': posts,	
 			'noeud':noeud,
 			'question':noeud.question,	
 			'titre_page':'Noeud : ' +  noeud.label,
-			'citation' : markdownify("""<blockquote>
+			'citations':["{{" + str(i.id) + "}}" for i in citations],
+			'citation' : """<blockquote>
                              <p>
                              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.
                              </p>
@@ -95,7 +99,21 @@ def noeud(request,noeud_id):
                              Steve Jobs, CEO Apple
                              </small>
 
-                            </blockquote>""")
+                            </blockquote>
+                            <pre class="prettyprint">class Voila {
+							public:
+  							// Voila
+  							static const string VOILA = "Voila";
+
+  							// will not interfere with embedded <a href="#voila2">tags</a>.
+							}</pre>
+
+
+
+
+
+                            """,
+
 		}
 		return render(request,'noeud.html',context)
 	else:
@@ -203,3 +221,26 @@ def ajouter_reponse(request):
 		return JsonResponse({'texte':texte,'post':publication,'id_pere':post['pere']})
 	else:
 		return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+
+def sauvegarder_citation(request):
+	if request.user.is_authenticated:
+		post = request.POST
+
+		contenu = post['contenu']
+		publication = get_object_or_404(Post,pk = int(post['id_post']))
+		rapporteur = get_object_or_404(Utilisateur,user=request.user)
+		c = Citation(auteur=publication.auteur,post=publication,contenu=contenu,rapporteur=rapporteur)
+		c.save()
+		template = loader.get_template('citation.html')
+		context={'citation':'{{' + str(c.id) + '}}'}
+		contenu = template.render(context,request)
+
+		return JsonResponse({'contenu':contenu,'id_citation':c.id})
+	else:
+		return JsonResponse({"contenu":"vafanculo",'id_citation':42})
+
+
+def faq(request):
+	context={'faq':True}
+
+	return render(request,'faq.html',context)

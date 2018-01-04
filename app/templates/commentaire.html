@@ -7,12 +7,13 @@
 
 		<div class="content">
 
+			<div class="contenu" name="{{c.0.id}}">
+				<p>
 
-			<p>
+				{{c.0.contenu|rendusafe|safe}}
 
-			{{c.0.contenu|rendusafe|safe}}
-
-			</p>
+				</p>
+			</div>
 
 
 
@@ -53,10 +54,10 @@
 				
 				{% csrf_token %}
 
-				<textarea class="form-control reponse" type="text" rows="1" placeholder="Répondre"></textarea>
+				<textarea class="form-control reponse" type="text" rows="1" id="champ_{{c.0.id}}" placeholder="Répondre"></textarea>
 				<div style="padding-top:10px;padding-bottom:50px">
 					<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
-					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right">+</div>
+					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
 				</div>
 			</form>
 

@@ -1,12 +1,12 @@
 {% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
 
 
-<div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded btn-fill btn-primary" data-toggle="modal" data-target="#nouveau_post">Écrire un nouveau post</button></div>
+<div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded btn-fill btn-primary" data-toggle="modal" data-target="#nouveau_post"><i class="ti-pencil"></i> Écrire un nouveau post</button></div>
 
 <div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;"  id="btn-epingle-s"><button class="btn btn-rounded btn-fill btn-success"><i class="ti-pin-alt"></i> Suivre</button></div>
 <div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;" id="btn-epingle-n" hidden><button class="btn btn-rounded btn-fill btn-danger"><i class="ti-pin2"></i> Ne plus suivre</button></div>
 
-
+<div id="save_citation" title="Enregistrer cette citation" hidden><button class="btn btn-default btn-fill"><i class="ti-save"></i></button></div>
 
 
 <div class="modal fade" id="nouveau_post" tabindex="-1" role="dialog" aria-labelledby="nouveau_postLabel" aria-hidden="true">
@@ -31,7 +31,7 @@
 				</div>
 				
 				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
-				<div onclick="javascript:openNav();" class="btn btn-default">+</div>
+				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
 		 
 			</form>
       </div>
