@@ -118,6 +118,20 @@ def noeud(request,noeud_id):
 		return render(request,'noeud.html',context)
 	else:
 		return HttpResponseRedirect(reverse('index'))
+		
+def whatsup(request):
+	if request.user.is_authenticated:
+		user = get_object_or_404(Utilisateur,user=request.user)
+		sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
+		
+		context = {
+			'user':user,
+			'listSugg': sugg,
+
+		}
+		return render(request,'whatsUp.html',context)
+	else:
+		return HttpResponseRedirect(reverse('index'))
 
 
 def parametres(request):
