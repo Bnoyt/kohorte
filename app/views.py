@@ -119,6 +119,16 @@ def noeud(request,noeud_id):
 	else:
 		return HttpResponseRedirect(reverse('index'))
 
+def suggestions(request):
+	if request.user.is_authenticated:
+		user = get_object_or_404(Utilisateur,user=request.user)
+		listSugg = Suggestions.objects.filter(userVise = user).order_by(-pertinence)
+		context = {
+			'user':user,
+			'listSugg':listSugg,
+			}
+		return render(request, 'suggestions.html', context)
+
 
 def parametres(request):
 	if request.user.is_authenticated:
