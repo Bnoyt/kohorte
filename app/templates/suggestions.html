@@ -1,0 +1,31 @@
+{% load app_filter %}
+
+<div class="col-md-12 post">
+	<div class="card card-post">
+
+
+		<div class="header">
+		<h4>{{s.0.titre}}</h4>
+		</div>
+
+
+
+		<div class="content">
+
+			<div class="contenu" style="padding:5px" name="{{s.0.id}}">
+				<p>
+
+				{{p.0.objet|rendusafe|safe}}
+
+				</p>
+			</div>
+
+			
+		</div>
+
+	</div>
+
+
+</div>
+
+
