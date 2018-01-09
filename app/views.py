@@ -268,8 +268,3 @@ def faq(request):
 	context={'faq':True}
 
 	return render(request,'faq.html',context)
-
-def whatsup(request):
-	context={'whatsup':True}
-
-	return render(request,'whatsup.html',context)

@@ -14,5 +14,4 @@ urlpatterns = [
     url(r'^ajouter_reponse/$',views.ajouter_reponse,name='ajouter_reponse'),
     url(r'^sauvegarder_citation/$',views.sauvegarder_citation,name='sauvegarder_citation'),
     url(r'^faq/$',views.faq,name='faq'),
-    url(r'^whatsup/$',views.whatsup,name='whatsup'),
 ]
