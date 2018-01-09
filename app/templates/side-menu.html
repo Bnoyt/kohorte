@@ -22,11 +22,18 @@
                 </a>
             </li>
             <li>
+                <a href="{% url 'postman:inbox' %}">
+                    <i class="ti-comment-alt"></i>
+                    <p>Messagerie</p>
+                </a>
+            </li>
+            <li>
                 <a href="#">
                     <i class="ti-user"></i>
                     <p>Mon profil</p>
                 </a>
             </li>
+
             <li{% if whatsup %} class="active"{% endif %}>
                 <a href="{% url 'whatsup' %}">
                     <i class="ti-help"></i>
