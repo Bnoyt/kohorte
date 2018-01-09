@@ -33,7 +33,8 @@
                     <p>Mon profil</p>
                 </a>
             </li>
-            <li>
+
+            <li{% if whatsup %} class="active"{% endif %}>
                 <a href="{% url 'whatsup' %}">
                     <i class="ti-help"></i>
                     <p>What's up ?</p>
