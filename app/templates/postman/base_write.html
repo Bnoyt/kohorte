@@ -8,6 +8,11 @@
 {{ form.media }}{# for ajax_selects (v1.3.6 at least) #}
 {% endblock %}
 {% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                	<div class="content">
 <div id="postman">
 <h1>{% block pm_write_title %}{% endblock %}</h1>
 <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">{% csrf_token %}
@@ -18,4 +23,5 @@
 <button type="submit" class="pm_btn pm_btn-send">{% trans "Send" %}</button>
 </form>
 </div>
+</div></div></div></div></div>
 {% endblock %}

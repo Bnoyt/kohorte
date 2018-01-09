@@ -1,6 +1,11 @@
 {% extends "postman/base.html" %}
 {% load i18n %}{% load postman_tags %}
 {% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                	<div class="content">
 <div id="postman">
 <h1>{% if pm_messages|length > 1 %}{% trans "Conversation" %}{% else %}{% trans "Message" %}{% endif %}</h1>
 {% for message in pm_messages %}
@@ -36,4 +41,5 @@
 {% endif %}
 {% endfor %}
 </div>
+</div></div></div></div></div>
 {% endblock %}

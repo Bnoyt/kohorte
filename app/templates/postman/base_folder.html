@@ -10,6 +10,13 @@ in the INSTALLED_APPS setting.
 {% endcomment %}
 
 {% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                  <div class="content">
+
 <div id="postman">
 <h1>{% block pm_folder_title %}{% endblock %}</h1>
 {% autopaginate pm_messages %}
@@ -65,4 +72,7 @@ in the INSTALLED_APPS setting.
 {% endif %}
 {% block pm_footer_info %}{% endblock %}
 </div>
+
+</div></div></div></div></div>
+
 {% endblock content %}

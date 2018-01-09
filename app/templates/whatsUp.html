@@ -1,56 +1,33 @@
 {% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
 
 
-<div class="modal fade" id="nouveau_post" tabindex="-1" role="dialog" aria-labelledby="nouveau_postLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
-      </div>
-      <div class="modal-body">
-       		<form method="post" class="form card-body" id="#formajouterpost">
-				{% csrf_token %}
-				
-				<div class="input-group" style="margin-bottom:10px;">
-					<span class="input-group-addon"></span>
-					<input class="form-control" id="id_titre" name="titre" placeholder="Titre" type="text"> 
-				</div>
-
-				<div class="input-group" style="margin-bottom:10px;">
-					<span class="input-group-addon"></span>
-					<textarea class="form-control" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
-				</div>
-				
-				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
-				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
-		 
-			</form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
 
  <div class="container-fluid">
 
     <div class="row">
 	<!-- ce commentaire est le reste du fichier "noeud.html" dont je me suis inspirée de manière bourrine -->
             
-		    <div class="card">
 
 		    	
 
 		
 		<div class="col-md-4 col-sm-12 pull-left">
-		<div class="header">
-		<h3>Recap</h3>
-		</div>
+
+			<div class="card card-post">
+				<div class="header">
+				<h3>Recap</h3>
+				</div>
+				<div class="content">
+
+
+					<!-- contenu de la récap -->
+
+
+
+				</div>
 
 			
-
+			</div>
 
 
 		</div>
@@ -61,34 +38,45 @@
 
 
 		<div class="col-md-4 col-sm-12 col-xs-12">
-		<div class="header">
-		<h3>Nouveautés</h3>
-		</div>
+			<div class="card card-post">
+				<div class="header">
+				<h3>Nouveautés</h3>
+				</div>
 
-			<!-- {% for p in posts %}
+				<div class="content">
+					<!-- {% for p in posts %}
 
-				{% include "post.html" with p=p %}
+						{% include "post.html" with p=p %}
 
-			{% endfor %} -->
+					{% endfor %} -->
+				</div>
 
+			</div>
 
 
 		</div> 
 
 		<div class="col-md-4 col-sm-12 pull-right" id="filDeSugg">
-		<div class="header">
-		<h3>Suggestions</h3>
-		</div>
+			<div class="card card-post">
+
+				<div class="header">
+				<h3>Suggestions</h3>
+				</div>
+
+			<div class="content">
 
 			{% for s in listSugg %}
 
 				{% include "suggestions.html" with s=s %}
 
 			{% endfor %}
-
-
-
+			</div>
 		</div>
+
+	</div>
+
+
+		
 
 
 
