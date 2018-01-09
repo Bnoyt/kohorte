@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'markdownx',
+    'postman',
 ]
 
 MIDDLEWARE = [
@@ -114,6 +115,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+POSTMAN_AUTO_MODERATE_AS = True
 
 
 # Static files (CSS, JavaScript, Images)

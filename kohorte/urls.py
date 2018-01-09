@@ -8,5 +8,6 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    url(r'^markdownx/', include(markdownx))
+    url(r'^markdownx/', include(markdownx)),
+    url(r'^messages/', include('postman.urls', namespace='postman', app_name='postman')),
 ]
