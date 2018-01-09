@@ -127,6 +127,7 @@ def whatsup(request):
 		context = {
 			'user':user,
 			'listSugg': sugg,
+			'whatsup':True,
 
 		}
 		return render(request,'whatsUp.html',context)
