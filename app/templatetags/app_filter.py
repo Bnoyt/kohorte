@@ -42,3 +42,11 @@ def rendusafe(texte):
 	texte = remplacer_code(texte)
 	texte = markdownify(texte)
 	return texte
+
+@register.filter(name="menumessagerie")
+def menumessagerie(path):
+	a = path.split("/")
+	if a[1] == "messages":
+		return 'class="active"'
+	else:
+		return ""

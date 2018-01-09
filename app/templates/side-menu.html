@@ -1,5 +1,7 @@
 {% load static %}
 
+{% load app_filter %}
+
 <div class="sidebar" data-background-color="white" data-active-color="danger">
 
 <!--
@@ -21,7 +23,7 @@
                     <p>Dashboard</p>
                 </a>
             </li>
-            <li>
+            <li {{request.path | menumessagerie | safe }}>
                 <a href="{% url 'postman:inbox' %}">
                     <i class="ti-comment-alt"></i>
                     <p>Messagerie</p>
