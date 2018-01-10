@@ -1,3 +1,5 @@
+class modification_interface():
+    pass
 
 class graph_modification():
     def __init__(self):
