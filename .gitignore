@@ -1,0 +1,11 @@
+#personal ignore
+.spydproject
+UP.bat
+DOWN.bat
+
+#__pycache__ ignore
+**/__pycache
+*.pyc
+
+#ignore database
+db.sqlite3
