@@ -1,46 +1,17 @@
 {% extends "base.html" %}{# not myself but a site-level one (TEMPLATE_DIRS setting) #}
 {% load i18n static %}{% load postman_tags %}
-{% block title %}{% trans "Messaging" %}{% endblock %}
+<!--{% block title %}{% trans "Messaging" %}{% endblock %}-->
 {% block extrahead %}{{ block.super }}
 <link type="text/css" media="all" rel="stylesheet" href="{% static 'postman/css/postman.css' %}" />
 {% endblock %}
 {% block postman_menu %}
-<ul id="postman_menu">{% postman_unread as unread_count %}
- <li><a href="{% url 'postman:inbox' %}">&raquo;&nbsp;{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a></li>
- <li><a href="{% url 'postman:sent' %}">&raquo;&nbsp;{% trans "Sent Messages" %}</a></li>
- <li><a href="{% url 'postman:write' %}">&raquo;&nbsp;{% trans "Write" %}</a></li>
- <li><a href="{% url 'postman:archives' %}">&raquo;&nbsp;{% trans "Archives" %}</a></li>
- <li><a href="{% url 'postman:trash' %}">&raquo;&nbsp;{% trans "Trash" %}</a></li>
-</ul>
+<div class="btn-group" id="postman_menu">{% postman_unread as unread_count %}
+<button type="submit" class="btn btn-default" onclick="this.form.action='{% url 'postman:inbox' %}'">{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</button>
+<button type="submit" class="btn btn-default" onclick="this.form.action='{% url 'postman:sent' %}'">{% trans "Sent Messages" %}</button>
+<button type="submit" class="btn btn-default" onclick="this.form.action='{% url 'postman:write' %}'">{% trans "Write" %}</button>
+<button type="submit" class="btn btn-default" onclick="this.form.action='{% url 'postman:archives' %}'">{% trans "Archives" %}</button>
+<button type="submit" class="btn btn-default" onclick="this.form.action='{% url 'postman:trash' %}'">{% trans "Trash" %}</button>
+</div>
 {% endblock %}
-<!--
-<div class="col-lg-6 col-md-12">
-	<div class="card">
-		<div class="card-content">
-			<div class="nav-tabs-navigation">
-	                        <div class="nav-tabs-wrapper">
-		                        <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-		                            <li class="active"><a href="{% url 'postman:inbox' %}" data-toggle="tab">{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a></a></li>
-		                            <li><a href="{% url 'postman:sent' %}" data-toggle="tab">{% trans "Sent Messages" %}</a></li>
-					    <li><a href="{% url 'postman:write' %}" data-toggle="tab">{% trans "Write" %}</a></li>
-					    <li><a href="{% url 'postman:archives' %}" data-toggle="tab">{% trans "Archives" %}</a></li>
-					    <li><a href="{% url 'postman:trash' %}" data-toggle="tab">{% trans "Trash" %}</a></li>
-		                        </ul>
-	                        </div>
-	                    </div>
-	                    <div id="my-tab-content" class="tab-content text-center">
-	                        <div class="tab-pane active" id="home">
-	                            <p>Larger, yet dramatically thinner. More powerful, but remarkably power efficient. With a smooth metal surface that seamlessly meets the new Retina HD display.</p>
-	                        </div>
-	                        <div class="tab-pane" id="profile">
-	                            <p>Here is your profile.</p>
-	                        </div>
-	                        <div class="tab-pane" id="messages">
-	                            <p>Here are your messages.</p>
-	                        </div>
-	                    </div> 
-                    </div>
-                </div>
 
--->
 
