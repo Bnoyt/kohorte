@@ -1,11 +1,11 @@
 {% load static %}
 {% include "header.html" %}
 
-
 <body>
 
-
 {% include "panneau_citations.html" %}
+
+
 
 
 
@@ -15,11 +15,12 @@
 
     <div class="main-panel">
         {% include "top-menu.html" %} 
-
+	{% block extrahead %}{% endblock %} 
         <div class="container-fluid">
             <div class="card" id="page-content"  style="background-color:#F4F4F4;padding-top:10px;">
+	 {% block postman_menu %}{% endblock %}
         {% block content %}
-
+	
         {% endblock %} 
             </div>
         </div>
