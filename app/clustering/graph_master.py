@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
+
 #import persos
 import parameters
 import supergraph as spg
 import spg_algorithms
+import errors
 
 #import packages
 import networkx as nx
 import queue
 
 
-class graph_not_loaded(Exception):
-    pass
-    #TODO : exception stuff
+
 
 class running_project:
 
@@ -35,5 +36,5 @@ class running_project:
         if(self.graph_loaded):
             spg.update_graph(self.the_graph, self.modifications)
         else:
-            raise graph_not_loaded()
+            raise errors.graph_not_loaded()
 

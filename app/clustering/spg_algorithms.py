@@ -294,13 +294,15 @@ def ec_closest(g, core_list):
 '''Edge improvment'''
 
 #A finir
-def ei_uphill(g, comp_list, **args):
+def ei_uphill(g, comp_list):
     '''Les nodes sont passes sur des composantes voisines tan que ça reduit le poid total de la coupe.'''
     if(type(g) != nx.graph and type(g) != nx.multiGraph):
         raise err.inadequate_partition("g must be a non-oriented graph")
+    '''
+    mobile_nodes = kwargs.get("mobile_nodes", g.nodes)
 
-    if "mobile_nodes" in args:
-        mobile_nodes = args["mobile_nodes"]
+    if "mobile_nodes" in kwargs:
+        mobile_nodes = kwargs["mobile_nodes"]
     else:
         mobile_nodes = g.nodes
 
@@ -313,7 +315,7 @@ def ei_uphill(g, comp_list, **args):
         iteration_limit = args["iteration_limit"]
     else:
         iteration_limit = param.max_number_of_iterations
-
+    '''
     num_c = len(comp_list)
     if num_c < 2:
         raise err.inadequate_partition("The partition must have at least two different components")

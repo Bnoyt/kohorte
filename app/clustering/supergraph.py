@@ -116,11 +116,11 @@ class tag_node:
     def __str__(self):
         return ("(" + str(self.unique_id) + ") tag node : " + self.slug)
 
-'''new exceptions'''
+#new exceptions
 
 
 
-'''graph modification classes'''
+#graph modification classes
 
 
 
