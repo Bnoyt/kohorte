@@ -1,0 +1,35 @@
+**model**
+
+graph_model_1()
+each node contains a certain number of ideas, nodes link randomly based on shared ideas
+
+**Filtering**
+
+**core identification / seed identification**
+
+Graclus center
+
+spread hubs
+a greedy algorithm which just picks high degree vertices then marks it's neighbors
+
+**core expansion**
+
+PPR
+empirical observation : neighborhood inflation is better
+
+**Frontier improvment**
+
+
+
+**Frontier cutting**
+
+**Evaluation**
+
+**Definitions**
+
+cluster : a bunch of nodes more connected to each other than they are to the rest of the graph
+core : a good candidate for the center of a cluster, which can then be expanded
+seed : a 1-node core
+conductance : indicateur de la liaison d'une partition avec le reste du graphe (voir def précise dans [1])
+
+[1]

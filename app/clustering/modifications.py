@@ -5,6 +5,7 @@ import queue
 
 #dependencies
 import parameters as param
+import ProjectController
 
 class GraphModifier:
     def __init__(self, projectController):
@@ -18,10 +19,10 @@ class GraphModifier:
          Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. '''
         self._projectController.push_modification(NewPost(databaseID=databaseID, noeud=noeud, tags=tagList,size=size, parent=parent, value=value))
 
-    def create_tag(self, tag : str):
+    def create_tag(self, slug : str):
         '''La premiere fois qu'un mot-clé est utilisé et ajouté a la base de données, il doit être passé via cette fonction
         Le string qui reprsente le tag est crée en filtrant ce que l'utilisateur a rentré comme tag, et sera utilisé comme clé'''
-        self._projectController.push_modification(NewTag(tag))
+        self._projectController.push_modification(NewTag(slug=slug))
 
     def create_recommendation_link(self, node1DatabaseID, node2DatabaseID, weight=1.0):
         '''Creation d'un lien de recommendation entre deux posts, via le boutton [recommender une fusion]'''
@@ -40,6 +41,15 @@ class GraphModifier:
     def modifyPost(self, databaseID, newSize):
         '''Fonction a utiliser pour les modifications de post a posteriori par les utilisateurs (bouton EDIT)'''
         self._projectController.push_modification(PostModification(databaseID=databaseID, newSize=newSize))
+
+    def add_tag_to_post(self, post_database_id, tag_slug : str):
+        ''' Ajoute un nouveau lien entre un tag deja existant et un post deja existant '''
+        self._projectController.push_modification(TagOnPost(post_database_id=post_database_id, tag_slug=tag_slug))
+
+    def remove_tag_from_post(self, post_database_id, tag_slug):
+        '''retire un lien entre un tag et un post. Ne suprime ni le tag, ni le post'''
+        self._projectController.push_modification(TagFromPost(post_database_id=post_database_id, tag_slug=tag_slug))
+
 
 #Cette exception est la seule a ne pas etre dans error.py
 #Ainsi, le code coté django, qui importera cette classe, y a accés
@@ -83,6 +93,15 @@ class PostModification:
         self.new_size = newSize
 
 class NewTag:
-    def __init__(self, tag):
-        self.tag = tag
+    def __init__(self, slug):
+        self.slug = slug
 
+class TagOnPost:
+    def __init__(self, post_database_id, tag_slug):
+        self.post_database_id = post_database_id
+        self.tag_slug = tag_slug
+
+class TagFromPost:
+    def __init__(self, post_database_id, tag_slug):
+        self.post_database_id = post_database_id
+        self.tag_slug = tag_slug

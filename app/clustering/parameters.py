@@ -10,3 +10,4 @@ post_node_default_value = 10.0
 
 #Defaule edge caracteristics
 default_edge_weight_parent = 3.0
+default_edge_weight_tag = 1.5

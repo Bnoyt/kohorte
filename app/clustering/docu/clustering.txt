@@ -1,0 +1,29 @@
+Cluster analyisis is the grouping of objects in a way which reflects their proximity to one-another. There are multiple ways to do that.
+
+* hierarchical clustering : objects are grouped based on their distance to each other.
+ - creation of a dendogram
+
+* Density-based clustering
+
+* Dendogram :
+ - hierarchical tree structure in the clusters
+ - could be really interesting
+
+* idea : composante connexe k-résistane : briser jusqu'à k arrêtes ne pourra pas séparer cette composante connexe en plusieurs composantes connexes séparées.
+ - dendrogram des composantes connexes k-résistantes.
+ - les arrêtes peuvent être ignorées (erreur de signalement)
+ - les arrêtes peuvent être archivées (le noeud correspondant à été créé.)
+
+* k-means clustering : each object is associated to a cluster, so that each object belongs to the cluster with the nearest mean.
+ - NP hard, but heuristic algorithms exist.
+ -not interesting
+
+uninteresting clustering algorithms :
+
+* Distribution-based clustering
+ - fait pour identifier des variables aléatoires
+ - pas ce qu'on fait ici
+
+* composantes k-edge-connexes
+
+* Local graph partitionning algorithm

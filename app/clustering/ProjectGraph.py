@@ -18,6 +18,7 @@ class ProjectGraph:
         self._baseGraph = nx.multiDiGraph()
         self._databasePostIDMap = dict()
         self._databaseNoeudIDMap = dict()
+        self._tagSlugMap = dict()
         self._uniqueIDCounter = 0
 
     def getUniqueID(self):
@@ -28,16 +29,24 @@ class ProjectGraph:
 
         if isinstance(modif, mods.NewPost):
             if (modif.databaseID in self._databasePostIDMap):
-                raise err.NodeAlreadyExists("Could not create the following node : " + modif.__str__() + " This node already exists", modif.databaseID)
-            newNode = Nodes.PostNode(self.getUniqueID, modif.size, modif.databaseID, value=modif.value)
-            self._databasePostIDMap[modif.databaseID] = newNode
-            self._baseGraph.add_node(newNode)
+                raise err.NodeAlreadyExists("Could not create the following post node : " + modif.__str__() + " This node already exists", self._databasePostIDMap[modif.databaseID], modif.databaseID)
+            new_node = Nodes.PostNode(self.getUniqueID, modif.size, modif.databaseID, value=modif.value)
+            self._databasePostIDMap[modif.databaseID] = new_node
+            self._baseGraph.add_node(new_node)
             if (modif.parent != -1):
                 try:
                     parentNode = self._databasePostIDMap[modif.parent]
                 except KeyError:
-                    raise err.NodeMissing("Error while creating nodes : missing parent post", modif.parent)
-                self._baseGraph.add_edge(newNode, parentNode, key="parent_post", default_weight=param.default_edge_weight_parent)
+                    raise err.NodeMissing("Error while creating nodes : missing parent post", Nodes.PostNode, modif.parent)
+                self._baseGraph.add_edge(new_node, parentNode, key="parent_post", default_weight=param.default_edge_weight_parent)
+            for tag in modif.tags:
+                try:
+                    tag_node = self._tagSlugMap[tag]
+                except KeyError:
+                    raise err.NodeMissing("Error while creating post : could not find the following tag : " + tag, Nodes.TagNode, tag)
+                self._baseGraph.add_edge(new_node, tag_node, key=("tagged_with", 0), default_weight=param.default_edge_weight_tag)
+
+
             return
 
         if isinstance(modif, mods.NewRecommendationLink):
@@ -85,5 +94,39 @@ class ProjectGraph:
             return
 
         if isinstance(modif, mods.NewTag):
-            pass
+            if modif.slug in self._tagSlugMap:
+                raise err.NodeAlreadyExists("Error while creating this tag : " + modif.slug + " Tag already exists", self._tagSlugMap[modif.slug], modif.slug)
+            newNode = Nodes.TagNode(self.getUniqueID(), modif.slug)
+            self._tagSlugMap[modif.slug] = newNode
+            self._baseGraph.add_node(newNode)
+            return
+
+        if isinstance(modif, mods.TagOnPost):
+            if not (modif.post_database_id in self._databasePostIDMap):
+                raise err.NodeMissing("Error while tagging a post : post does not exist", Nodes.PostNode, modif.post_database_id)
+            if not (modif.tag_slug in self._tagSlugMap):
+                raise err.NodeMissing("Error while tagging a post : tag does not exist", Nodes.TagNode, modif.tag_slug)
+            post_node = self._databasePostIDMap[modif.post_database_id]
+            tag_node = self._tagSlugMap[modif.tag_slug]
+            if ("tagged_with", 0) in self._baseGraph[post_node][tag_node]:
+                raise err.EdgeAlreadyExists("Error while tagging a post : post already has this tag", post_node, tag_node, modif.post_database_id, modif.tag_slug, ("tagged_with", 0))
+            self._baseGraph.add_edge(post_node, tag_node, key=("tagged_with", 0), default_weight=param.default_edge_weight_tag)
+            return
+
+        if isinstance(modif, mods.TagFromPost):
+            if not (modif.post_database_id in self._databasePostIDMap):
+                raise err.NodeMissing("Error while removing tag from a post : post does not exist", Nodes.PostNode, modif.post_database_id)
+            if not (modif.tag_slug in self._tagSlugMap):
+                raise err.NodeMissing("Error while removing tag from a post : tag does not exist", Nodes.TagNode, modif.tag_slug)
+            post_node = self._databasePostIDMap[modif.post_database_id]
+            tag_node = self._tagSlugMap[modif.tag_slug]
+            if not ("tagged_with", 0) in self._baseGraph[post_node][tag_node]:
+                raise err.EdgeDoesNotExist("Error while removing tag from a post : post does not have this tag", post_node, tag_node, modif.post_database_id, modif.tag_slug, ("tagged_with", 0))
+            self._baseGraph.remove_edge(post_node, tag_node, key=("tagged_with", 0))
+            return
+
+    # Clés utilisées pour les arrêtes :
+    # parent_post : post enfant -> post parent
+    # tagged_with : post -> tg utilise sur le post
+    # group_recommended -> post -> post | suggestion d'un utilisateur de grouper ces posts
 

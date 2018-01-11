@@ -1,0 +1,24 @@
+**Noeuds :**
+
+	Post
+	Noeuds (= fil de discussion)
+	Utilisateurs
+	Sources externes
+	Tags
+
+**Arrêtes :**
+
+cluster-corresponding :
+
+	Lien rapporté : post <-> post
+	parenté : post -> post
+	Déplacement suggéré : post -> noeud
+	citation de post : post -> post
+
+proximity indication
+
+	Taggage : post -> tag
+	citation de source : post -> source externe
+	Appartenance : post -> noeud
+	Lien du graphe de réflexion : noeud -> noeud
+	Intelligence Artificielle : ???

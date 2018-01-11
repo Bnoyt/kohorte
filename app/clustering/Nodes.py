@@ -96,7 +96,6 @@ class SourceNode(BaseNode):
 class TagNode(BaseNode):
     def __init__(self, uniqueID, slug):
         super().__init__(uniqueID)
-        self.jocularity = 1717
         self.slug = slug
 
     def __str__(self):
