@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+class LoadingError(Exception):
+    pass
+
 class GraphError(Exception):
     def __init__(self, descriptor):
         super().__init__(descriptor)

@@ -6,7 +6,7 @@ import queue
 
 #import dependencies
 import ProjectController
-import modifications as mods
+import GraphModifier as mods
 import errors as err
 import Nodes
 import parameters as param

@@ -11,6 +11,8 @@ import spg_algorithms
 import errors as err
 import ProjectGraph as pg
 import ProjectLogger as pl
+import GraphModifier as gm
+import parameters as param
 
 
 class ProjectController:
@@ -19,12 +21,19 @@ class ProjectController:
     #the_graph contient le supergraphe, de type networkx : multiDiGraph
     #graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
-    def __init__(self, name="untitled"):
+    def __init__(self, name):
+        self.name = name
+        self.path = param.memory_path + name
+        with open(self.path + "control.txt", 'r') as control_file:
+            name_in_file = control_file.readline()[0:-1]
+            if name_in_file != self.name:
+                raise err.LoadingError()
+            self.clean_shutdown = bool(control_file.readline()[0:-1])
+            self.avenger = control_file.readline()
         self.graphLoaded = False
         self.graphIsLoading = False
-        self.pendingModifications =  queue.Queue()
         self.projectLogger = pl.ProjectLogger(name)
-        self.name = self.projectLogger.name
+        self.graphModifier = gm.GraphModifier(name)
 
 
     def unload_graph(self):
@@ -43,15 +52,10 @@ class ProjectController:
         self.graphLoaded = True
         self.apply_modifications(expectErrors=True)
 
-    def push_modification(self, modif):
-        if self.graphIsLoading or self.graphLoaded:
-            self.pendingModifications.put(modif)
 
 
     def apply_modifications(self, expectErrors=False):
         if(self.graphLoaded):
-            modifList = self.pendingModifications.copy() #In case a modification is pushed while the graph is loading modifications
-            self.pendingModifications = queue.Queue()
-            self.theGraph.apply_modifications(modifList, expectErrors)
+            self.theGraph.apply_modifications(self.graphModifier.pull_all_modifications(), expectErrors)
         else:
             raise err.graph_not_loaded()
