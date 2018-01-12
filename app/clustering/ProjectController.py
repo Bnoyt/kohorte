@@ -9,7 +9,8 @@ import parameters
 import supergraph as spg
 import spg_algorithms
 import errors as err
-import ProjectGraph
+import ProjectGraph as pg
+import ProjectLogger as pl
 
 
 class ProjectController:
@@ -18,10 +19,12 @@ class ProjectController:
     #the_graph contient le supergraphe, de type networkx : multiDiGraph
     #graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
-    def __init__(self):
+    def __init__(self, name="untitled"):
         self.graphLoaded = False
         self.graphIsLoading = False
         self.pendingModifications =  queue.Queue()
+        self.projectLogger = pl.ProjectLogger(name)
+        self.name = self.projectLogger.name
 
 
     def unload_graph(self):
@@ -33,7 +36,7 @@ class ProjectController:
     def load_graph(self):
         if self.graphLoaded:
             self.unload_graph()
-        self.theGraph = ProjectGraph.ProjectGraph(self)
+        self.theGraph = pg.ProjectGraph(self, self.projectLogger)
         self.graphIsLoading = True
         #TODO : access appropriate databases and load the graph
         self.graphIsLoading = False

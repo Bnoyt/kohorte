@@ -13,8 +13,9 @@ import parameters as param
 
 
 class ProjectGraph:
-    def __init__(self, projectController):
+    def __init__(self, projectController, projectLogger):
         self._projectController = projectController
+        self._projectLogger = projectLogger
         self._baseGraph = nx.multiDiGraph()
         self._databasePostIDMap = dict()
         self._databaseNoeudIDMap = dict()
