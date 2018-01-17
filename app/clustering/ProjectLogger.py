@@ -24,6 +24,9 @@ class ProjectLogger:
         log_file = open(file_name, 'w')
         return ModifLogChannel(log_file)
 
+    def log_algorithm(self, algo_name):
+        pass
+
 
 
 class ModifLogChannel:
@@ -35,7 +38,15 @@ class ModifLogChannel:
         self.log_file.close()
 
     def register(self, modif):
-        pass
+        self.writer.writerow(modif.list_rep())
 
+class AlgorithmLogChannel:
+    def __init__(self, log_file):
+        self.log_file = log_file
+        self.writer = csv.writer(log_file, delimiter=',')
 
+    def __del__(self):
+        self.log_file.close()
 
+    def register(self, node_unique_id, new_group_id):
+        self.writer.writerow([node_unique_id, new_group_id])

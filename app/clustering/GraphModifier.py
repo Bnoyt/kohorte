@@ -37,7 +37,7 @@ class GraphModifier:
         Noeud est l'ID BDD du Noeud du graphe de reflexion sous lequel ce post a été créé
         parent est l'ID BDD du post auquel celui-ci est une reponse, ou -1 si le post n'est pas une reponse
         tagList doit etre une liste de tous les mots cles, donnes sous forme de strings netoyés (tels qu'ils sont soques dans la BDD)
-         Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. '''
+        Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. '''
         self._push_modification(NewPost(databaseID=databaseID, noeud=noeud, tags=tagList,size=size, parent=parent, value=value))
 
     def create_tag(self, slug : str):
@@ -72,6 +72,19 @@ class GraphModifier:
         self._push_modification(TagFromPost(post_database_id=post_database_id, tag_slug=tag_slug))
 
 
+    def read_modification_from_list(self,l):
+        try:
+            if l[0] == "np":
+                return(NewPost(l[1], l[2], l[5:], l[3], l[4]))
+            if l[0] == "nr":
+                return(NewRecommendationLink(l[1], l[2], l[3]))
+        except IndexError:
+            raise ForbidenModificationRequest("Error while creating modification from this list : " + str(l) + "list does not have enough elements")
+
+    def push_modification_from_list(self, l):
+        self._push_modification(self.read_modification_from_list(l))
+
+
 #Cette exception est la seule a ne pas etre dans error.py
 #Ainsi, le code coté django, qui importera cette classe, y a accés
 class ForbidenModificationRequest(Exception):
@@ -83,8 +96,9 @@ class NewPost:
     def __init__(self, databaseID, noeud, tags, size, parent, value):
         super().__init__()
         self.databaseID = databaseID
+        self.noeud = noeud
         self.parent = parent
-        self.tags = tags
+        self.tags = list(tags)
         self.size = size
         if value == -1:
             self.value = param.default_post_value
@@ -94,11 +108,18 @@ class NewPost:
         if size < 0:
             raise ForbidenModificationRequest("The new post was requested with a size of + " + str(size) + " The size of a post cannot be negative")
 
+    def list_rep(self):
+        return ["np", self.databaseID, self.noeud, self.parent, self.size] + self.tags
+
 class NewRecommendationLink:
     def __init__(self, n1, n2, weight = 1.0):
         self.n1_id = n1
         self.n2_id = n2
         self.weight = weight
+
+    def list_rep(self):
+        return ["nr", self.n1, self.n2, self.weight]
+
 
 class PostRemoval:
     def __init__(self, databaseID):
