@@ -126,6 +126,9 @@ class ProjectGraph:
             self._baseGraph.remove_edge(post_node, tag_node, key=("tagged_with", 0))
             return
 
+    def apply_modifications(self, modification_queue):
+        pass
+
     # Clés utilisées pour les arrêtes :
     # parent_post : post enfant -> post parent
     # tagged_with : post -> tg utilise sur le post

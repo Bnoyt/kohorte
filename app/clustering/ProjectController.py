@@ -3,6 +3,7 @@
 #import libraries
 import networkx as nx
 import queue
+import pickle
 
 #import dependances
 import parameters
@@ -47,10 +48,16 @@ class ProjectController:
             self.unload_graph()
         self.theGraph = pg.ProjectGraph(self, self.projectLogger)
         self.graphIsLoading = True
+        self.graphModifier.clear_all_modifications()
         #TODO : access appropriate databases and load the graph
+        modifications_while_loading = self.graphModifier.pull_all_modifications()
         self.graphIsLoading = False
         self.graphLoaded = True
-        self.apply_modifications(expectErrors=True)
+        if not modifications_while_loading.empty():
+            self.theGraph.apply_modifications(modifications_while_loading)
+        log_location = self.projectLogger.register_graph_loading()
+        with (log_location / "initial_graph.pkl").open('w') as dl:
+            pickle.dump(self.theGraph, dl)
 
 
 
