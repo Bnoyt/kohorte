@@ -31,11 +31,16 @@ class ProjectController:
             self.name = name
             self.path = param.memory_path + name
             with open(self.path + "control.txt", 'r') as control_file:
-                name_in_file = control_file.readline()[0:-1]
-                if name_in_file != self.name:
+                try:
+                    name_in_file = control_file.readline()[0:-1]
+                    if name_in_file != self.name:
+                        raise err.LoadingError()
+                    self.database_id = int(control_file.readline()[:-1])
+                    # TODO : go check if this id is indeed in the database
+                    self.clean_shutdown = bool(control_file.readline()[0:-1])
+                    self.avenger = control_file.readline()
+                except IOError:
                     raise err.LoadingError()
-                self.clean_shutdown = bool(control_file.readline()[0:-1])
-                self.avenger = control_file.readline()
         self.graphLoaded = False
         self.graphIsLoading = False
         self.projectLogger = pl.ProjectLogger(name)

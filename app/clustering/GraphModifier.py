@@ -13,11 +13,11 @@ class GraphModifier:
     __modifier_reference = dict()
 
     @staticmethod
-    def get_graph_modifier(project_name):
+    def get(project_database_id):
         try:
-            return GraphModifier.__modifier_reference[project_name]
+            return GraphModifier.__modifier_reference[project_database_id]
         except KeyError:
-            raise KeyError("The project named " + project_name + " does not exist")
+            raise KeyError("The project named " + project_database_id + " does not exist")
 
     def __init__(self, name):
         self.name = name

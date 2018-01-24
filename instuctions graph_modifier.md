@@ -5,9 +5,12 @@ gm = GraphModifier.GraphModifier.get(project_id)
 
 project_id est l'identifiant sql du projet.
 
-create_post(database_id, noeud, tagList, size, parent=-1, value=-1)
+# Liste des moficications
+
+*create_post(database_id, noeud, tagList, size, parent=-1, value=-1)*
 
 A utiliser quand un nouveau post est publié.
+
 database_id : id du post. Utiliser la clé principale de la base de donnée des posts.
 noeud : id du noeud dans lequel le post à été publié
 tag_list : liste de tous les tags, donnés sous formes de strings passés sous wordsoup.

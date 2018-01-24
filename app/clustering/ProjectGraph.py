@@ -26,6 +26,12 @@ class ProjectGraph:
         self._uniqueIDCounter += 1
         return self._uniqueIDCounter
 
+    def apply_modif(self, modif: mods.GenericModification):
+        try:
+            modif.apply_to_graph(self)
+        except err.InconsistentGraph:
+            pass
+
     def apply_modifications(self, modification_queue):
         pass
 
