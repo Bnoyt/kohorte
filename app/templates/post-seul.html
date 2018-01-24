@@ -3,14 +3,13 @@
 <div class="col-md-11 pull-right post">
 	<div class="card card-post">
 
-		<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Répondre</p></div>
 
 		<div class="content">
 
 			<div class="contenu" name="{{c.0.id}}">
 				<p>
 
-				{{c.0.contenu|rendusafe|safe}}
+				{{c.contenu|rendusafe|safe}}
 
 				</p>
 			</div>
@@ -23,7 +22,7 @@
 			<div class="footer">
 			<hr />
 				<div class="stats">
-					<i class="ti-calendar"></i> Posté le {{c.0.date}} par {{c.0.auteur.user.username}}
+					<i class="ti-calendar"></i> Posté le {{c.date}} par {{c.auteur.user.username}}
 				</div>
 				</p>
 				
