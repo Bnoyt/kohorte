@@ -9,7 +9,7 @@ import random as rnd
 
 #import perso
 import networkx as nx
-import GraphModifier as mods
+import GraphModifications as mods
 import errors as err
 import parameters as param
 

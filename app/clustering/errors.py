@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+class ForbidenModificationRequest(Exception):
+    def __init__(self, descriptor):
+        super().__init__(descriptor)
 
 class LoadingError(Exception):
     pass

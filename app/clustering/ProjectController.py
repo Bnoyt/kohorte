@@ -10,7 +10,7 @@ import spg_algorithms
 import errors as err
 import ProjectGraph as pg
 import ProjectLogger as pl
-import GraphModifier as gm
+import GraphModifications as gm
 import parameters as param
 from pathlib import Path
 
