@@ -2225,7 +2225,7 @@ textarea.form-control {
     top: 0;
     left: 0; }
 
-@media (min-width: 992px) {
+@media (min-width: 1000px) {
   .navbar {
     min-height: 75px; }
 
@@ -2290,7 +2290,7 @@ textarea.form-control {
   .card form [class*="col-"]:last-child {
     padding-right: 15px; } }
 /*          Changes for small display      */
-@media (max-width: 991px) {
+@media (max-width: 999px) {
   .sidebar {
     display: none; }
 

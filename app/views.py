@@ -13,6 +13,23 @@ from django.template import loader
 
 from django.contrib.auth.models import User
 
+def trouver_hashtags(texte):
+	n = len(texte)
+	a = 0
+	tags = []
+	while a < n:
+		if texte[a] == "#":
+			tag = ""
+			a += 1
+			while a < n and texte[a] != " " and texte[a] !="#":
+				tag += texte[a]
+				a += 1
+			tags.append(tag)
+		else:
+			a += 1
+	return tags
+
+
 def authentification(request):
 	username = request.POST['username']
 	password = request.POST['password']
@@ -44,21 +61,27 @@ def page_register(request):
 	if request.user.is_authenticated:
 		return render(request, 'content_index.html', context)
 	post = request.POST
-	if 'username' in post and 'email' in post and 'prenom' in post and 'nom' in post and 'mdp' in post:
+	if 'username' in post and 'email' in post and 'mdp' and 'mdp2' in post:
 		if User.objects.filter(email=post['email']).exists() or User.objects.filter(username=post['username']).exists():
 
 			context['message'] = "L'email ou le pseudo spécifié existe déjà"
+
 			return render(request, 'register.html', context)
 		else:
+			if post["mdp"] != post["mdp2"]:
+				context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
+				context["notif"] = "Les deux mots de passe ne correspondent pas"
+				return render(request, 'register.html', context)
+
 			user = User.objects.create_user(post['username'],post['email'],post['mdp'])
-			user.first_name = post['prenom']
-			user.last_name = post['nom']
 			personne = Utilisateur(user=user)
 			personne.save()
 			login(request,user)
 			return HttpResponseRedirect(reverse('index'))
 	else:
 		context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
+		if "csrfmiddlewaretoken" in post:
+			context["notif"] = "Vous avez oublié de remplir un champ !"
 		return render(request, 'register.html', context)
 
 def index(request):
@@ -166,8 +189,19 @@ def ajouter_post(request):
 			question = get_object_or_404(Question,pk=int(post['id_question']))
 			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
 			auteur = get_object_or_404(Utilisateur,user=request.user)
+			tags = trouver_hashtags(post['contenu'])
+
 			p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
+			for tag in tags:
+				t = Tag.objects.filter(label=tag)
+				if len(t) == 0:
+					t = Tag(label = tag)
+					t.save()
+				else:
+					t = t[0]
+				p.tags.add(t)
 			p.save()
+
 			template = loader.get_template('post.html')
 			context={'p':[p,[]]
 			}

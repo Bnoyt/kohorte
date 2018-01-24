@@ -150,7 +150,7 @@ class Post(models.Model):
     pere = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
     titre = models.CharField(max_length=100,blank=True)
     auteur = models.ForeignKey(Utilisateur)
-    tag = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     contenu = MarkdownxField()
     citations = models.ManyToManyField(Citation, related_name='postsCites', blank=True)
     date = models.DateTimeField(auto_now_add = True, auto_now = False)
@@ -248,6 +248,9 @@ class Log(models.Model):#XXX existe une classe log
 
     def __str__(self):
         return str(self.user.user) + self.action + ' - ' + str(self.date)
+
+class type_suivi(models.Model):
+    label = models.CharField(max_length=100)
 
 class TypeLienSg(models.Model):
     label = models.CharField(max_length = 30)

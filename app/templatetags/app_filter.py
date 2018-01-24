@@ -18,7 +18,7 @@ def remplacer_citations(texte):
 			<p>""" + BeautifulSoup(a[0].contenu).text + """
 			</p>
 			<small> 
-			""" + a[0].post.auteur.user.username + """ le """ + (date.ctime()) + """ dans le noeud ***""" + a[0].post.noeud.label + """***
+			""" + a[0].post.auteur.user.username + """ le """ + (date.ctime()) + """ dans le noeud <strong>""" + a[0].post.noeud.label + """</strong>
 			</small>
 			</blockquote>"""
 			texte = texte.replace(c,k)
@@ -34,12 +34,27 @@ def remplacer_code(texte):
 
 	return texte
 
+def remplacer_hashtag(texte):
+	new_texte = ""
+	for i in range(len(texte)-1):
+		if texte[i] == "#" and texte[i+1] != " ":
+			new_texte += "\#"
+		else:
+			new_texte += texte[i]
+	try: 
+		new_texte += texte[-1]
+	except:
+		pass
+	return new_texte
+
+
 @register.filter(name="rendusafe",is_safe=True)
 def rendusafe(texte):
 	texte = str(texte)
 	texte = BeautifulSoup(texte,"lxml").text
 	texte = remplacer_citations(texte)
 	texte = remplacer_code(texte)
+	texte = remplacer_hashtag(texte)
 	texte = markdownify(texte)
 	return texte
 
