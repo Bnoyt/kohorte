@@ -29,7 +29,7 @@ class ProjectGraph:
     def apply_modif(self, modif):
 
         if isinstance(modif, mods.NewPost):
-            if (modif.databaseID in self._databasePostIDMap):
+            if modif.databaseID in self._databasePostIDMap:
                 raise err.NodeAlreadyExists("Could not create the following post node : " + modif.__str__() + " This node already exists", self._databasePostIDMap[modif.databaseID], modif.databaseID)
             new_node = Nodes.PostNode(self.getUniqueID, modif.size, modif.databaseID, value=modif.value)
             self._databasePostIDMap[modif.databaseID] = new_node
@@ -52,7 +52,7 @@ class ProjectGraph:
 
         if isinstance(modif, mods.NewRecommendationLink):
             if not (modif.n1_id in self._databasePostIDMap):
-                raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=modif.p1)
+                raise err.NodeMissing("Could not find parent while creating new node", node_id=modif.p1)
             if not (modif.n2_id in self._databasePostIDMap):
                 raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=modif.p2)
             n1 = self._databasePostIDMap[modif.n1_id]

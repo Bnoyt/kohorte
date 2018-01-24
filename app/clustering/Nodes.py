@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-#import libraries
+# import libraries
 import random as rnd
 
-#import dependencies
+# import dependencies
 import parameters as param
+
 
 class BaseNode:
     def __init__(self, uniqueID):
@@ -12,47 +13,48 @@ class BaseNode:
         self.randomisedID = rnd.randrange(self.uniqueID)
 
     def __eq__(self, other):
-        if(type(other) == tg_node):
-            return(self.uniqueID == other.uniqueID)
+        if type(other) == BaseNode:
+            return self.uniqueID == other.uniqueID
         else:
-            raise(NotImplemented)
+            raise NotImplemented()
 
     def __lt__(self, other):
-        if(self.__eq__(other)):
-            return(False)
-            #Ce test renvoie aussi NotImplemented si other n'est pas du bon type
-        return((self.randomisedID, self.uniqueID) < (other.randomisedID, other.uniqueID))
-        #Les noeuds sont compares par leur randomisedID et non par leur uniqueID. Ceci sert à ajouter de l'aleatoire dans l'ordre des noeuds,
-        # ainsi si jamais on range les noeuds dans une structure de type arbre binaire de recherche, on ne risque pas d'être dans un cas particulier indesirable
-
+        if self.__eq__(other):
+            return False
+            # Ce test renvoie aussi NotImplemented si other n'est pas du bon type
+        return (self.randomisedID, self.uniqueID) < (other.randomisedID, other.uniqueID)
+        # Les noeuds sont compares par leur randomisedID et non par leur uniqueID.
+        # Ceci sert à ajouter de l'aleatoire dans l'ordre des noeuds,
+        # ainsi si jamais on range les noeuds dans une structure de type arbre binaire de recherche,
+        #  on ne risque pas d'être dans un cas particulier indesirable
 
     def __le__(self, other):
-        if(self.__eq__(other)):
-            return(True)
-        return((self.randomisedID, self.uniqueID) < (other.randomisedID, other.uniqueID))
+        if self.__eq__(other) :
+            return True
+        return (self.randomisedID, self.uniqueID) < (other.randomisedID, other.uniqueID)
 
     def __gt__(self, other):
-        if(self.__eq__(other)):
-            return(False)
-        return((self.randomisedID, self.uniqueID) > (other.randomisedID, other.uniqueID))
+        if self.__eq__(other):
+            return False
+        return (self.randomisedID, self.uniqueID) > (other.randomisedID, other.uniqueID)
 
     def __ge__(self, other):
-        if(self.__eq__(other)):
-            return(True)
-        return((self.randomisedID, self.uniqueID) > (other.randomisedID, other.uniqueID))
+        if self.__eq__(other):
+            return True
+        return (self.randomisedID, self.uniqueID) > (other.randomisedID, other.uniqueID)
 
     def __repr__(self):
-        return("<supergraph.tg_node>")
+        return "<supergraph.tg_node>"
 
     def __str__(self):
-        return("(" + self.uniqueID + ") generic_node")
+        return "(" + self.uniqueID + ") generic_node"
 
     def __hash__(self):
         return(self.uniqueID)
 
 
 class PostNode(BaseNode):
-    '''Noeud correspondant a un post'''
+    """Noeud correspondant a un post"""
     def __init__(self, uniqueID, size, sql_id, **kwargs):
         super().__init__(uniqueID)
         self.size = size
@@ -64,16 +66,18 @@ class PostNode(BaseNode):
         self.deleted = False
 
     def __str__(self):
-        return( "(" + str(self.uniqueID) + ") post node : " + self.value)
+        return "(" + str(self.uniqueID) + ") post node : " + self.value
+
 
 class NoeudNode(BaseNode):
-    '''Noeud correspondant a un Noeud du graphe de reflexion'''
+    """Noeud correspondant a un Noeud du graphe de reflexion"""
     def __init__(self, uniqueID, global_graph_id):
         super().__init__(uniqueID)
         self.global_graph_id = global_graph_id
 
     def __str__(self):
-        return( "(" + str(self.uniqueID) + ") noeud node : ")
+        return "(" + str(self.uniqueID) + ") noeud node : "
+
 
 class UserNode(BaseNode):
     def __init__(self, uniqueID):
@@ -82,7 +86,8 @@ class UserNode(BaseNode):
         self.username = "bob"
 
     def __str__(self):
-        return ("(" + str(self.uniqueID) + ") utilisateur node : " + self.username)
+        return "(" + str(self.uniqueID) + ") utilisateur node : " + self.username
+
 
 class SourceNode(BaseNode):
     def __init__(self, uniqueID):
@@ -91,7 +96,8 @@ class SourceNode(BaseNode):
         self.reliability = 5
 
     def __str__(self):
-        return ("(" + str(self.uniqueID) + ") source node : " + "wikipedia")
+        return "(" + str(self.uniqueID) + ") source node : " + "wikipedia"
+
 
 class TagNode(BaseNode):
     def __init__(self, uniqueID, slug):
@@ -99,4 +105,4 @@ class TagNode(BaseNode):
         self.slug = slug
 
     def __str__(self):
-        return ("(" + str(self.uniqueID) + ") tag node : " + self.slug)
+        return "(" + str(self.uniqueID) + ") tag node : " + self.slug

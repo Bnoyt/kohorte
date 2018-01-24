@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 
-#import persos
+# import persos
 import parameters
 import supergraph as spg
 import spg_algorithms
 import errors
 
-#import packages
+# import packages
 import networkx as nx
 import queue
 
 
-
-
 class running_project:
 
-    #the_graph contient le supergraphe, de type networkx : multiDiGraph
-    #graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
+    # the_graph contient le supergraphe, de type networkx : multiDiGraph
+    # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
 
     def __init__(self):
