@@ -310,6 +310,8 @@ def profil(request) :
         user = get_object_or_404(Utilisateur,user=request.user)
         sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
         posts = Post.objects.filter(auteur=user)
+        # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
+        noeudsSuivis = []
         
 
         context = {
@@ -317,6 +319,7 @@ def profil(request) :
             'listSugg': sugg,
             'profil':True,
             'posts':posts
+            
 
         }
         return render(request,'profil.html',context)

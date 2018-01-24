@@ -1,44 +1,21 @@
 {% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
 
 
-<div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded btn-fill btn-primary" data-toggle="modal" data-target="#nouveau_post"><i class="ti-pencil"></i> Écrire un nouveau post</button></div>
+<div class="card card-post">
+				<div class="header">
+				<h3>Mes posts</h3>
+				</div>
+				<div class="content">
 
-<div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;"  id="btn-epingle-s"><button class="btn btn-rounded btn-fill btn-success"><i class="ti-pin-alt"></i> Suivre</button></div>
-<div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;" id="btn-epingle-n" hidden><button class="btn btn-rounded btn-fill btn-danger"><i class="ti-pin2"></i> Ne plus suivre</button></div>
 
-<div id="save_citation" title="Enregistrer cette citation" hidden><button class="btn btn-default btn-fill"><i class="ti-save"></i></button></div>
+					<!-- contenu de la récap -->
 
 
-<div class="modal fade" id="nouveau_post" tabindex="-1" role="dialog" aria-labelledby="nouveau_postLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
-      </div>
-      <div class="modal-body">
-       		<form method="post" class="form card-body" id="#formajouterpost">
-				{% csrf_token %}
-				
-				<div class="input-group" style="margin-bottom:10px;">
-					<span class="input-group-addon"></span>
-					<input class="form-control" id="id_titre" name="titre" placeholder="Titre" type="text"> 
+
 				</div>
 
-				<div class="input-group" style="margin-bottom:10px;">
-					<span class="input-group-addon"></span>
-					<textarea class="form-control" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
-				</div>
-				
-				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
-				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
-		 
-			</form>
-      </div>
-    </div>
-  </div>
-</div>
-
+			
+			</div>
 
 
 
@@ -47,14 +24,61 @@
     <div class="row">
 
 
+
+
+
+
 		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
 
 
 			{% for p in posts %}
 
-				{% include "post.html" with p=p %}
+				{% include "post-seul.html" with c=p %}
 
 			{% endfor %}
+
+
+
+		</div>
+
+
+
+
+
+
+</div>
+     
+     <div class="card card-post">
+				<div class="header">
+				<h3>Noeuds suivis</h3>
+				</div>
+				<div class="content">
+
+
+					<!-- contenu de la récap -->
+
+
+
+				</div>
+
+			
+			</div>
+
+
+
+ <div class="container-fluid">
+
+    <div class="row">
+
+
+
+
+
+
+		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+
+			<!-- Afficher les noeuds suivis -->
 
 
 
