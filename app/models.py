@@ -156,6 +156,8 @@ class Post(models.Model):
     date = models.DateTimeField(auto_now_add = True, auto_now = False)
     question = models.ForeignKey(Question,related_name="Question_de_base")
     noeud = models.ForeignKey(Noeud,related_name="Noeud")
+    importance = models.IntegerField(default=0)
+    disabled = models.BooleanField(default=False)
     
     def insererCitation(self):
         """Transforme l'information qu'on a de l'user
@@ -249,8 +251,18 @@ class Log(models.Model):#XXX existe une classe log
     def __str__(self):
         return str(self.user.user) + self.action + ' - ' + str(self.date)
 
-class type_suivi(models.Model):
+class TypeSuivi(models.Model):
     label = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.label
+
+class RelationUserSuivi(models.Model):
+    post = models.ForeignKey(Post)
+    type_suivi = models.ForeignKey(TypeSuivi)
+
+    def __str__(self):
+        return str(self.type_suivi)
 
 class TypeLienSg(models.Model):
     label = models.CharField(max_length = 30)
