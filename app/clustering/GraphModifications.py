@@ -173,3 +173,6 @@ class TagFromPost(GenericModification):
             raise err.EdgeDoesNotExist("Error while removing tag from a post : post does not have this tag", post_node,
                                        tag_node, self.post_database_id, self.tag_slug, ("tagged_with", 0))
         project_graph._baseGraph.remove_edge(post_node, tag_node, key=("tagged_with", 0))
+
+class UserCreation(GenericModification):
+    pass

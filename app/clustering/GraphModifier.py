@@ -33,7 +33,7 @@ class GraphModifier:
     def _clear_all_modifications(self):
         pass
 
-    def create_post(self, database_id, noeud, tag_list, size: int, parent=-1, value=-1):
+    def create_post(self, database_id, noeud, tag_list, author, size: int, parent=-1, value=-1):
         """A utiliser quand un utilisateur publie un nouveau post
         Noeud est l'ID BDD du Noeud du graphe de reflexion sous lequel ce post a été créé
         parent est l'ID BDD du post auquel celui-ci est une reponse, ou -1 si le post n'est pas une reponse
@@ -46,9 +46,9 @@ class GraphModifier:
         Le string qui reprsente le tag est crée en filtrant ce que l'utilisateur a rentré comme tag, et sera utilisé comme clé"""
         self._push_modification(gm.NewTag(slug=slug))
 
-    def create_recommendation_link(self, node1_database_id, node2_database_id, weight=1.0):
+    def create_recommendation_link(self, node1_database_id, node2_database_id, author):
         """Creation d'un lien de recommendation entre deux posts, via le boutton [recommender une fusion]"""
-        self._push_modification(gm.NewRecommendationLink(n1=node1_database_id, n2=node2_database_id, weight=weight))
+        self._push_modification(gm.NewRecommendationLink(n1=node1_database_id, n2=node2_database_id, weight=1.0))
 
     def remove_post(self, database_id):
         """Suprime toutes les données concernant ce post. Le graphe peut refuser de supprimer le post si il est trop important.
