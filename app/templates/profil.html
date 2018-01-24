@@ -1,0 +1,96 @@
+{% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
+
+
+<div class="card card-post">
+				<div class="header">
+				<h3>Mes posts</h3>
+				</div>
+				<div class="content">
+
+
+					<!-- contenu de la récap -->
+
+
+
+				</div>
+
+			
+			</div>
+
+
+
+ <div class="container-fluid">
+
+    <div class="row">
+
+
+
+
+
+
+		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+
+			{% for p in posts %}
+
+				{% include "post-seul.html" with c=p %}
+
+			{% endfor %}
+
+
+
+		</div>
+
+
+
+
+
+
+</div>
+     
+     <div class="card card-post">
+				<div class="header">
+				<h3>Noeuds suivis</h3>
+				</div>
+				<div class="content">
+
+
+					<!-- contenu de la récap -->
+
+
+
+				</div>
+
+			
+			</div>
+
+
+
+ <div class="container-fluid">
+
+    <div class="row">
+
+
+
+
+
+
+		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+
+			<!-- Afficher les noeuds suivis -->
+
+
+
+		</div>
+
+
+
+
+
+
+</div>
+
+
+
+{% endblock %}

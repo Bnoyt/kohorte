@@ -1,0 +1,37 @@
+{% load app_filter %}
+
+<div class="col-md-11 pull-right post">
+	<div class="card card-post">
+
+
+		<div class="content">
+
+			<div class="contenu" name="{{c.0.id}}">
+				<p>
+
+				{{c.contenu|rendusafe|safe}}
+
+				</p>
+			</div>
+
+
+
+			
+
+
+			<div class="footer">
+			<hr />
+				<div class="stats">
+					<i class="ti-calendar"></i> Posté le {{c.date}} par {{c.auteur.user.username}}
+				</div>
+				</p>
+				
+
+			</div>
+
+		</div>
+	</div>
+
+	
+
+</div>

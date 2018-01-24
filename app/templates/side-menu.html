@@ -29,8 +29,8 @@
                     <p>Messagerie</p>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li{% if profil %} class="active"{% endif %}>
+                <a href="{% url 'profil' %}">
                     <i class="ti-user"></i>
                     <p>Mon profil</p>
                 </a>

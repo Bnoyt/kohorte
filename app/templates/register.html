@@ -16,24 +16,19 @@
                         <form method="post">
                         {% csrf_token %}
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Pseudo</label>
                                         <input type="text" class="form-control border-input" placeholder="Pseudo" name="username">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Adresse Email</label>
                                         <input type="email" class="form-control border-input" placeholder="Email" name="email">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Mot de passe</label>
-                                        <input type="password" class="form-control border-input" name="mdp">
-                                    </div>
-                                </div>
+                                
 
 
                             </div>
@@ -41,17 +36,16 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Prénom</label>
-                                        <input type="text" class="form-control border-input" placeholder="Prénom" name="prenom">
+                                        <label>Mot de passe</label>
+                                        <input type="password" class="form-control border-input" name="mdp">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Nom</label>
-                                        <input type="text" class="form-control border-input" placeholder="Nom" name="nom">
+                                        <label>Retaper le mot de passe</label>
+                                        <input type="password" class="form-control border-input" name="mdp2">
                                     </div>
                                 </div>
-                            </div>
 
                            
                             <div class="text-center">

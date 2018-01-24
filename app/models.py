@@ -150,12 +150,14 @@ class Post(models.Model):
     pere = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
     titre = models.CharField(max_length=100,blank=True)
     auteur = models.ForeignKey(Utilisateur)
-    tag = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     contenu = MarkdownxField()
     citations = models.ManyToManyField(Citation, related_name='postsCites', blank=True)
     date = models.DateTimeField(auto_now_add = True, auto_now = False)
     question = models.ForeignKey(Question,related_name="Question_de_base")
     noeud = models.ForeignKey(Noeud,related_name="Noeud")
+    importance = models.IntegerField(default=0)
+    disabled = models.BooleanField(default=False)
     
     def insererCitation(self):
         """Transforme l'information qu'on a de l'user
@@ -196,7 +198,7 @@ class TypeVote(models.Model):
         return self.label + ' - ' + str(self.impact)
 
 class Vote(models.Model):
-    """Un vote permet est donné par un utilisateur à
+    """Un vote est donné par un utilisateur à
     un post qui n'est pas de lui.
     TODO typeVote est ici une instance de la classe TypeVote
     pour permettre le plus de généralité possible, vérifier
@@ -248,6 +250,19 @@ class Log(models.Model):#XXX existe une classe log
 
     def __str__(self):
         return str(self.user.user) + self.action + ' - ' + str(self.date)
+
+class TypeSuivi(models.Model):
+    label = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.label
+
+class RelationUserSuivi(models.Model):
+    post = models.ForeignKey(Post)
+    type_suivi = models.ForeignKey(TypeSuivi)
+
+    def __str__(self):
+        return str(self.type_suivi)
 
 class TypeLienSg(models.Model):
     label = models.CharField(max_length = 30)

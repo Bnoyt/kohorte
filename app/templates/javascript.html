@@ -17,23 +17,6 @@
 
 
 
-	<script type="text/javascript">
-
-
-
-
-    {% if etat_connexion %}
-
-    notification();
-
-    {% endif %}
-
-
-
-        	
-
-
-	</script>
 
 
     <script>
@@ -385,7 +368,17 @@ inpouts.attr("style","border-style:solid;border-width:1px");
 
 
 
+    {% if etat_connexion %}
 
+    notification();
+
+    {% endif %}
+
+    {% if notif %}
+
+    notifier("{{notif}}","danger");
+
+    {% endif %}
 
 
     </script>
