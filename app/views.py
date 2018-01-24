@@ -303,3 +303,25 @@ def faq(request):
 	context={'faq':True}
 
 	return render(request,'faq.html',context)
+
+
+def profil(request) :
+    if request.user.is_authenticated:
+        user = get_object_or_404(Utilisateur,user=request.user)
+        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
+        posts = Post.objects.filter(auteur=user)
+        
+
+        context = {
+            'user':user,
+            'listSugg': sugg,
+            'profil':True,
+            'posts':posts
+
+        }
+        return render(request,'profil.html',context)
+    else:
+        return HttpResponseRedirect(reverse('index'))
+    
+    
+    

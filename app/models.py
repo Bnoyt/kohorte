@@ -196,7 +196,7 @@ class TypeVote(models.Model):
         return self.label + ' - ' + str(self.impact)
 
 class Vote(models.Model):
-    """Un vote permet est donné par un utilisateur à
+    """Un vote est donné par un utilisateur à
     un post qui n'est pas de lui.
     TODO typeVote est ici une instance de la classe TypeVote
     pour permettre le plus de généralité possible, vérifier
