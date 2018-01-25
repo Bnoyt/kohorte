@@ -8,9 +8,15 @@ import parameters as param
 import ProjectController
 import errors as err
 import Nodes
-
+import datetime
 
 class GenericModification():
+    def __init__(self):
+        self.creation_time = param.now()
+
+    def time_since_creation(self):
+        return (self.creation_time - param.now())
+
     def apply_to_graph(self, project_graph):
         pass
 
@@ -60,30 +66,38 @@ class NewPost(GenericModification):
 
 
 class NewRecommendationLink(GenericModification):
-    def __init__(self, n1, n2, weight = 1.0):
+    def __init__(self, n1, n2, author):
+        super().__init__()
         self.n1_id = n1
         self.n2_id = n2
-        self.weight = weight
+        self.author_id = author
 
     def list_rep(self):
-        return ["nr", self.n1, self.n2, self.weight]
+        return ["nr", self.n1, self.n2, self.author, self.weight]
 
     def apply_to_graph(self, project_graph):
         if not (self.n1_id in project_graph._databasePostIDMap):
-            raise err.NodeMissing("Could not find parent while creating new node", node_id=self.p1)
+            raise err.NodeMissing("Could not find node 1 while creating recommendation link", node_id=self.n1_id)
         if not (self.n2_id in project_graph._databasePostIDMap):
-            raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=self.p2)
+            raise err.NodeMissing("Could not find node 2 while creating recommendation link", node_id=self.n2_id)
+        if not (self.author_id in project_graph._databaseUserIDMap):
+            raise err.NodeMissing("Could not find author node while creating recommendation link", node_id=self.author_id)
         n1 = project_graph._databasePostIDMap[self.n1_id]
         n2 = project_graph._databasePostIDMap[self.n2_id]
+        author = project_graph._databaseUserIDMap[self.author_id]
         k = 0
         while (("group_recommended", k) in project_graph._baseGraph[n1][n2]):
             k += 1
-        project_graph._baseGraph.add_edge(n1, n2, key=("group_recommended", k), default_weight=self.weight)
-        return
+        project_graph._baseGraph.add_edge(n1, n2, key=("group_recommended", k), default_weight=param.default_edge_weight_recommendation, reputation_weight=author.get_recomendation_weight(), author=author)
 
-class PostRemoval(GenericModification):
+
+class ViolentPostRemoval(GenericModification):
     def __init__(self, database_id):
+        super().__init__()
         self.database_id = database_id
+
+    def list_rep(self):
+        return ["vr", self.database_id]
 
     def apply_to_graph(self, project_graph):
         if not (self.database_id in project_graph._databasePostIDMap):
@@ -97,9 +111,14 @@ class PostRemoval(GenericModification):
             raise err.inconsistent_graph(type=err.inconsistent_graph.graph_idMap_inconsistency, node=node,
                                          node_id=project_graph._databasePostIDMap)
 
+
 class PostDeletion(GenericModification):
     def __init__(self, database_id):
+        super().__init__()
         self.database_id = database_id
+
+    def list_rep(self):
+        return ["pd", self.database_id]
 
     def apply_to_graph(self, project_graph):
         if not (self.database_id in project_graph._databasePostIDMap):
@@ -110,10 +129,20 @@ class PostDeletion(GenericModification):
                                   self.database_id)
         node.deleted = True
 
+
 class PostModification(GenericModification):
-    def __init__(self, database_id, newSize):
+    def __init__(self, database_id, new_size=-1, new_tags=None):
+        super().__init__()
         self.database_id = database_id
-        self.new_size = newSize
+        self.new_size = new_size
+        self.modify_tags = (new_tags != None)
+        if self.modify_tags:
+            self.new_tags = new_tags
+        else:
+            self.new_tags = []
+
+    def list_rep(self):
+        return ["pm", self.database_id, self.new_size] + self.new_tags
 
     def apply_to_graph(self, project_graph):
         if not (self.database_id in project_graph._databasePostIDMap):
@@ -124,9 +153,16 @@ class PostModification(GenericModification):
                                   self.database_id)
         node.size = self.new_size
 
+
 class NewTag(GenericModification):
-    def __init__(self, slug):
+    def __init__(self, database_id, slug):
+        super().__init__()
+        self.database_id = database_id
         self.slug = slug
+
+    def list_rep(self):
+        return ["nt", self.database_id, self.slug]
+
 
     def apply_to_graph(self, project_graph):
         if self.slug in project_graph._tagSlugMap:
@@ -136,8 +172,10 @@ class NewTag(GenericModification):
         project_graph._tagSlugMap[self.slug] = newNode
         project_graph._baseGraph.add_node(newNode)
 
+
 class TagOnPost(GenericModification):
     def __init__(self, post_database_id, tag_slug):
+        super().__init__()
         self.post_database_id = post_database_id
         self.tag_slug = tag_slug
 
@@ -155,8 +193,10 @@ class TagOnPost(GenericModification):
         project_graph._baseGraph.add_edge(post_node, tag_node, key=("tagged_with", 0),
                                           default_weight=param.default_edge_weight_tag)
 
+
 class TagFromPost(GenericModification):
     def __init__(self, post_database_id, tag_slug):
+        super().__init__()
         self.post_database_id = post_database_id
         self.tag_slug = tag_slug
 
@@ -173,6 +213,7 @@ class TagFromPost(GenericModification):
             raise err.EdgeDoesNotExist("Error while removing tag from a post : post does not have this tag", post_node,
                                        tag_node, self.post_database_id, self.tag_slug, ("tagged_with", 0))
         project_graph._baseGraph.remove_edge(post_node, tag_node, key=("tagged_with", 0))
+
 
 class UserCreation(GenericModification):
     pass

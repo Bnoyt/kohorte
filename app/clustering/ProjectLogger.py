@@ -19,21 +19,17 @@ class ProjectLogger:
         self.loaded_graph_path = ""
 
     def register_graph_loading(self):
-        p = self.path / str(datetime.date.today())
+        p = self.path / str(param.now().date())
         if not p.exists():
             p.mkdir()
-        self.loaded_graph_path = p / str(datetime.time.now())
-        while self.loaded_graph_path.exists():
-            self.loaded_graph_path = p / str(datetime.time.now() + 1)
+        self.loaded_graph_path = p / str(param().time())
         self.loaded_graph_path.mkdir()
         return self.loaded_graph_path
 
     def log_modifs_to_loaded_graph(self):
         if not self.graph_is_loaded:
             pass
-        file_path = self.loaded_graph_path / "mods" / str(datetime.time.now()) # datetime.time.now() doesn't exist, I'll replace it with something that works eventually
-        while file_path.exists():
-            file_path = self.loaded_graph_path / "mods" / str(datetime.time.now() + 1)
+        file_path = self.loaded_graph_path / "mods" / str(param.now().time())
         try:
             log_file = file_path.open('wb')
         except OSError:

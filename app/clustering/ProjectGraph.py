@@ -17,9 +17,12 @@ class ProjectGraph:
         self._projectController = projectController
         self._projectLogger = projectLogger
         self._baseGraph = nx.MultiDiGraph()
+
         self._databasePostIDMap = dict()
         self._databaseNoeudIDMap = dict()
-        self._tagSlugMap = dict()
+        self._databaseUserIDMap = dict()
+        self._databaseSlugIDMap = dict()
+
         self._uniqueIDCounter = 0
 
     def get_unique_id(self):

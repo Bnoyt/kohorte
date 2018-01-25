@@ -11,6 +11,7 @@ class BaseNode:
     def __init__(self, uniqueID):
         self.uniqueID = uniqueID
         self.randomisedID = rnd.randrange(self.uniqueID)
+        self.deleted = False
 
     def __eq__(self, other):
         if type(other) == BaseNode:
@@ -87,6 +88,10 @@ class UserNode(BaseNode):
 
     def __str__(self):
         return "(" + str(self.uniqueID) + ") utilisateur node : " + self.username
+
+    def get_recomendation_weight(self):
+        """returns the reputation_weight value for any recomendation link which the author publishes"""
+        pass
 
 
 class SourceNode(BaseNode):

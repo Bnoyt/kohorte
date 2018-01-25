@@ -1,3 +1,6 @@
+import datetime
+import time
+
 # path to the clustering memory
 memory_path = "./memory/"
 
@@ -15,3 +18,7 @@ post_node_default_value = 10.0
 # Defaule edge caracteristics
 default_edge_weight_parent = 3.0
 default_edge_weight_tag = 1.5
+default_edge_weight_recommendation = 2.0
+
+def now():
+    return datetime.datetime.fromtimestamp(time.time())

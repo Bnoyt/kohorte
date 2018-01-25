@@ -46,16 +46,16 @@ class GraphModifier:
         Le string qui reprsente le tag est crée en filtrant ce que l'utilisateur a rentré comme tag, et sera utilisé comme clé"""
         self._push_modification(gm.NewTag(slug=slug))
 
-    def create_recommendation_link(self, node1_database_id, node2_database_id, author):
+    def create_recommendation_link(self, node1, node2, author):
         """Creation d'un lien de recommendation entre deux posts, via le boutton [recommender une fusion]"""
-        self._push_modification(gm.NewRecommendationLink(n1=node1_database_id, n2=node2_database_id, weight=1.0))
+        self._push_modification(gm.NewRecommendationLink(n1=node1, n2=node2, author=author))
 
-    def remove_post(self, database_id):
+    def violently_remove_post(self, database_id):
         """Suprime toutes les données concernant ce post. Le graphe peut refuser de supprimer le post si il est trop important.
         Opération assez violente, a éviter de préférence. Plutot utiliser delete_post a la place"""
-        self._push_modification(gm.PostRemoval(database_id=database_id))
+        self._push_modification(gm.ViolentPostRemoval(database_id=database_id))
 
-    def delete_post(self, database_id):
+    def mark_post_deleted(self, database_id):
         """Marque un post comme supprimé, mais conserve les données liées à ce post.
         Il est impératif que les données du post soient également conservé dans la base de donnée"""
         self._push_modification(gm.PostDeletion(database_id=database_id))
@@ -78,6 +78,10 @@ class GraphModifier:
                 return gm.NewPost(l[1], l[2], l[5:], l[3], l[4])
             if l[0] == "nr":
                 return gm.NewRecommendationLink(l[1], l[2], l[3])
+            if l[0] == "vr":
+                return gm.ViolentPostRemoval(l[1])
+            if l[0] == "pd":
+                return gm.PostDeletion(l[1])
         except IndexError:
             raise err.ForbidenModificationRequest("Error while creating modification from this list : " + str(l)
                                               + "list does not have enough elements")
