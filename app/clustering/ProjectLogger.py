@@ -29,9 +29,9 @@ class ProjectLogger:
     def log_modifs_to_loaded_graph(self):
         if not self.graph_is_loaded:
             pass
-        file_path = self.loaded_graph_path / "mods" / str(param.now().time())
+        file_path = self.loaded_graph_path / "modifications.csv"
         try:
-            log_file = file_path.open('wb')
+            log_file = file_path.open('ab')
         except OSError:
             pass
         return ModifLogChannel(log_file)
@@ -60,7 +60,8 @@ class LogChannel:
 
 class ModifLogChannel(LogChannel):
     def register(self, modif):
-        self.writer.writerow(modif.list_rep())
+        self.writer.writerow([param.now().timestamp()] + modif.list_rep())
+
 
 class AlgorithmLogChannel(LogChannel):
     def register(self, node_unique_id, new_group_id):
