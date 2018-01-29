@@ -144,8 +144,7 @@ class Citation(models.Model):
 
 class Post(models.Model):
     """Le post qui sera écrit et lu par des utilisateurs
-    TODO choisir un langage de formatage du texte : 
-    html ? bbCode ? autre ?. Il devra en outre traiter des 
+    Il devra en outre traiter des 
     citations (2017-11-22)"""
     pere = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
     titre = models.CharField(max_length=100,blank=True)
