@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import Nodes
+
 
 class ForbidenModificationRequest(Exception):
     def __init__(self, descriptor):
         super().__init__(descriptor)
+
 
 class LoadingError(Exception):
     pass
@@ -23,10 +26,6 @@ class GraphNotLoaded(GraphError):
 
 
 class InconsistentGraph(GraphError):
-    node_exists = 0
-    node_missing = 1
-    graph_idMap_inconsistency = 2
-
     def __init__(self, descriptor):
         super().__init__(descriptor)
 
@@ -44,6 +43,11 @@ class NodeMissing(InconsistentGraph):
         super().__init__(descriptor)
         self.node_type = node_type
         self.node_id = node_id
+
+
+class UserNodeMissing(NodeMissing):
+    def __init__(self, descriptor, node_id):
+        super().__init__(descriptor, Nodes.PostNode, node_id)
 
 
 class NodeDeleted(InconsistentGraph):

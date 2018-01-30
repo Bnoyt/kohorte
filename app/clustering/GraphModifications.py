@@ -8,7 +8,9 @@ import parameters as param
 import ProjectController
 import errors as err
 import Nodes
+import ProjectGraph
 import datetime
+
 
 class GenericModification():
     def __init__(self):
@@ -20,19 +22,15 @@ class GenericModification():
     def apply_to_graph(self, project_graph):
         pass
 
+
 class NewPost(GenericModification):
-    def __init__(self, database_id, noeud, tags, size, parent, value):
+    def __init__(self, database_id, noeud, tags, size, parent):
         super().__init__()
         self.database_id = database_id
         self.noeud = noeud
         self.parent = parent
         self.tags = list(tags)
         self.size = size
-        if value == -1:
-            self.value = param.default_post_value
-        else:
-            self.value = value
-
         if size < 0:
             raise err.ForbidenModificationRequest("The new post was requested with a size of + " + str(size)
                                               + " The size of a post cannot be negative")
@@ -41,28 +39,28 @@ class NewPost(GenericModification):
         return ["np", self.database_id, self.noeud, self.parent, self.size] + self.tags
 
     def apply_to_graph(self, project_graph):
-        if self.database_id in project_graph._databasePostIDMap:
+        if self.database_id in project_graph.databasePostIDMap:
             raise err.NodeAlreadyExists(
                 "Could not create the following post node : " + self.__str__() + " This node already exists",
-                project_graph._databasePostIDMap[self.database_id], self.database_id)
-        new_node = Nodes.PostNode(project_graph.get_unique_id(), self.size, self.database_id, value=self.value)
-        project_graph._databasePostIDMap[self.database_id] = new_node
-        project_graph._baseGraph.add_node(new_node)
+                project_graph.databasePostIDMap[self.database_id], self.database_id)
+        new_node = Nodes.PostNode(project_graph.get_unique_id(), self.size, self.database_id)
+        project_graph.databasePostIDMap[self.database_id] = new_node
+        project_graph.baseGraph.add_node(new_node)
         if self.parent != -1:
             try:
-                parentNode = project_graph._databasePostIDMap[self.parent]
+                parent_node = project_graph.databasePostIDMap[self.parent]
             except KeyError:
                 raise err.NodeMissing("Error while creating nodes : missing parent post", Nodes.PostNode, self.parent)
-            project_graph._baseGraph.add_edge(new_node, parentNode, key="parent_post",
-                                              default_weight=param.default_edge_weight_parent)
+            project_graph.baseGraph.add_edge(new_node, parent_node, key=param.parent_post,
+                                             default_weight=param.default_edge_weight_parent)
         for tag in self.tags:
             try:
-                tag_node = project_graph._tagSlugMap[tag]
+                tag_node = project_graph.tagSlugMap[tag]
             except KeyError:
                 raise err.NodeMissing("Error while creating post : could not find the following tag : " + tag,
                                       Nodes.TagNode, tag)
-            project_graph._baseGraph.add_edge(new_node, tag_node, key=("tagged_with", 0),
-                                              default_weight=param.default_edge_weight_tag)
+            project_graph.baseGraph.add_edge(new_node, tag_node, key=("tagged_with", 0),
+                                             default_weight=param.default_edge_weight_tag)
 
 
 class NewRecommendationLink(GenericModification):
@@ -73,22 +71,22 @@ class NewRecommendationLink(GenericModification):
         self.author_id = author
 
     def list_rep(self):
-        return ["nr", self.n1, self.n2, self.author, self.weight]
+        return ["nr", self.n1_id, self.n2_id, self.author_id]
 
     def apply_to_graph(self, project_graph):
-        if not (self.n1_id in project_graph._databasePostIDMap):
+        if not (self.n1_id in project_graph.databasePostIDMap):
             raise err.NodeMissing("Could not find node 1 while creating recommendation link", node_id=self.n1_id)
-        if not (self.n2_id in project_graph._databasePostIDMap):
+        if not (self.n2_id in project_graph.databasePostIDMap):
             raise err.NodeMissing("Could not find node 2 while creating recommendation link", node_id=self.n2_id)
-        if not (self.author_id in project_graph._databaseUserIDMap):
+        if not (self.author_id in project_graph.databaseUserIDMap):
             raise err.NodeMissing("Could not find author node while creating recommendation link", node_id=self.author_id)
-        n1 = project_graph._databasePostIDMap[self.n1_id]
-        n2 = project_graph._databasePostIDMap[self.n2_id]
-        author = project_graph._databaseUserIDMap[self.author_id]
+        n1 = project_graph.databasePostIDMap[self.n1_id]
+        n2 = project_graph.databasePostIDMap[self.n2_id]
+        author = project_graph.databaseUserIDMap[self.author_id]
         k = 0
-        while (("group_recommended", k) in project_graph._baseGraph[n1][n2]):
+        while (param.group_recommended, k) in project_graph.baseGraph[n1][n2]:
             k += 1
-        project_graph._baseGraph.add_edge(n1, n2, key=("group_recommended", k), default_weight=param.default_edge_weight_recommendation, reputation_weight=author.get_recomendation_weight(), author=author)
+        project_graph.baseGraph.add_edge(n1, n2, key=("group_recommended", k), default_weight=param.default_edge_weight_recommendation, reputation_weight=author.get_recomendation_weight(), author=author)
 
 
 class ViolentPostRemoval(GenericModification):
@@ -100,16 +98,16 @@ class ViolentPostRemoval(GenericModification):
         return ["vr", self.database_id]
 
     def apply_to_graph(self, project_graph):
-        if not (self.database_id in project_graph._databasePostIDMap):
-            raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=self.database_id)
-        node = project_graph._databasePostIDMap[self.database_id]
-        del project_graph._databasePostIDMap[self.database_id]
+        if not (self.database_id in project_graph.databasePostIDMap):
+            raise err.NodeMissing("Exception reached while violently removing node this node : "
+                                  + str(self.database_id) + "this node does not exist", node_id=self.database_id)
+        node = project_graph.databasePostIDMap[self.database_id]
+        del project_graph.databasePostIDMap[self.database_id]
         # TODO : delete this node properly
         try:
-            project_graph._baseGraph.remove_node(node)
+            project_graph.baseGraph.remove_node(node)
         except nx.NetworkXError:
-            raise err.inconsistent_graph(type=err.inconsistent_graph.graph_idMap_inconsistency, node=node,
-                                         node_id=project_graph._databasePostIDMap)
+            raise err.InconsistentGraph("networkx error raised while removing node")
 
 
 class PostDeletion(GenericModification):
@@ -121,9 +119,10 @@ class PostDeletion(GenericModification):
         return ["pd", self.database_id]
 
     def apply_to_graph(self, project_graph):
-        if not (self.database_id in project_graph._databasePostIDMap):
-            raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=self.database_id)
-        node = project_graph._databasePostIDMap[self.database_id]
+        if not (self.database_id in project_graph.databasePostIDMap):
+            raise err.NodeMissing("Exception reached while deleting this node : " + str(self.database_id)
+                                  + ". could not find node", node_type=Nodes.PostNode, node_id=self.database_id)
+        node = project_graph.databasePostIDMap[self.database_id]
         if node.deleted:
             raise err.NodeDeleted("Error encounterd while trying to delete a node : node already deleted",
                                   self.database_id)
@@ -135,23 +134,35 @@ class PostModification(GenericModification):
         super().__init__()
         self.database_id = database_id
         self.new_size = new_size
-        self.modify_tags = (new_tags != None)
+        self.modify_tags = (new_tags is not None)
         if self.modify_tags:
-            self.new_tags = new_tags
+            self.new_tags = set(new_tags)
         else:
-            self.new_tags = []
+            self.new_tags = set()
 
     def list_rep(self):
         return ["pm", self.database_id, self.new_size] + self.new_tags
 
-    def apply_to_graph(self, project_graph):
-        if not (self.database_id in project_graph._databasePostIDMap):
-            raise err.inconsistent_graph(type=err.inconsistent_graph.node_missing, node_id=self.database_id)
-        node = project_graph._databasePostIDMap[self.database_id]
+    def apply_to_graph(self, project_graph: ProjectGraph.ProjectGraph):
+        if not (self.database_id in project_graph.databasePostIDMap):
+            raise err.NodeMissing("Exception reached while modifiying this node : " + str(self.database_id)
+                                  + ". node missing", node_type=Nodes.PostNode, node_id=self.database_id)
+        node = project_graph.databasePostIDMap[self.database_id]
         if node.deleted:
             raise err.NodeDeleted("Error encounterd while trying to selfy a node : node has been deleted",
                                   self.database_id)
-        node.size = self.new_size
+        if self.new_size != -1:
+            node.size = self.new_size
+        if self.modify_tags:
+            current_tags = set()
+            for edge in project_graph.baseGraph.out_edges(node):
+                for i in project_graph.baseGraph[node][edge[1]].items():
+                    if i[0][0] == param.tagged_with:
+                        current_tags.add(edge[1])
+            for t in current_tags.difference(self.new_tags):
+                project_graph.baseGraph.remove_edge(node, t, key=(param.tagged_with, 0))
+            for t in self.new_tags.difference(current_tags):
+                project_graph.baseGraph.add_edge(node, t, key=(param.tagged_with, 0))
 
 
 class NewTag(GenericModification):
@@ -163,14 +174,13 @@ class NewTag(GenericModification):
     def list_rep(self):
         return ["nt", self.database_id, self.slug]
 
-
     def apply_to_graph(self, project_graph):
-        if self.slug in project_graph._tagSlugMap:
+        if self.slug in project_graph.tagSlugMap:
             raise err.NodeAlreadyExists("Error while creating this tag : " + self.slug + " Tag already exists",
-                                        project_graph._tagSlugMap[self.slug], self.slug)
-        newNode = Nodes.TagNode(project_graph.getUniqueID(), self.slug)
-        project_graph._tagSlugMap[self.slug] = newNode
-        project_graph._baseGraph.add_node(newNode)
+                                        project_graph.tagSlugMap[self.slug], self.slug)
+        new_node = Nodes.TagNode(project_graph.getUniqueID(), self.slug)
+        project_graph.tagSlugMap[self.slug] = new_node
+        project_graph.baseGraph.add_node(new_node)
 
 
 class TagOnPost(GenericModification):
@@ -180,40 +190,68 @@ class TagOnPost(GenericModification):
         self.tag_slug = tag_slug
 
     def apply_to_graph(self, project_graph):
-        if not (self.post_database_id in project_graph._databasePostIDMap):
+        if not (self.post_database_id in project_graph.databasePostIDMap):
             raise err.NodeMissing("Error while tagging a post : post does not exist", Nodes.PostNode,
                                   self.post_database_id)
-        if not (self.tag_slug in project_graph._tagSlugMap):
+        if not (self.tag_slug in project_graph.tagSlugMap):
             raise err.NodeMissing("Error while tagging a post : tag does not exist", Nodes.TagNode, self.tag_slug)
-        post_node = project_graph._databasePostIDMap[self.post_database_id]
-        tag_node = project_graph._tagSlugMap[self.tag_slug]
-        if ("tagged_with", 0) in project_graph._baseGraph[post_node][tag_node]:
+        post_node = project_graph.databasePostIDMap[self.post_database_id]
+        tag_node = project_graph.tagSlugMap[self.tag_slug]
+        if (param.tagged_with, 0) in project_graph.baseGraph[post_node][tag_node]:
             raise err.EdgeAlreadyExists("Error while tagging a post : post already has this tag", post_node, tag_node,
-                                        self.post_database_id, self.tag_slug, ("tagged_with", 0))
-        project_graph._baseGraph.add_edge(post_node, tag_node, key=("tagged_with", 0),
-                                          default_weight=param.default_edge_weight_tag)
+                                        self.post_database_id, self.tag_slug, (param.tagged_with, 0))
+        project_graph.baseGraph.add_edge(post_node, tag_node, key=(param.tagged_with, 0),
+                                         default_weight=param.default_edge_weight_tag)
 
 
 class TagFromPost(GenericModification):
-    def __init__(self, post_database_id, tag_slug):
+    def __init__(self, post, tag):
         super().__init__()
-        self.post_database_id = post_database_id
-        self.tag_slug = tag_slug
+        self.post_database_id = post
+        self.tag_database_id = tag
 
     def apply_to_graph(self, project_graph):
-        if not (self.post_database_id in project_graph._databasePostIDMap):
+        if not (self.post_database_id in project_graph.databasePostIDMap):
             raise err.NodeMissing("Error while removing tag from a post : post does not exist", Nodes.PostNode,
                                   self.post_database_id)
-        if not (self.tag_slug in project_graph._tagSlugMap):
+        if not (self.tag_database_id in project_graph.databaseTagIDMap):
             raise err.NodeMissing("Error while removing tag from a post : tag does not exist", Nodes.TagNode,
-                                  self.tag_slug)
-        post_node = project_graph._databasePostIDMap[self.post_database_id]
-        tag_node = project_graph._tagSlugMap[self.tag_slug]
-        if not ("tagged_with", 0) in project_graph._baseGraph[post_node][tag_node]:
+                                  self.tag_database_id)
+        post_node = project_graph.databasePostIDMap[self.post_database_id]
+        tag_node = project_graph.databaseTagIDMap[self.tag_database_id]
+        if not ("tagged_with", 0) in project_graph.baseGraph[post_node][tag_node]:
             raise err.EdgeDoesNotExist("Error while removing tag from a post : post does not have this tag", post_node,
-                                       tag_node, self.post_database_id, self.tag_slug, ("tagged_with", 0))
-        project_graph._baseGraph.remove_edge(post_node, tag_node, key=("tagged_with", 0))
+                                       tag_node, self.post_database_id, self.tag_database_id, ("tagged_with", 0))
+        project_graph.baseGraph.remove_edge(post_node, tag_node, key=("tagged_with", 0))
 
 
-class UserCreation(GenericModification):
-    pass
+class NewVote(GenericModification):
+    def __init__(self, post, author, vote_object):
+        super().__init__()
+        self.post_id = post
+        self.author_id = author
+        self.vote = vote
+
+    def list_rep(self):
+        return ["nt", self.post_id, self.author_id] + self.vote.list_rep()
+        # TODO : create a list_rep function for the vote type
+
+    def apply_to_graph(self, project_graph : ProjectGraph):
+        if self.post_id not in project_graph.databasePostIDMap:
+            raise err.NodeMissing("Exception reached while registering vote : post missing")
+        if self.author_id not in project_graph.databaseUserIDMap:
+            raise err.UserNodeMissing("Exception reached while registering a vote. user missing", self.author_id)
+        post = project_graph.databasePostIDMap[self.post_id]
+        author = project_graph.databaseUserIDMap[self.author_id]
+        k = 0
+        while (param.user_vote, k) in project_graph.baseGraph[post][author]:
+            project_graph.baseGraph.add_edge(author, post, key=(param.user_vote, 0), vote_object=self.vote,
+                                             default_weight=param.default_edge_weight_vote)
+
+
+class VoteCancellation(GenericModification):
+    def __init__(self, vote_id, user):
+        super().__init__()
+        self.vote_id = vote_id
+        self.user_id = user
+

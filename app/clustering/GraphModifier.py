@@ -60,17 +60,22 @@ class GraphModifier:
         Il est impératif que les données du post soient également conservé dans la base de donnée"""
         self._push_modification(gm.PostDeletion(database_id=database_id))
 
-    def modify_post(self, database_id, newSize):
-        """Fonction a utiliser pour les modifications de post a posteriori par les utilisateurs (bouton EDIT)"""
-        self._push_modification(gm.PostModification(database_id=database_id, newSize=newSize))
+    def modify_post(self, database_id, new_size=-1, new_tags=None):
+        """Fonction a utiliser pour les modifications de post a posteriori par les utilisateurs (bouton EDIT). Permet de modifier la taille du post et les tags"""
+        self._push_modification(gm.PostModification(database_id=database_id, new_size=new_size, new_tags=new_tags))
 
     def add_tag_to_post(self, post_database_id, tag_slug : str):
         """ Ajoute un nouveau lien entre un tag deja existant et un post deja existant """
         self._push_modification(gm.TagOnPost(post_database_id=post_database_id, tag_slug=tag_slug))
 
-    def remove_tag_from_post(self, post_database_id, tag_slug):
+    def remove_tag_from_post(self, post, tag):
         """retire un lien entre un tag et un post. Ne suprime ni le tag, ni le post"""
-        self._push_modification(gm.TagFromPost(post_database_id=post_database_id, tag_slug=tag_slug))
+        self._push_modification(gm.TagFromPost(post=post, tag=tag))
+
+    def add_vote(self, post, user, vote):
+        """Utliser quand un utilisateur vote pour un post"""
+        pass
+
 
     def read_modification_from_list(self, l):
         try:

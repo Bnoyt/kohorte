@@ -14,14 +14,14 @@ import parameters as param
 
 class ProjectGraph:
     def __init__(self, projectController, projectLogger):
-        self._projectController = projectController
-        self._projectLogger = projectLogger
-        self._baseGraph = nx.MultiDiGraph()
+        self.projectController = projectController
+        self.projectLogger = projectLogger
+        self.baseGraph = nx.MultiDiGraph()
 
-        self._databasePostIDMap = dict()
-        self._databaseNoeudIDMap = dict()
-        self._databaseUserIDMap = dict()
-        self._databaseSlugIDMap = dict()
+        self.databasePostIDMap = dict()
+        self.databaseNoeudIDMap = dict()
+        self.databaseUserIDMap = dict()
+        self.databaseTagIDMap = dict()
 
         self._uniqueIDCounter = 0
 
