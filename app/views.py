@@ -13,6 +13,8 @@ from django.template import loader
 
 from django.contrib.auth.models import User
 
+#import clustering.GraphModifier TODO l'import ne fonctionne pas
+
 def trouver_hashtags(texte):
 	n = len(texte)
 	a = 0
@@ -105,6 +107,10 @@ def noeud(request,noeud_id):
 		
 		posts = [[p,[[c,[r for r in Post.objects.filter(pere=c)]] for c in Post.objects.filter(pere=p)]] for p in post]
 
+		#pour la navigation entre les noeuds dans l'alpha
+		noeudsFamille = [(parente.ideeSource, [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = parente.ideeSource)]) for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
+		noeudsFils = [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = noeud)]
+
 		citations = Citation.objects.filter(rapporteur=user)
 
 		context = {
@@ -114,6 +120,8 @@ def noeud(request,noeud_id):
 			'question':noeud.question,	
 			'titre_page':'Noeud : ' +  noeud.label,
 			'citations':["{{" + str(i.id) + "}}" for i in citations],
+			'noeudsFamille':noeudsFamille,
+			'noeudsFils':noeudsFils,
 			'citation' : """<blockquote>
                              <p>
                              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.
@@ -179,6 +187,7 @@ def parametres(request):
 
 
 def ajouter_post(request):
+	gm = GraphModifier.GraphModifier.get(project_id)#TODO ou est project_id ?
 	if request.user.is_authenticated:
 		post = request.POST
 
@@ -196,11 +205,13 @@ def ajouter_post(request):
 				t = Tag.objects.filter(label=tag)
 				if len(t) == 0:
 					t = Tag(label = tag)
+					#TODO gm.create_tag
 					t.save()
 				else:
 					t = t[0]
 				p.tags.add(t)
 			p.save()
+			gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere)
 
 			template = loader.get_template('post.html')
 			context={'p':[p,[]]
@@ -301,7 +312,6 @@ def sauvegarder_citation(request):
 
 def faq(request):
 	context={'faq':True}
-
 	return render(request,'faq.html',context)
 
 

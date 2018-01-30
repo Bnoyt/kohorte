@@ -11,14 +11,16 @@
 
 
 <div class="wrapper" id="main">
+	{% block side-menu %}
         {% include "side-menu.html" %}
+	{% endblock %}
 
     <div class="main-panel">
         {% include "top-menu.html" %} 
 	{% block extrahead %}{% endblock %} 
         <div class="container-fluid">
             <div class="card" id="page-content"  style="background-color:#F4F4F4;padding-top:10px;">
-	 {% block postman_menu %}{% endblock %}
+	{% block postman_menu %}{% endblock %}
         {% block content %}
 	
         {% endblock %} 

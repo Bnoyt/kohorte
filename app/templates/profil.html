@@ -1,33 +1,193 @@
 {% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-6 col-md-12">
+			<div class="card">
+			    <div class="card-content">
+				<div class="nav-tabs-navigation">
+					<div class="nav-tabs-wrapper">
+						<ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+						    <li class="active"><a href="#profile" data-toggle="tab">Mes informations personnelles</a></li>
+						    <li><a href="#posts" data-toggle="tab">Mes posts</a></li>
+						    <li><a href="#noeuds" data-toggle="tab">Nœuds suivis</a></li>
+						</ul>
+					</div>
+				    </div>
+				    <div id="my-tab-content" class="tab-content text-center">
+					<div class="tab-pane active" id="profile">
+					    
 
 
-<div class="card card-post">
-				<div class="header">
-				<h3>Mes posts</h3>
-				</div>
-				<div class="content">
+ <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+               
+								<div class="card">
+                    <div class="header">
+                        <h4 class="title">Modifier votre profil</h4>
+                    </div>
+
+                    <div class="content">
+                    	<div class="col md-12">
+	                    	<p>{# Test{{message}} #}</p>
+	                    </div>
+
+												<form method="post">
+                        {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Pseudo</label>
+                                        <input type="text" class="form-control border-input" placeholder="Pseudo" name="username">
+{# TODO : déjà écrire pseudo #}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Adresse Email</label>
+                                        <input type="email" class="form-control border-input" placeholder="Email" name="email">
+{# TODO : déjà écrire le mail #}
+                                    </div>
+                                </div>
+                                
 
 
-					<!-- contenu de la récap -->
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Nouveau mot de passe</label>
+                                        <input type="password" class="form-control border-input" name="mdp">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Retaper le nouveau mot de passe</label>
+                                        <input type="password" class="form-control border-input" name="mdp2">
+                                    </div>
+                                </div>
+
+                           
+                            
+													</div>
+													<div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ancien mot de passe (si vous souhaitez le modifier)</label>
+                                        <input type="password" class="form-control border-input" name="mdpOld">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+																	{# TODO : décaler le bouton pour que ça fasse joli #}
+																	<button type="submit" class="btn btn-info btn-fill btn-wd">Enregistrer les modifications</button>
+                                </div>
+
+                            <div class="clearfix"></div>
+                        </form>                        
+
+                    </div>
+                </div>
 
 
 
-				</div>
-
-			
 			</div>
+		</div>
+	</div>
+</div>
+
+
+					</div>
+					<div class="tab-pane" id="posts">
+					    <div class="header">
+								<h3>Mes posts</h3>
+								</div>
+								<div class="content">
+
+
+									Test<!-- contenu de la récap -->
+
+
+
+							</div>
+							<div class="container-fluid">
+								<div class="row">
+									<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+
+										{% for p in posts %}
+
+											{% include "post-seul.html" with c=p %}
+
+										{% endfor %}
+
+
+
+									</div>
+
+								</div>
+							</div>
+
+					</div>
+					<div class="tab-pane" id="noeuds">
+							<div class="header">
+							<h3>Noeuds suivis</h3>
+							</div>
+							<div class="content">
+
+
+								<!-- contenu de la récap -->
+
+
+
+							</div>
+
+
+
+
+							 <div class="container-fluid">
+
+									<div class="row">
+
+									<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+
+										<!-- Afficher les noeuds suivis -->
+
+
+
+									</div>
+								</div>
+							</div>
+					</div>
+				    </div>
+			    </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% comment %}
+<div class="card card-post">
+	<div class="header">
+	<h3>Mes posts</h3>
+	</div>
+	<div class="content">
+
+
+		<!-- contenu de la récap -->
+
+
+
+	</div>
+
+
+</div>
 
 
 
  <div class="container-fluid">
-
     <div class="row">
-
-
-
-
-
-
 		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
 
 
@@ -41,39 +201,30 @@
 
 		</div>
 
+	</div>
+</div>
+     
+<div class="card card-post">
+	<div class="header">
+	<h3>Noeuds suivis</h3>
+	</div>
+	<div class="content">
+
+
+		<!-- contenu de la récap -->
 
 
 
+	</div>
 
 
 </div>
-     
-     <div class="card card-post">
-				<div class="header">
-				<h3>Noeuds suivis</h3>
-				</div>
-				<div class="content">
-
-
-					<!-- contenu de la récap -->
-
-
-
-				</div>
-
-			
-			</div>
 
 
 
  <div class="container-fluid">
 
     <div class="row">
-
-
-
-
-
 
 		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
 
@@ -83,14 +234,9 @@
 
 
 		</div>
-
-
-
-
-
-
+	</div>
 </div>
-
+{% endcomment %}
 
 
 {% endblock %}

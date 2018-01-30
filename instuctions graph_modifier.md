@@ -5,7 +5,7 @@ gm = GraphModifier.GraphModifier.get(project_id)
 
 project_id est l'identifiant sql du projet.
 
-# Liste des moficications
+# Liste des mofifications
 
 Tous les objets doivent être passés via leur clé principale SQL.
 
@@ -18,7 +18,7 @@ A utiliser quand un nouveau post est publié. Si la publication su post créé d
 * tag_list : liste de tous les tags.
 * author : auteur du post
 * author : l'id 
-* size : nombre de caractères du post
+* size : nombre de caractères du post **avec ou sans le titre ?**
 * parent : id du post auquel celui-ci est une réponse. Mettre (-1) si le post est une publication directement dans le noeud.
 
 *create_recommendation_link(node1, node2, author)*
