@@ -27,6 +27,7 @@ class ProjectController:
         try:
             return ProjectController.__projectControllers[project_database_id]
         except KeyError:
+            print(ProjectController.__projectControllers)
             raise KeyError("The project named " + project_database_id + " does not exist")
 
 

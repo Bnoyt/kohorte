@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from app.clustering.ProjectController import ProjectController
+from clustering.ProjectController import ProjectController
 
 def run():
     #TODO: put startup code here
