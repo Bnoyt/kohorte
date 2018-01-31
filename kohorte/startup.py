@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from clustering.ProjectController import ProjectController
+#from clustering.ProjectController import ProjectController
+#j'ai commenté pour pouvoir travailler par ailleurs
 
 def run():
     #TODO: put startup code here

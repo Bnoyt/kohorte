@@ -15,6 +15,6 @@ import kohorte.startup as startup
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kohorte.settings")
 
-startup.run()
+#startup.run()
 
 application = get_wsgi_application()
