@@ -187,7 +187,7 @@ def parametres(request):
 
 
 def ajouter_post(request):
-	gm = GraphModifier.GraphModifier.get(project_id)#TODO ou est project_id ?
+	#gm = GraphModifier.GraphModifier.get(project_id)#TODO ou est project_id ?
 	if request.user.is_authenticated:
 		post = request.POST
 
@@ -201,6 +201,7 @@ def ajouter_post(request):
 			tags = trouver_hashtags(post['contenu'])
 
 			p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
+			p.save()
 			for tag in tags:
 				t = Tag.objects.filter(label=tag)
 				if len(t) == 0:
@@ -210,8 +211,8 @@ def ajouter_post(request):
 				else:
 					t = t[0]
 				p.tags.add(t)
-			p.save()
-			gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere)
+			
+			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere)
 
 			template = loader.get_template('post.html')
 			context={'p':[p,[]]
@@ -338,3 +339,13 @@ def profil(request) :
     
     
     
+def hashtags(request,hashtag):
+	if request.user.is_authenticated:
+
+		context = {}
+
+
+		
+		return render(request,'hashtags.html',context)
+	else:
+		return HttpResponseRedirect(reverse('index'))
