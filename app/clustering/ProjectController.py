@@ -4,6 +4,7 @@
 import networkx as nx
 import queue
 import pickle
+import time
 
 # import dependances
 import spg_algorithms
@@ -19,6 +20,15 @@ class ProjectController:
 
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
+    __projectControllers = {}
+
+    @staticmethod
+    def get(project_database_id):
+        try:
+            return ProjectController.projectControllers[project_database_id]
+        except KeyError:
+            raise KeyError("The project named " + project_database_id + " does not exist")
+
 
     def __init__(self, name, boot=False):
         if boot:
@@ -74,3 +84,6 @@ class ProjectController:
             self.theGraph.apply_modifications(self.graphModifier.pull_all_modifications(), expect_errors)
         else:
             raise err.GraphNotLoaded()
+
+    def sleep(self, t):
+        time.sleep(t)
