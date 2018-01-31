@@ -235,7 +235,7 @@ class NewVote(GenericModification):
         self.vote_type = vote_type
 
     def list_rep(self):
-        return ["nt", self.post_id, self.author_id] + self.vote.list_rep()
+        return ["nt", self.post_id, self.author_id, self.vote_type]
         # TODO : create a list_rep function for the vote type
 
     def apply_to_graph(self, project_graph : ProjectGraph):
@@ -257,6 +257,9 @@ class VoteCancellation(GenericModification):
     def __init__(self, vote_id):
         super().__init__()
         self.vote_id = vote_id
+
+    def list_rep(self):
+        return []
 
     def apply_to_graph(self, project_graph):
         try:
