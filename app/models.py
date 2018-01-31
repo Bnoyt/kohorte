@@ -262,22 +262,3 @@ class RelationUserSuivi(models.Model):
 
     def __str__(self):
         return str(self.type_suivi)
-
-class TypeLienSg(models.Model):
-    label = models.CharField(max_length = 30)
-    #valeur de max_length choisie arbitrairement
-
-    def __str__(self):
-    	return self.label
-
-class lienPostsSgraphe(models.Model):
-    """Sg pour supergraphe
-    a pour objectif de faire le lien avec le supergraphe
-    TODO definir le type de noeudSg1 et noeudSg2"""
-    #noeudSg1
-    #noeudSg2
-    typeLien = models.ForeignKey(TypeLienSg)
-    poids = models.IntegerField()
-
-    def __str__(self):
-    	return str(self.typeLien) + ' : ' + str(poids)

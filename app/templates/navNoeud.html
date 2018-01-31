@@ -20,7 +20,7 @@
 				<span class="sidebar-normal">{{ pere.label }}</span>
 			</a>
 			<ul>
-				<li class="active">
+				<li class="active list-unstyled">
 				<a href="{% url 'noeud' noeud.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ noeud.label }}</span>
@@ -40,7 +40,7 @@
 
 				{% for frere in enfants %}
 				{% if frere != noeud %}
-				<li>
+				<li class="list-unstyled">
 				<a href="{% url 'noeud' frere.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ frere.label }}</span>
@@ -55,7 +55,7 @@
 		{% if not noeudsFamille %}
 			<li>
 			<ul>
-				<li class="active">
+				<li class="active list-unstyled">
 				<a href="{% url 'noeud' noeud.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ noeud.label }}</span>

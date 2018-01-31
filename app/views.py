@@ -13,7 +13,7 @@ from django.template import loader
 
 from django.contrib.auth.models import User
 
-#import clustering.GraphModifier TODO l'import ne fonctionne pas
+#import app.clustering.GraphModifier
 
 def trouver_hashtags(texte):
 	n = len(texte)
@@ -332,9 +332,54 @@ def profil(request) :
             
 
         }
+        #mettre user.user.password
+        post = request.POST
+        if 'username' or 'email' or 'mdp' or 'mdp2' in post :
+            if ('mdpOld' in posts and post['mdpOld'] == user.password) or 'mdpOld' not in posts:
+                if 'username' in post and user.username != post['username']:
+                    if User.objects.filter(username=post['username']).exists():
+                        context['notif'] = "Ce nom d'utilisateur est déjà pris"
+                    else:
+                        user.username = post['username']
+                    if 'email' in post and user.email != post['email']:
+                        if User.objects.filter(email=post['email']).exists():
+                            context['notif'] = "Cette adresse mail est déjà prise"
+                        else:
+                            user.email = post['email']
+                    if 'mdp' in post:
+                        if 'mdp2' in post and post['mdp2']==post['mdp']:
+                            user.password = post['mdp']
+                        else:
+                            context['notif'] = "Veuillez confirmer votre nouveau mot de passe"
+            else:
+                context['notif']="Veuillez entrer votre mot de passe actuel pour valider la modification"
+					
         return render(request,'profil.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
     
-    
+def page_register(request):
+	post = request.POST
+	if 'username' in post and 'email' in post and 'mdp' and 'mdp2' in post:
+		if User.objects.filter(email=post['email']).exists() or User.objects.filter(username=post['username']).exists():
+
+			context['message'] = "L'email ou le pseudo spécifié existe déjà"
+
+			return render(request, 'register.html', context)
+		else:
+			if post["mdp"] != post["mdp2"]:
+				context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
+				context["notif"] = "Les deux mots de passe ne correspondent pas"
+				return render(request, 'register.html', context)
+
+			user = User.objects.create_user(post['username'],post['email'],post['mdp'])
+			personne = Utilisateur(user=user)
+			personne.save()
+			login(request,user)
+			return HttpResponseRedirect(reverse('index'))
+	else:
+		context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
+		if "csrfmiddlewaretoken" in post:
+			context["notif"] = "Vous avez oublié de remplir un champ !"
+		return render(request, 'register.html', context)
     

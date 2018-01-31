@@ -9,3 +9,6 @@ DOWN.bat
 
 #ignore database
 db.sqlite3
+
+#ignore data from clustering
+app/clustering/memory/**
