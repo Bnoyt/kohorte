@@ -154,16 +154,29 @@ def whatsup(request):
 	if request.user.is_authenticated:
 		user = get_object_or_404(Utilisateur,user=request.user)
 		sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
-		
+		suggPrint = [recapNoeud(s.objet) for s in sugg]
+		print(suggPrint)
 		context = {
 			'user':user,
 			'listSugg': sugg,
 			'whatsup':True,
+			'printList':suggPrint,
+
 
 		}
+		
+		noeudsSuivis = [r.post.noeud for r in RelationUserSuivi.objects.filter(user=user)]
+		posts = [p for p in Post.objects.filter(noeud__in=noeudsSuivis)]
+		context['posts'] = posts
+		
 		return render(request,'whatsUp.html',context)
 	else:
 		return HttpResponseRedirect(reverse('index'))
+
+def recapNoeud(noeud):
+    nbPosts = Post.objects.filter(noeud=noeud).count()
+    nbNewPosts = 3 #TODO a calculer
+    return (noeud, nbPosts, nbNewPosts)
 
 def suggestions(request):
 	if request.user.is_authenticated:
