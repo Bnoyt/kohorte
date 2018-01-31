@@ -19,7 +19,7 @@ class GenericModification():
     def time_since_creation(self):
         return (self.creation_time - param.now())
 
-    def apply_to_graph(self, project_graph):
+    def apply_to_graph(self, project_graph : ProjectGraph):
         pass
 
 
@@ -226,14 +226,16 @@ class TagFromPost(GenericModification):
 
 
 class NewVote(GenericModification):
-    def __init__(self, post, author, vote_object):
+    """When a user votes for a post. pass the id of the post, of the user, of the vote itself in the database, and pass the vote_type"""
+    def __init__(self, post, author, vote, vote_type):
         super().__init__()
         self.post_id = post
         self.author_id = author
-        self.vote = vote
+        self.vote_id = vote
+        self.vote_type = vote_type
 
     def list_rep(self):
-        return ["nt", self.post_id, self.author_id] + self.vote.list_rep()
+        return ["nt", self.post_id, self.author_id, self.vote_type]
         # TODO : create a list_rep function for the vote type
 
     def apply_to_graph(self, project_graph : ProjectGraph):
@@ -241,17 +243,36 @@ class NewVote(GenericModification):
             raise err.NodeMissing("Exception reached while registering vote : post missing")
         if self.author_id not in project_graph.databaseUserIDMap:
             raise err.UserNodeMissing("Exception reached while registering a vote. user missing", self.author_id)
+        if self.vote_id in project_graph.databaseVoteIDMap:
+            raise err.EdgeAlreadyExists("", n1_id=self.author_id, n2_id=self.post_id,
+                                        edge_key=(param.user_vote, self.vote_type))
         post = project_graph.databasePostIDMap[self.post_id]
         author = project_graph.databaseUserIDMap[self.author_id]
-        k = 0
-        while (param.user_vote, k) in project_graph.baseGraph[post][author]:
-            project_graph.baseGraph.add_edge(author, post, key=(param.user_vote, 0), vote_object=self.vote,
-                                             default_weight=param.default_edge_weight_vote)
+        project_graph.baseGraph.add_edge(author, post, key=(param.user_vote, self.vote_type), vote_id=self.vote_id,
+                                         default_weight=param.default_edge_weight_vote)
+        project_graph.databaseVoteIDMap[self.vote_id] = (author, post, (param.user_vote, self.vote_type))
 
 
 class VoteCancellation(GenericModification):
-    def __init__(self, vote_id, user):
+    def __init__(self, vote_id):
         super().__init__()
         self.vote_id = vote_id
-        self.user_id = user
+
+    def list_rep(self):
+        return []
+
+    def apply_to_graph(self, project_graph):
+        try:
+            t = project_graph.databaseVoteIDMap[self.vote_id]
+        except KeyError:
+            raise err.EdgeDoesNotExist("Exception reached while removing vote edge : edge does no exist (not registered in databaseVoteIDMap)",
+                                       n1_id=None, n2_id=None, edge_key=t[3], n1=t[0], n2=t[1])
+        if t[0] not in g:
+            raise err.InconsistentGraph("Exception reached while removing edge : author node missing")
+        if t[1] not in g:
+            raise err.InconsistentGraph("Exception reached while removing edge : post node missing")
+        if t[3] not in g[t[0]][t[1]]:
+            raise err.EdgeDoesNotExist("Exception reached while removing vote edge : edge does no exist (not found on baseGraph)",
+                                       n1_id=None, n2_id=None, edge_key=t[3], n1=t[0], n2=t[1])
+        project_graph.baseGraph.remove_edge(*t)
 

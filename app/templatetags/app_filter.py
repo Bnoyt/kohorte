@@ -45,6 +45,12 @@ def remplacer_hashtag(texte):
 		new_texte += texte[-1]
 	except:
 		pass
+
+
+	hashtags = re.findall(r"\\#[A-Za-z1-9]+",new_texte,re.S)
+	for h in hashtags:
+		t = """<a href = '/hashtags/""" + h[2:] + """/'> """ + h + """ </a> """
+		new_texte = new_texte.replace(h,t)
 	return new_texte
 
 

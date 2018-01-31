@@ -1,7 +1,9 @@
 # récupérer l'objet GraphModifier
 
-import clustering.GraphModifier
-gm = GraphModifier.GraphModifier.get(project_id)
+**Uniquement dans l'application app**
+
+from app.clustering.GraphModifier import GraphModifier
+gm = GraphModifier.get(project_id)
 
 project_id est l'identifiant sql du projet.
 
@@ -17,7 +19,7 @@ A utiliser quand un nouveau post est publié. Si la publication su post créé d
 * noeud : id du noeud dans lequel le post à été publié
 * tag_list : liste de tous les tags.
 * author : auteur du post
-* author : l'id 
+* author : l'id
 * size : nombre de caractères du post **avec ou sans le titre ?**
 * parent : id du post auquel celui-ci est une réponse. Mettre (-1) si le post est une publication directement dans le noeud.
 
@@ -25,4 +27,4 @@ A utiliser quand un nouveau post est publié. Si la publication su post créé d
 
 A utiliser pour signaler qu'un utilisateur a indiqué que deux posts devraient être regroupés, via l'outil prévu à cet effet.
 
-* node1 
+* node1
