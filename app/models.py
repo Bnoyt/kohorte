@@ -259,6 +259,7 @@ class TypeSuivi(models.Model):
 class RelationUserSuivi(models.Model):
     post = models.ForeignKey(Post)
     type_suivi = models.ForeignKey(TypeSuivi)
+    user = ForeignKey(Utilisateur)
 
     def __str__(self):
         return str(self.type_suivi)
