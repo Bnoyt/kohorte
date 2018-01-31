@@ -7,13 +7,13 @@ import pickle
 import time
 
 # import dependances
-import spg_algorithms
-import errors as err
-import ProjectGraph as pg
-import ProjectLogger as pl
-import GraphModifications as gm
-import parameters as param
-from pathlib import Path
+#import spg_algorithms
+#import errors as err
+#import .ProjectGraph as pg
+#import .ProjectLogger as pl
+#import .GraphModifications as gm
+#import .parameters as param
+#from pathlib import Path
 
 class ProjectController:
     """Chaque projet qui tourne sera géré par une unique instance de cette classe"""
@@ -25,37 +25,38 @@ class ProjectController:
     @staticmethod
     def get(project_database_id):
         try:
-            return ProjectController.projectControllers[project_database_id]
+            return ProjectController.__projectControllers[project_database_id]
         except KeyError:
             raise KeyError("The project named " + project_database_id + " does not exist")
 
 
     def __init__(self, name, boot=False):
-        if boot:
-            self.name = name
-            self.path = Path(param.memory_path) / name
-            if self.path.exists():
-                raise err.LoadingError()
-            self.path.mkdir()
-        else:
-            self.name = name
-            self.path = param.memory_path + name
-            with open(self.path + "control.txt", 'r') as control_file:
-                try:
-                    name_in_file = control_file.readline()[0:-1]
-                    if name_in_file != self.name:
-                        raise err.LoadingError()
-                    self.database_id = int(control_file.readline()[:-1])
-                    # TODO : go check if this id is indeed in the database
-                    self.clean_shutdown = bool(control_file.readline()[0:-1])
-                    self.avenger = control_file.readline()
-                except IOError:
-                    raise err.LoadingError()
-        self.graphLoaded = False
-        self.graphIsLoading = False
-        self.projectLogger = pl.ProjectLogger(name)
-        self.graphModifier = gm.GraphModifier(name)
-        self.theGraph = None
+#        if boot:
+#            self.name = name
+#            self.path = Path(param.memory_path) / name
+#            if self.path.exists():
+#                raise err.LoadingError()
+#            self.path.mkdir()
+#        else:
+#            self.name = name
+#            self.path = param.memory_path + name
+#            with open(self.path + "control.txt", 'r') as control_file:
+#                try:
+#                    name_in_file = control_file.readline()[0:-1]
+#                    if name_in_file != self.name:
+#                        raise err.LoadingError()
+#                    self.database_id = int(control_file.readline()[:-1])
+#                    # TODO : go check if this id is indeed in the database
+#                    self.clean_shutdown = bool(control_file.readline()[0:-1])
+#                    self.avenger = control_file.readline()
+#                except IOError:
+#                    raise err.LoadingError()
+#        self.graphLoaded = False
+#        self.graphIsLoading = False
+#        self.projectLogger = pl.ProjectLogger(name)
+#        self.graphModifier = gm.GraphModifier(name)
+#        self.theGraph = None
+        pass
 
     def unload_graph(self):
         if not self.graphLoaded:
