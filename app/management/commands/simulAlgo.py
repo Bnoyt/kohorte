@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
-from clustering.ProjectController import ProjectController
+from app.clustering.ProjectController import ProjectController
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
