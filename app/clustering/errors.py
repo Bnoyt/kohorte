@@ -75,7 +75,7 @@ class EdgeAlreadyExists(InconsistentGraph):
 
 
 class EdgeDoesNotExist(InconsistentGraph):
-    def __init__(self, descriptor, n1, n2, n1_id, n2_id, edge_key):
+    def __init__(self, descriptor, n1_id, n2_id, edge_key, n1=None, n2=None):
         super().__init__(descriptor)
         self.n1 = n1
         self.n1_type = type(n1)
