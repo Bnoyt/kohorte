@@ -305,6 +305,7 @@ $("#btn-epingle-s").click(
     
     notifier("Vous suivez désormais ce noeud","success");
 
+    $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'suivre',id_noeud:id_noeud,},function(){},'json');
 
     });
 
@@ -318,7 +319,7 @@ $("#btn-epingle-s").click(
 
        notifier("Vous ne suivrez plus ce noeud","info");
     
-
+       $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'desuivre',id_noeud:id_noeud,},function(){},'json');
 
     });
 

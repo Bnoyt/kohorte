@@ -113,7 +113,11 @@ def noeud(request,noeud_id):
 
 		citations = Citation.objects.filter(rapporteur=user)
 
+		suivi_simple = TypeSuivi.objects.filter(pk=1)
+		suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi=suivi_simple).exists()
+
 		context = {
+			'suivi':suivi,
 			'dashboard':True,
 			'posts': posts,	
 			'noeud':noeud,
@@ -349,3 +353,19 @@ def hashtags(request,hashtag):
 		return render(request,'hashtags.html',context)
 	else:
 		return HttpResponseRedirect(reverse('index'))
+
+def suivi_noeud(request):
+	if request.user.is_authenticated:
+		utilisateur = get_object_or_404(Utilisateur,user = request.user)
+		post = request.POST
+		type_suivi = get_object_or_404(TypeSuivi, pk=1)
+		noeud = get_object_or_404(Noeud,pk = int(post["id_noeud"]))
+		if post["type"] == "suivre" and not(RelationUserSuivi.objects.filter(noeud=noeud,type_suivi=type_suivi,user=utilisateur).exists()):
+			relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi,user=utilisateur)
+			relation_suivi.save()
+		elif post["type"] == "desuivre":
+			relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,type_suivi=type_suivi,user=utilisateur)
+			relation_suivi.delete()
+		return JsonResponse({})
+	else:
+		return JsonResponse({})

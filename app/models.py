@@ -257,12 +257,12 @@ class TypeSuivi(models.Model):
         return self.label
 
 class RelationUserSuivi(models.Model):
-    post = models.ForeignKey(Post)
+    noeud = models.ForeignKey(Noeud)
     type_suivi = models.ForeignKey(TypeSuivi)
     user = models.ForeignKey(Utilisateur)
 
     def __str__(self):
-        return str(self.type_suivi)
+        return str(self.type_suivi) + " -- " + str(self.user) + " -- " + str(self.noeud)
 
 class TypeLienSg(models.Model):
     label = models.CharField(max_length = 30)
