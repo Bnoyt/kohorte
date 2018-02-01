@@ -33,17 +33,24 @@ class GraphModifier:
     def _clear_all_modifications(self):
         pass
 
-    def create_post(self, database_id, noeud, tag_list, author, size: int, parent=-1, value=-1):
+    def create_post(self, database_id, noeud, tag_list, quote_list, author, size: int, parent=-1, value=-1):
         """A utiliser quand un utilisateur publie un nouveau post
         Noeud est l'ID BDD du Noeud du graphe de reflexion sous lequel ce post a été créé
         parent est l'ID BDD du post auquel celui-ci est une reponse, ou -1 si le post n'est pas une reponse
         tag_list doit etre une liste de tous les mots cles, donnes sous forme de strings netoyés (tels qu'ils sont soques dans la BDD)
         Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. """
-        self._push_modification(gm.NewPost(database_id=database_id, noeud=noeud, tags=tag_list, size=size, parent=parent, value=value))
+        self._push_modification(gm.NewPost(database_id=database_id, noeud=noeud, tags=tag_list, size=size, parent=parent))
 
     def create_tag(self, database_id):
         """La premiere fois qu'un mot-clé est utilisé et ajouté a la base de données, il doit être passé via cette fonction"""
         self._push_modification(gm.NewTag(database_id))
+
+    def create_quote(self, origin_post, user):
+        """Utiliser quand un utilisateur clique sur le bouton "citer" et enregistre une citation"""
+        pass
+
+    def forget_quote(self, quote):
+        pass
 
     def create_recommendation_link(self, node1, node2, author):
         """Creation d'un lien de recommendation entre deux posts, via le boutton [recommender une fusion]"""
@@ -60,7 +67,7 @@ class GraphModifier:
         Il est impératif que les données du post soient également conservé dans la base de donnée"""
         self._push_modification(gm.PostDeletion(database_id=database_id))
 
-    def modify_post(self, database_id, new_size=-1, new_tags=None):
+    def modify_post(self, database_id, new_size=-1, new_tags=None, new_quotes=None):
         """FPermet de modifier un post. Cette opération est pensée pour accompagner un bouton "EDIT".
         new_size donne le nouveau nombre de caractères du post (compté comme pour create_post).
         new_tags indique la nouvelle liste de tags du post. Ce n'est pas une list de tags à ajouter,
@@ -82,6 +89,9 @@ class GraphModifier:
 
     def cancel_vote(self, vote):
         pass
+
+
+
 
 
     def read_modification_from_list(self, l):
