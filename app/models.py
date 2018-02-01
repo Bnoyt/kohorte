@@ -262,7 +262,6 @@ class RelationUserSuivi(models.Model):
     user = models.ForeignKey(Utilisateur)
 
     def __str__(self):
-<<<<<<< HEAD
         return str(self.type_suivi) + " -- " + str(self.user) + " -- " + str(self.noeud)
 
 class TypeLienSg(models.Model):
@@ -283,6 +282,3 @@ class lienPostsSgraphe(models.Model):
 
     def __str__(self):
     	return str(self.typeLien) + ' : ' + str(poids)
-=======
-        return str(self.type_suivi)
->>>>>>> 4fab4b6d157b5b14794d69466174102965b67dad
