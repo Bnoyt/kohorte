@@ -5,7 +5,7 @@
 
 
 		<div class="header">
-		<h4><a href="{% url 'noeud' 1 %}">{{s.objet}}</a></h4>
+		<h4><a href="{% url 'noeud' 1 %}">{{s.objet.label}}</a></h4>
 		</div>
 
 
@@ -14,9 +14,7 @@
 
 			<div class="contenu" style="padding:5px" name="{{s.0.id}}">
 				<p>
-
-				<a href="{% url 'noeud' s.objet.id %}">{{s.objet|rendusafe|safe}}</a>
-				{{ s.pertinence }}
+				{{ s.pertinence }} {# TODO mettre un récap #}
 
 				</p>
 			</div>

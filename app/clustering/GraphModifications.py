@@ -166,21 +166,16 @@ class PostModification(GenericModification):
 
 
 class NewTag(GenericModification):
-    def __init__(self, database_id, slug):
+    def __init__(self, database_id):
         super().__init__()
         self.database_id = database_id
-        self.slug = slug
 
     def list_rep(self):
-        return ["nt", self.database_id, self.slug]
+        return ["nt", self.database_id]
 
     def apply_to_graph(self, project_graph):
-        if self.slug in project_graph.tagSlugMap:
-            raise err.NodeAlreadyExists("Error while creating this tag : " + self.slug + " Tag already exists",
-                                        project_graph.tagSlugMap[self.slug], self.slug)
-        new_node = Nodes.TagNode(project_graph.getUniqueID(), self.slug)
-        project_graph.tagSlugMap[self.slug] = new_node
-        project_graph.baseGraph.add_node(new_node)
+        # TODO remplir
+        pass
 
 
 class TagOnPost(GenericModification):
@@ -235,7 +230,7 @@ class NewVote(GenericModification):
         self.vote_type = vote_type
 
     def list_rep(self):
-        return ["nt", self.post_id, self.author_id] + self.vote.list_rep()
+        return ["nt", self.post_id, self.author_id, self.vote_type]
         # TODO : create a list_rep function for the vote type
 
     def apply_to_graph(self, project_graph : ProjectGraph):
@@ -257,6 +252,9 @@ class VoteCancellation(GenericModification):
     def __init__(self, vote_id):
         super().__init__()
         self.vote_id = vote_id
+
+    def list_rep(self):
+        return []
 
     def apply_to_graph(self, project_graph):
         try:

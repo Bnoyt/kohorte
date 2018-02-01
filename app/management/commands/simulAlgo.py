@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
-from app.models import Noeud
+from clustering.ProjectController import ProjectController
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
@@ -7,7 +8,6 @@ from app.models import Noeud
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        strIds = ''.join([str(noeud.id) + '\n' for noeud in Noeud.objects.all()])
-        self.stdout.write("The nodes are :\n" + strIds)
-
+        p = ProjectController.get('Startup Controller')
+        p.sleep(360)
 

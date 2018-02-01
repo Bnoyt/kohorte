@@ -22,6 +22,7 @@ class ProjectGraph:
         self.databaseNoeudIDMap = dict()
         self.databaseUserIDMap = dict()
         self.databaseTagIDMap = dict()
+        self.databaseVoteIDMap = dict()
 
         self._uniqueIDCounter = 0
 

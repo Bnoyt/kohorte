@@ -44,11 +44,11 @@
 				</div>
 
 				<div class="content">
-					<!-- {% for p in posts %}
+					{% for p in posts %}
 
 						{% include "post.html" with p=p %}
 
-					{% endfor %} -->
+					{% endfor %}
 				</div>
 
 			</div>
@@ -64,12 +64,14 @@
 				</div>
 
 			<div class="content">
+				
+			{% for (n, nbPosts, nbNewPosts) in printList %}
 
-			{% for s in listSugg %}
-
-				{% include "suggestions.html" with s=s %}
+				<!--{% include "suggestions.html" with s=s %}-->
+				{% include "noeud-seul.html" with n=n nbPosts=nbPosts nbNewPosts=nbNewPosts %}
 
 			{% endfor %}
+
 			</div>
 		</div>
 
