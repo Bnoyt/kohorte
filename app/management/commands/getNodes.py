@@ -10,4 +10,4 @@ class Command(BaseCommand):
         strIds = ''.join([str(noeud.id) + '\n' for noeud in Noeud.objects.all()])
         self.stdout.write("The nodes are :\n" + strIds)
 
-
+    

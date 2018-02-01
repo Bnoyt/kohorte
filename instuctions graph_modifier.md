@@ -3,7 +3,7 @@
 **Uniquement dans l'application app**
 
 from app.clustering.GraphModifier import GraphModifier
-s
+
 gm = GraphModifier.get(project_id)
 
 project_id est l'identifiant sql du projet.
@@ -12,13 +12,12 @@ project_id est l'identifiant sql du projet.
 
 Tous les objets doivent être passés via leur clé principale SQL. Si le type attendu d'un argument n'est pas précisé, on attend une clé principale SQL.
 
-**create_post(database_id, noeud, tag_list, quote_list, author, size, parent=-1, value=-1)**
+**create_post(database_id, noeud, tagList, author, size, parent=-1, value=-1)**
 
-A utiliser quand un nouveau post est publié. Si la publication su post créé des nouveaux tags par la même occasion, il faut ajouter les nouveaux tags **avant** d'ajouter le post (avec la fonction create_tag).
+A utiliser quand un nouveau post est publié. Si la publication su post créé des nouveaux tags par la même occasion, il faut ajouter les nouveaux tags **avant** d'ajouter le post (avec la fonction create_tag)
 * database_id : id du post. Utiliser la clé principale de la base de donnée des posts.
 * noeud : id du noeud dans lequel le post à été publié
 * tag_list : liste de tous les tags.
-* quote_list : la liste de toutes les citations utilisées.
 * author : auteur du post
 * author : l'id
 * size : nombre de caractères du post. Il n'y a pas une unique façon de compter ça, donc je laisse benoît choisir comment il veut le compter. (Avec ou sans titre, citation, etc). Choisis une façon de compter et indique la ici.
@@ -28,16 +27,14 @@ A utiliser quand un nouveau post est publié. Si la publication su post créé d
 
 A utiliser quand un nouveau tag est créé. Pas besoin d'appeler cette fonction si le tag existe déjà.
 
-**create_quote(origin_post, user, size)**
+**create_quote(origin_post, user)**
+Utiliser quand un utilisateur clique sur le bouton "citer" et enregistre une citation
+* origin_post : le post dont la citation est issue
+* user : l'utilisateur qui clique sur le bouton "citer"
 
-Utiliser quand un utilisateur clique sur le bouton "citer" et enregistre une citation.
-* origin_post : le post dont la citation est issue.
-* user : l'utilisateur qui créé la citation.
-* size : la taille de la citation, en nombre de caractères.
 
 **forget_quote(quote)**
-
-Utiliser quand un utilisateur supprime une citation de sa liste de citations. Dans ce cas, la citation doit rester dans la base de données, elle ne s'affiche simplement plus dans la liste de citations de l'utilisateur.
+Utiliser quand un utilisateur supprime une citation de son répertoire. La citation ne doit surtout pas être supprimée de la BDD, elle va simplement cesser de s'afficher.
 
 **create_recommendation_link(node1, node2, author)**
 

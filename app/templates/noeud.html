@@ -11,8 +11,8 @@
 
 <div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded btn-fill btn-primary" data-toggle="modal" data-target="#nouveau_post"><i class="ti-pencil"></i> Écrire un nouveau post</button></div>
 
-<div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;"  id="btn-epingle-s"><button class="btn btn-rounded btn-fill btn-success"><i class="ti-pin-alt"></i> Suivre</button></div>
-<div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;" id="btn-epingle-n" hidden><button class="btn btn-rounded btn-fill btn-danger"><i class="ti-pin2"></i> Ne plus suivre</button></div>
+<div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;"  id="btn-epingle-s" {% if suivi %} hidden {% endif %}><button class="btn btn-rounded btn-fill btn-success"><i class="ti-pin-alt"></i> Suivre</button></div>
+<div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;" id="btn-epingle-n" {% if not suivi %} hidden {% endif %}><button class="btn btn-rounded btn-fill btn-danger"><i class="ti-pin2"></i> Ne plus suivre</button></div>
 
 <div id="save_citation" title="Enregistrer cette citation" hidden><button class="btn btn-default btn-fill"><i class="ti-save"></i></button></div>
 
