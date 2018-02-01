@@ -25,17 +25,17 @@
         <h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
       </div>
       <div class="modal-body">
-       		<form method="post" class="form card-body" id="#formajouterpost">
+       		<form method="post" class="card-body" id="#formajouterpost">
 				{% csrf_token %}
 				
-				<div class="input-group" style="margin-bottom:10px;">
+				<div style="margin-bottom:10px;">
 					<span class="input-group-addon"></span>
-					<input class="form-control" id="id_titre" name="titre" placeholder="Titre" type="text"> 
+					<input class="form-control border-input" id="id_titre" name="titre" placeholder="Titre" type="text"> 
 				</div>
 
-				<div class="input-group" style="margin-bottom:10px;">
+				<div style="margin-bottom:10px;">
 					<span class="input-group-addon"></span>
-					<textarea class="form-control" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
+					<textarea class="form-control border-input" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
 				</div>
 				<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
 				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
