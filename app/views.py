@@ -326,15 +326,17 @@ def profil(request) :
         sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
         posts = Post.objects.filter(auteur=user)
         # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
-        noeudsSuivis = []
+        type_suivi=get_object_or_404(TypeSuivi,pk=1)
+
+        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user,type_suivi=type_suivi)]
         
 
         context = {
             'user':user,
             'listSugg': sugg,
             'profil':True,
-            'posts':posts
-            
+            'posts':posts,
+            'noeudsSuivis':noeudsSuivis
 
         }
         return render(request,'profil.html',context)
