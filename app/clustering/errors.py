@@ -91,3 +91,4 @@ class InadequatePartition(GraphError):
         super().__init__(descriptor)
 
 
+print("errors successfully imported")

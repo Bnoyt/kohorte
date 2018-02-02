@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import queue
 
 #import perso
-import supergraph as spg
 import networkx as nx
 import parameters as param
 import errors as err
@@ -444,3 +443,6 @@ def gen_and_compare(gen_algo, g_param, split_algo, s_param):
         clc += 1
 
     plt.show()
+
+
+print("algorithms successfully imported")

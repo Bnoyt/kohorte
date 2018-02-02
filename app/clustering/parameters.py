@@ -29,3 +29,6 @@ user_vote = "user_vote"
 
 def now():
     return datetime.datetime.fromtimestamp(time.time())
+
+
+print("Parameters successfully imported")

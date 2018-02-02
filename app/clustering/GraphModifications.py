@@ -5,7 +5,6 @@ import networkx as nx
 
 # dependencies
 import parameters as param
-import ProjectController
 import errors as err
 import Nodes
 import ProjectGraph
@@ -143,7 +142,7 @@ class PostModification(GenericModification):
     def list_rep(self):
         return ["pm", self.database_id, self.new_size] + self.new_tags
 
-    def apply_to_graph(self, project_graph: ProjectGraph.ProjectGraph):
+    def apply_to_graph(self, project_graph):
         if not (self.database_id in project_graph.databasePostIDMap):
             raise err.NodeMissing("Exception reached while modifiying this node : " + str(self.database_id)
                                   + ". node missing", node_type=Nodes.PostNode, node_id=self.database_id)
@@ -273,3 +272,5 @@ class VoteCancellation(GenericModification):
                                        n1_id=None, n2_id=None, edge_key=t[3], n1=t[0], n2=t[1])
         project_graph.baseGraph.remove_edge(*t)
 
+
+print("GraphModifications successfully imported")

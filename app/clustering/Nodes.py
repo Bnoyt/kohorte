@@ -111,3 +111,6 @@ class TagNode(BaseNode):
 
     def __str__(self):
         return "(" + str(self.uniqueID) + ") tag node : " + self.slug
+
+
+print("Nodes successfully imported")

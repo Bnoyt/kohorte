@@ -4,12 +4,9 @@
 import networkx as nx
 import queue
 
-#import dependencies
-import ProjectController
+# import dependencies
 import GraphModifications as mods
 import errors as err
-import Nodes
-import parameters as param
 
 
 class ProjectGraph:
@@ -37,6 +34,9 @@ class ProjectGraph:
 
     def apply_modifications(self, modification_queue):
         pass
+
+
+print("ProjectGraph successfully imported")
 
     # Clés utilisées pour les arrêtes :
     # parent_post : post enfant -> post parent

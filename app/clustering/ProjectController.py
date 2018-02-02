@@ -10,9 +10,10 @@ import spg_algorithms
 import errors as err
 import ProjectGraph as pg
 import ProjectLogger as pl
-import GraphModifications as gm
+from GraphModifier import GraphModifier
 import parameters as param
 from pathlib import Path
+
 
 class ProjectController:
     """Chaque projet qui tourne sera géré par une unique instance de cette classe"""
@@ -44,7 +45,7 @@ class ProjectController:
         self.graphLoaded = False
         self.graphIsLoading = False
         self.projectLogger = pl.ProjectLogger(name)
-        self.graphModifier = gm.GraphModifier(name)
+        self.graphModifier = GraphModifier.get(self.database_id)
         self.theGraph = None
 
     def unload_graph(self):
@@ -74,3 +75,6 @@ class ProjectController:
             self.theGraph.apply_modifications(self.graphModifier.pull_all_modifications(), expect_errors)
         else:
             raise err.GraphNotLoaded()
+
+
+print("Project controller successfully imported")

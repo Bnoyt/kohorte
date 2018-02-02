@@ -107,3 +107,6 @@ class GraphModifier:
 
     def push_modification_from_list(self, l):
         self._push_modification(self.read_modification_from_list(l))
+
+
+print("GraphModifier successfully imported")
