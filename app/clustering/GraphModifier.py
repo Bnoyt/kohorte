@@ -19,19 +19,22 @@ class GraphModifier:
         except KeyError:
             raise KeyError("The project named " + project_database_id + " does not exist")
 
-    def __init__(self, name):
-        self.name = name
-        self.__modifier_reference[name] = self
+    def __init__(self, database_id):
+        self.database_id = database_id
+        self.__modifier_reference[database_id] = self
         self._pendingModifications = queue.Queue()
 
     def _push_modification(self, modif):
         self._pendingModifications.put(modif)
 
-    def _pull_all_modifications(self):
-        pass
+    def pull_all_modifications(self):
+        rt = self._pendingModifications
+        self._pendingModifications = queue.Queue()
+        return rt
 
-    def _clear_all_modifications(self):
-        pass
+
+    def clear_all_modifications(self):
+        self._pendingModifications = queue.Queue()
 
     def create_post(self, database_id, noeud, tag_list, quote_list, author, size: int, parent=-1, value=-1):
         """A utiliser quand un utilisateur publie un nouveau post

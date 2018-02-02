@@ -8,7 +8,8 @@ class ForbidenModificationRequest(Exception):
 
 
 class LoadingError(Exception):
-    pass
+    def __init__(self, descriptor):
+        super().__init__(descriptor)
 
 
 class LogMemoryError(Exception):

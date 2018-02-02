@@ -10,17 +10,28 @@ import errors as err
 
 
 class ProjectGraph:
-    def __init__(self, projectController, projectLogger):
+    def __init__(self, projectController, projectLogger, pg=None):
         self.projectController = projectController
         self.projectLogger = projectLogger
         self.baseGraph = nx.MultiDiGraph()
 
-        self.databasePostIDMap = dict()
-        self.databaseNoeudIDMap = dict()
-        self.databaseUserIDMap = dict()
-        self.databaseTagIDMap = dict()
+        if pg is None:
 
-        self._uniqueIDCounter = 0
+            self.databasePostIDMap = dict()
+            self.databaseNoeudIDMap = dict()
+            self.databaseUserIDMap = dict()
+            self.databaseTagIDMap = dict()
+
+            self._uniqueIDCounter = 0
+
+        else:
+
+            self.base_graph = pg.baseGraph
+            self.databasePostIDMap = pg.databasePostIDMap
+            self.databaseNoeudIDMap = pg.databaseNoeudIDMap
+            self.databaseUserIDMap = pg.databaseUserIDMap
+            self.databaseTagIDMap = pg.databaseTagIDMap
+            self._uniqueIDCounter = pg._uniqueIDCounter
 
     def get_unique_id(self):
         self._uniqueIDCounter += 1
@@ -34,6 +45,20 @@ class ProjectGraph:
 
     def apply_modifications(self, modification_queue):
         pass
+
+    def get_pickle_graph(self):
+        return PickleGraph(self)
+
+
+class PickleGraph:
+
+    def __init__(self, pg : ProjectGraph):
+        self.base_graph = pg.baseGraph
+        self.databasePostIDMap = pg.databasePostIDMap
+        self.databaseNoeudIDMap = pg.databaseNoeudIDMap
+        self.databaseUserIDMap = pg.databaseUserIDMap
+        self.databaseTagIDMap = pg.databaseTagIDMap
+        self._uniqueIDCounter = pg._uniqueIDCounter
 
 
 print("ProjectGraph successfully imported")

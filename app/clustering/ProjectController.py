@@ -26,16 +26,16 @@ class ProjectController:
             self.name = name
             self.path = Path(param.memory_path) / name
             if self.path.exists():
-                raise err.LoadingError()
+                raise err.LoadingError("could not create new project : project already exists")
             self.path.mkdir()
         else:
             self.name = name
-            self.path = param.memory_path + name
-            with open(self.path + "control.txt", 'r') as control_file:
+            self.path = Path(param.memory_path) / name
+            with (self.path / "control.txt").open('r') as control_file:
                 try:
                     name_in_file = control_file.readline()[0:-1]
                     if name_in_file != self.name:
-                        raise err.LoadingError()
+                        raise err.LoadingError("Incompatible control file format : name not valid")
                     self.database_id = int(control_file.readline()[:-1])
                     # TODO : go check if this id is indeed in the database
                     self.clean_shutdown = bool(control_file.readline()[0:-1])
@@ -44,8 +44,8 @@ class ProjectController:
                     raise err.LoadingError()
         self.graphLoaded = False
         self.graphIsLoading = False
-        self.projectLogger = pl.ProjectLogger(name)
-        self.graphModifier = GraphModifier.get(self.database_id)
+        self.projectLogger = pl.ProjectLogger(self.name)
+        self.graphModifier = GraphModifier(self.database_id)
         self.theGraph = None
 
     def unload_graph(self):
@@ -67,8 +67,8 @@ class ProjectController:
         if not modifications_while_loading.empty():
             self.theGraph.apply_modifications(modifications_while_loading)
         log_location = self.projectLogger.register_graph_loading()
-        with (log_location / "initial_graph.pkl").open('w') as dl:
-            pickle.dump(self.theGraph, dl)
+        with (log_location / "initial_graph.pkl").open('wb') as dl:
+            pickle.dump(self.theGraph.get_pickle_graph(), dl)
 
     def apply_modifications(self, expect_errors=False):
         if self.graphLoaded:
