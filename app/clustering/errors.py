@@ -21,6 +21,11 @@ class GraphError(Exception):
         super().__init__(descriptor)
 
 
+class CatastrophicGraphFailure(GraphError):
+    def __init__(self, descriptor):
+        super().__init__(descriptor)
+
+
 class GraphNotLoaded(GraphError):
     def __init__(self, descriptor):
         super().__init__(descriptor)

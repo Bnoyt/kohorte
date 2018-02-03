@@ -33,6 +33,7 @@ class ProjectGraph:
             self.databaseTagIDMap = pg.databaseTagIDMap
             self._uniqueIDCounter = pg._uniqueIDCounter
 
+
     def get_unique_id(self):
         self._uniqueIDCounter += 1
         return self._uniqueIDCounter
