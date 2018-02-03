@@ -27,6 +27,7 @@ class ProjectLogger:
             p.mkdir()
         self.loaded_graph_path = p / current_time_string()
         self.loaded_graph_path.mkdir()
+        self.graph_is_loaded = True
         return self.loaded_graph_path
 
     def log_modifs_to_loaded_graph(self):
@@ -36,7 +37,7 @@ class ProjectLogger:
             raise err.GraphNotLoaded("Exception reached while logging modifications to loaded graph : graph not loaded")
         file_path = self.loaded_graph_path / "modifications.csv"
         try:
-            log_file = file_path.open('ab')
+            log_file = file_path.open('a')
             return ModifLogChannel(log_file)
         except OSError:
             self.active = False
@@ -47,7 +48,7 @@ class ProjectLogger:
             return DummyLogChannel()
         file_path = self.loaded_graph_path / (current_time_string() + "-" + algo_name)
         try:
-            log_file = file_path.open('wb')
+            log_file = file_path.open('w')
             return AlgorithmLogChannel(log_file)
         except OSError:
             self.active = False

@@ -91,7 +91,8 @@ class ProjectController:
 
     def apply_modifications(self, expect_errors=False):
         if self.graphLoaded:
-            self.theGraph.apply_modifications(self.graphModifier.pull_all_modifications(), expect_errors)
+            self.theGraph.apply_modifications(self.graphModifier.pull_all_modifications(),
+                                              self.projectLogger.log_modifs_to_loaded_graph(), expect_errors)
         else:
             raise err.GraphNotLoaded()
 

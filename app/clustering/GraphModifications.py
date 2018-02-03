@@ -42,7 +42,7 @@ class NewPost(GenericModification):
             raise err.NodeAlreadyExists(
                 "Could not create the following post node : " + self.__str__() + " This node already exists",
                 project_graph.databasePostIDMap[self.database_id], self.database_id)
-        new_node = Nodes.PostNode(project_graph.get_unique_id(), self.size, self.database_id)
+        new_node = Nodes.PostNode(self.database_id, self.size)
         project_graph.databasePostIDMap[self.database_id] = new_node
         project_graph.baseGraph.add_node(new_node)
         if self.parent != -1:
@@ -54,7 +54,7 @@ class NewPost(GenericModification):
                                              default_weight=param.default_edge_weight_parent)
         for tag in self.tags:
             try:
-                tag_node = project_graph.tagSlugMap[tag]
+                tag_node = project_graph.databaseTagIDMap[tag]
             except KeyError:
                 raise err.NodeMissing("Error while creating post : could not find the following tag : " + tag,
                                       Nodes.TagNode, tag)
@@ -74,11 +74,11 @@ class NewRecommendationLink(GenericModification):
 
     def apply_to_graph(self, project_graph):
         if not (self.n1_id in project_graph.databasePostIDMap):
-            raise err.NodeMissing("Could not find node 1 while creating recommendation link", node_id=self.n1_id)
+            raise err.NodeMissing("Could not find node 1 while creating recommendation link", node_id=self.n1_id, node_type=Nodes.PostNode)
         if not (self.n2_id in project_graph.databasePostIDMap):
-            raise err.NodeMissing("Could not find node 2 while creating recommendation link", node_id=self.n2_id)
+            raise err.NodeMissing("Could not find node 2 while creating recommendation link", node_id=self.n2_id, node_type=Nodes.PostNode)
         if not (self.author_id in project_graph.databaseUserIDMap):
-            raise err.NodeMissing("Could not find author node while creating recommendation link", node_id=self.author_id)
+            raise err.NodeMissing("Could not find author node while creating recommendation link", node_id=self.author_id, node_type=Nodes.UserNode)
         n1 = project_graph.databasePostIDMap[self.n1_id]
         n2 = project_graph.databasePostIDMap[self.n2_id]
         author = project_graph.databaseUserIDMap[self.author_id]
@@ -174,31 +174,34 @@ class NewTag(GenericModification):
         return ["nt", self.database_id, self.slug]
 
     def apply_to_graph(self, project_graph):
-        if self.slug in project_graph.tagSlugMap:
+        if self.database_id in project_graph.databaseTagIDMap:
             raise err.NodeAlreadyExists("Error while creating this tag : " + self.slug + " Tag already exists",
                                         project_graph.tagSlugMap[self.slug], self.slug)
-        new_node = Nodes.TagNode(project_graph.getUniqueID(), self.slug)
-        project_graph.tagSlugMap[self.slug] = new_node
+        new_node = Nodes.TagNode(self.database_id, self.slug)
+        project_graph.databaseTagIDMap[self.database_id] = new_node
         project_graph.baseGraph.add_node(new_node)
 
 
 class TagOnPost(GenericModification):
-    def __init__(self, post_database_id, tag_slug):
+    def __init__(self, post, tag):
         super().__init__()
-        self.post_database_id = post_database_id
-        self.tag_slug = tag_slug
+        self.post_database_id = post
+        self.tag_database_id = tag
+
+    def list_rep(self):
+        return ["tp", self.post_database_id, self.tag_database_id]
 
     def apply_to_graph(self, project_graph):
         if not (self.post_database_id in project_graph.databasePostIDMap):
             raise err.NodeMissing("Error while tagging a post : post does not exist", Nodes.PostNode,
                                   self.post_database_id)
-        if not (self.tag_slug in project_graph.tagSlugMap):
-            raise err.NodeMissing("Error while tagging a post : tag does not exist", Nodes.TagNode, self.tag_slug)
+        if not (self.tag_database_id in project_graph.databaseTagIDMap):
+            raise err.NodeMissing("Error while tagging a post : tag does not exist", Nodes.TagNode, self.tag_database_id)
         post_node = project_graph.databasePostIDMap[self.post_database_id]
-        tag_node = project_graph.tagSlugMap[self.tag_slug]
+        tag_node = project_graph.databaseTagIDMap[self.tag_database_id]
         if (param.tagged_with, 0) in project_graph.baseGraph[post_node][tag_node]:
             raise err.EdgeAlreadyExists("Error while tagging a post : post already has this tag", post_node, tag_node,
-                                        self.post_database_id, self.tag_slug, (param.tagged_with, 0))
+                                        self.post_database_id, self.tag_database_id, (param.tagged_with, 0))
         project_graph.baseGraph.add_edge(post_node, tag_node, key=(param.tagged_with, 0),
                                          default_weight=param.default_edge_weight_tag)
 
@@ -208,6 +211,9 @@ class TagFromPost(GenericModification):
         super().__init__()
         self.post_database_id = post
         self.tag_database_id = tag
+
+    def list_rep(self):
+        return ["tr", self.post_database_id, self.tag_database_id]
 
     def apply_to_graph(self, project_graph):
         if not (self.post_database_id in project_graph.databasePostIDMap):
@@ -225,7 +231,8 @@ class TagFromPost(GenericModification):
 
 
 class NewVote(GenericModification):
-    """When a user votes for a post. pass the id of the post, of the user, of the vote itself in the database, and pass the vote_type"""
+    """When a user votes for a post. pass the id of the post, of the user,
+    of the vote itself in the database, and pass the vote_type"""
     def __init__(self, post, author, vote, vote_type):
         super().__init__()
         self.post_id = post
@@ -234,7 +241,7 @@ class NewVote(GenericModification):
         self.vote_type = vote_type
 
     def list_rep(self):
-        return ["nt", self.post_id, self.author_id] + self.vote.list_rep()
+        return ["nv", self.post_id, self.author_id] + [self.vote_type]
         # TODO : create a list_rep function for the vote type
 
     def apply_to_graph(self, project_graph : ProjectGraph):
@@ -256,6 +263,9 @@ class VoteCancellation(GenericModification):
     def __init__(self, vote_id):
         super().__init__()
         self.vote_id = vote_id
+
+    def list_rep(self):
+        return ["vc", self.vote_id]
 
     def apply_to_graph(self, project_graph):
         try:

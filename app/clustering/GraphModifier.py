@@ -44,10 +44,10 @@ class GraphModifier:
         Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. """
         self._push_modification(gm.NewPost(database_id=database_id, noeud=noeud, tags=tag_list, size=size, parent=parent))
 
-    def create_tag(self, slug : str):
+    def create_tag(self, database_id, slug):
         """La premiere fois qu'un mot-clé est utilisé et ajouté a la base de données, il doit être passé via cette fonction
         Le string qui reprsente le tag est crée en filtrant ce que l'utilisateur a rentré comme tag, et sera utilisé comme clé"""
-        self._push_moinsdification(gm.NewTag(slug=slug))
+        self._push_modification(gm.NewTag(database_id, slug))
 
     def create_quote(self, origin_post, user):
         """Utiliser quand un utilisateur clique sur le bouton "citer" et enregistre une citation"""
@@ -80,15 +80,15 @@ class GraphModifier:
 
     def add_tag_to_post(self, post_database_id, tag_slug : str):
         """ Ajoute un nouveau lien entre un tag deja existant et un post deja existant """
-        self._push_modification(gm.TagOnPost(post_database_id=post_database_id, tag_slug=tag_slug))
+        self._push_modification(gm.TagOnPost(post=post_database_id, tag=tag_slug))
 
     def remove_tag_from_post(self, post, tag):
         """retire un lien entre un tag et un post. Ne suprime ni le tag, ni le post"""
         self._push_modification(gm.TagFromPost(post=post, tag=tag))
 
-    def add_vote(self, post, user, vote):
+    def add_vote(self, post, user, vote, vote_type):
         """Utliser quand un utilisateur vote pour un post"""
-        pass
+        self._push_modification(gm.NewVote(post=post, author=user, vote=vote, vote_type=vote_type))
 
 
 
