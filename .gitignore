@@ -1,5 +1,5 @@
 #personal ignore
-.spydproject
+.spydproject/*
 UP.bat
 DOWN.bat
 
