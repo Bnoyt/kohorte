@@ -7,4 +7,5 @@ def run():
 #    p = ProjectController('Startup Controller', False)
 #    ProjectController._ProjectController__projectControllers['Startup Controller'] = p
 #    print('Done executing startup code')
+    global SUPERVARIABLE = True
     pass
