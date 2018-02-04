@@ -29,8 +29,10 @@ default_edge_weight_vote = 0.3
 # edge keys
 tagged_with = "tagged_with"
 parent_post = "parent_post"
-group_recommended = "group recommended"
+group_recommended = "group_recommended"
 user_vote = "user_vote"
+
+head_and_leaf_reduce = "hnl_reduce"
 
 def now():
     return dtt.datetime.fromtimestamp(time.time())

@@ -62,10 +62,19 @@ class GenericProcedure:
         pass
 
 
+def get_procedure_table(the_graph):
+    return [Procedure1(the_graph),
+            Procedure2(the_graph)
+            ]
+
+
 class DoNothing(GenericProcedure):
+    def __init__(self):
+        super().__init__(None)
+        self.lazyness = param.lazyness
 
     def priority(self, run_time):
-        return param.lazyness
+        return self.lazyness
 
 
 class Procedure1(GenericProcedure):
@@ -88,14 +97,13 @@ class Procedure2(GenericProcedure):
         pass
 
 
-def get_procedure_table(the_graph):
-    return [DoNothing(the_graph),
-            Procedure1(the_graph),
-            Procedure2(the_graph)
-            ]
-
-
 '''filtering and preparation'''
+
+
+def roots_and_leaves(g):
+    """ Renvoie un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
+    Cree de nouveaux edges de cle param.head_and_leaf_reduce"""
+    pass
 
 
 def get_bridges(g):

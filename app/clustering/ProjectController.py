@@ -52,10 +52,9 @@ class ProjectController:
         self.theGraph = None
 
         self.procedure_table = None
+        self.dummy_procedure = None
 
     def unload_graph(self):
-        if not self.graphLoaded:
-            raise err.GraphNotLoaded()
         # TODO all the unloading procedure
         self.graphLoaded = False
         self.theGraph = None
@@ -80,6 +79,7 @@ class ProjectController:
         self.graphIsLoading = False
         self.graphLoaded = True
         self.procedure_table = ClusteringAlgorithms.get_procedure_table(self.theGraph)
+        self.dummy_procedure = ClusteringAlgorithms.DoNothing()
         if not modifications_while_loading.empty():
             self.theGraph.apply_modifications(modifications_while_loading)
         try:
@@ -116,7 +116,7 @@ class ProjectController:
 
             self.apply_modifications()
 
-            chosen_procedure = self.procedure_table[0]
+            chosen_procedure = self.dummy_procedure
 
             for proc in self.procedure_table:
                 if proc.priority(run_time) > chosen_procedure.priority(run_time):
