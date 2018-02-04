@@ -9,6 +9,7 @@ Created on Wed Nov 22 19:06:27 2017
 import random
 import matplotlib.pyplot as plt
 import queue
+import datetime as dtt
 
 #import perso
 import networkx as nx
@@ -16,6 +17,7 @@ import parameters as param
 import errors as err
 
 color_sample = ['blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'red']
+
 
 def graph_model_1(n, ideas, reduction):
     """each node belongs to some ideas, more one than the rest. Random links based on shared ideas"""
@@ -43,12 +45,58 @@ def graph_model_1(n, ideas, reduction):
             del(colors[i])
     return (res_graph, colors)
 
-class generic_exception(BaseException):
-    description = ""
-    def __init__(self, s):
-        description = s
+# define procedures
+
+
+class GenericProcedure:
+    def __init__(self, the_graph):
+        self.the_graph = the_graph
+        self.name = "generic-procedure"
+        self.period = dtt.timedelta(days=1)
+        self.last_run_time = param.now()
+
+    def priority(self, run_time):
+        return (run_time - self.last_run_time) / self.period
+
+    def run(self, log_channel):
+        pass
+
+
+class DoNothing(GenericProcedure):
+
+    def priority(self, run_time):
+        return param.lazyness
+
+
+class Procedure1(GenericProcedure):
+    def __init__(self, the_graph):
+        super().__init__(the_graph)
+        self.name = "procedure1"
+        self.period = param.p_procedure1
+
+    def run(self, log_channel):
+        pass
+
+
+class Procedure2(GenericProcedure):
+    def __init__(self, the_graph):
+        super().__init__(the_graph)
+        self.name = "procedure2"
+        self.period = param.p_procedure2
+
+    def run(self, log_channel):
+        pass
+
+
+def get_procedure_table(the_graph):
+    return [DoNothing(the_graph),
+            Procedure1(the_graph),
+            Procedure2(the_graph)
+            ]
+
 
 '''filtering and preparation'''
+
 
 def get_bridges(g):
     """returns the bridges. A bridge is an edge in a 1-edge biconnected component"""
@@ -59,6 +107,7 @@ def get_bridges(g):
             lc = list(c)
             bridges.add((lc[0],lc[1]))
     return(bridges)
+
 
 # networkx shell
 def get_biconnection_components(g, bridges):
@@ -71,7 +120,9 @@ def get_biconnection_components(g, bridges):
             core_edges.remove((e[1], e[0]))
     return nx.connected_components(g.edge_subgraph(core_edges))
 
+
 '''seed and core identification'''
+
 
 def get_triangles(g):
     """returns a list of all trangles in G"""
@@ -90,9 +141,11 @@ def get_triangles(g):
                     triangle_list.append((bnode, d2[i], d2[j]))
     return triangle_list
 
+
 # networkx shell
 def fuse_to_cores(g, points):
     return(list(nx.connected_components(g.subgraph(points))))
+
 
 def local_clustering_coeffs(g):
     """returns a dictionary with the clustering coefficient for each node"""
@@ -115,7 +168,9 @@ def local_clustering_coeffs(g):
             result[n]= 0
     return result
 
+
 '''Core expansion'''
+
 
 def appr_page_rank(g, starting_points, tele_prob, precision):
     #returns a pagerank vector of all the points, stored as a dictionnary
@@ -157,6 +212,7 @@ def appr_page_rank(g, starting_points, tele_prob, precision):
     print(len(p) - len(starting_points))
     return p
 
+
 def sweep(g, ordered_nodes):
     if len(ordered_nodes) == 0:
         raise(generic_exception("performing a sweep with an empty pagerank vector"))
@@ -172,6 +228,7 @@ def sweep(g, ordered_nodes):
             best_cut = i
             best_conductance = cut/(min(vsweep, vmax-vsweep))
     return( ordered_nodes[0:best_cut+1])
+
 
 def ec_ppr(g, core_list, divide_by_degree=False):
     comps = []
@@ -259,6 +316,7 @@ def ec_balanced(g, core_list):
             comps[-1].append(pair[0])
     return(comps)
 
+
 def ec_closest(g, core_list):
     """expands cores by assigning nodes to the closest core"""
     num_of_cores = len(core_list)
@@ -290,9 +348,11 @@ def ec_closest(g, core_list):
             components[m].append(node)
     return(components)
 
+
 '''Edge improvment'''
 
-#A finir
+
+# A finir
 def ei_uphill(g, comp_list):
     '''Les nodes sont passes sur des composantes voisines tan que ça reduit le poid total de la coupe.'''
     if(type(g) != nx.graph and type(g) != nx.multiGraph):
@@ -371,11 +431,12 @@ def ei_uphill(g, comp_list):
             node_queue.remove((max(nsg_i),ni))
             nsg_i[j] -= g[i][j][weight]
 
+
 '''Global'''
 
 
-
 '''Utility'''
+
 
 def attr_list_gen(o, d):
     """generates a list from a dictionnary, to use as a weight, size, color... argument for nx functions"""
@@ -446,3 +507,11 @@ def gen_and_compare(gen_algo, g_param, split_algo, s_param):
 
 
 print("algorithms successfully imported")
+
+
+def algo1(the_graph):
+    pass
+
+
+def algo2(the_graph):
+    pass

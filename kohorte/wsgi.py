@@ -11,10 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-import kohorte.startup as startup
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kohorte.settings")
-
-startup.run()
 
 application = get_wsgi_application()

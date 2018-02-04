@@ -1,9 +1,14 @@
-import datetime
+import datetime as dtt
 import time
 
 # path to the clustering memory
 memory_path = "./memory/"
 
+# Project controler decision parameters
+
+lazyness = 1.0
+p_procedure1 = dtt.timedelta(minutes=300)
+p_procedure2 = dtt.timedelta(minutes=40)
 
 # personalised page rank : teleport probability
 ppr_tp_prob = 0.99
@@ -28,4 +33,7 @@ group_recommended = "group recommended"
 user_vote = "user_vote"
 
 def now():
-    return datetime.datetime.fromtimestamp(time.time())
+    return dtt.datetime.fromtimestamp(time.time())
+
+
+print("Parameters successfully imported")

@@ -117,7 +117,9 @@
 
 										{% for p in posts %}
 
-											{% include "post-seul.html" with c=p %}
+											<a href =" {% url 'noeud' p.noeud.id %}">
+												{% include "post-seul.html" with c=p %}
+											</a>
 
 										{% endfor %}
 
@@ -136,7 +138,40 @@
 							<div class="content">
 
 
-								<!-- contenu de la récap -->
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+											{% for n in noeudsSuivis %}
+
+											<a href = "{% url 'noeud' n.id %}">
+												<div class="col-md-12 pull-right post">
+													<div class="card card-post">
+
+
+														<div class="content">
+
+															<div class="contenu">
+																<p>
+
+																{{n.label}}
+
+																</p>
+															</div>
+
+														</div>
+													</div>
+
+													
+
+												</div>
+											</a>
+
+
+											{% endfor %}
+										</div>
+									</div>
+								</div>
 
 
 

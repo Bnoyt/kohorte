@@ -305,6 +305,7 @@ $("#btn-epingle-s").click(
     
     notifier("Vous suivez désormais ce noeud","success");
 
+    $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'suivre',id_noeud:id_noeud,},function(){},'json');
 
     });
 
@@ -318,7 +319,7 @@ $("#btn-epingle-s").click(
 
        notifier("Vous ne suivrez plus ce noeud","info");
     
-
+       $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'desuivre',id_noeud:id_noeud,},function(){},'json');
 
     });
 
@@ -360,11 +361,9 @@ formulaire = $("#form-write-message");
 button = formulaire.children("button");
 button.attr("class",button.attr("class") + " btn btn-fill");
 inputs = formulaire.children("table").children("tbody").children("tr").children("td").children("input");
-inputs.attr("class",inputs.attr("class") + "form form-control");
-inputs.attr("style","border-style:solid;border-width:1px");
+inputs.attr("class",inputs.attr("class") + "form form-control border-input");
 inpouts = formulaire.children("table").children("tbody").children("tr").children("td").children("textarea");
-inpouts.attr("class",inpouts.attr("class") + "form form-control");
-inpouts.attr("style","border-style:solid;border-width:1px");
+inpouts.attr("class",inpouts.attr("class") + "form form-control border-input");
 
 
 
