@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from kohorte import SUPERVARIABLE
+from kohorte.startup import SUPERVARIABLE
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands

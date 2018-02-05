@@ -4,13 +4,13 @@
 import random as rnd
 
 # import dependencies
-import parameters as param
+import app.clustering.parameters as param
 
 
 class BaseNode:
-    
+
     ClassInt = 0
-    
+
     def __init__(self, database_id):
         self.database_id = database_id
         self.randomised_id = rnd.randrange(self.database_id)
@@ -120,4 +120,4 @@ class QuoteNode(BaseNode):
         return "(" + str(self.database_id) + ") tag node"
 
 
-print("Nodes successfully imported")
+#print("Nodes successfully imported")

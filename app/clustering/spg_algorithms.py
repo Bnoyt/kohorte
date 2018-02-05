@@ -12,8 +12,8 @@ import queue
 
 #import perso
 import networkx as nx
-import parameters as param
-import errors as err
+import app.clustering.parameters as param
+import app.clustering.errors as err
 
 color_sample = ['blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'red']
 
@@ -445,4 +445,4 @@ def gen_and_compare(gen_algo, g_param, split_algo, s_param):
     plt.show()
 
 
-print("algorithms successfully imported")
+#print("algorithms successfully imported")

@@ -4,8 +4,8 @@
 import queue
 
 # dependencies
-import GraphModifications as gm
-import errors as err
+import app.clustering.GraphModifications as gm
+import app.clustering.errors as err
 
 
 class GraphModifier:
@@ -112,4 +112,4 @@ class GraphModifier:
         self._push_modification(self.read_modification_from_list(l))
 
 
-print("GraphModifier successfully imported")
+#print("GraphModifier successfully imported")

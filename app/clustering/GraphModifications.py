@@ -4,11 +4,10 @@
 import networkx as nx
 
 # dependencies
-import parameters as param
-import errors as err
-import Nodes
-import ProjectGraph
-import datetime
+import app.clustering.parameters as param
+import app.clustering.errors as err
+import app.clustering.Nodes as Nodes
+#import datetime UNUSED IN THIS CODE
 
 
 class GenericModification():
@@ -18,7 +17,7 @@ class GenericModification():
     def time_since_creation(self):
         return (self.creation_time - param.now())
 
-    def apply_to_graph(self, project_graph : ProjectGraph):
+    def apply_to_graph(self, project_graph):
         pass
 
 
@@ -244,7 +243,7 @@ class NewVote(GenericModification):
         return ["nv", self.post_id, self.author_id] + [self.vote_type]
         # TODO : create a list_rep function for the vote type
 
-    def apply_to_graph(self, project_graph : ProjectGraph):
+    def apply_to_graph(self, project_graph):
         if self.post_id not in project_graph.databasePostIDMap:
             raise err.NodeMissing("Exception reached while registering vote : post missing")
         if self.author_id not in project_graph.databaseUserIDMap:
@@ -283,4 +282,4 @@ class VoteCancellation(GenericModification):
         project_graph.baseGraph.remove_edge(*t)
 
 
-print("GraphModifications successfully imported")
+#print("GraphModifications successfully imported")

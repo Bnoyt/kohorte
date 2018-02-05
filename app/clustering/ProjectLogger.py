@@ -6,8 +6,8 @@ import datetime
 from pathlib import Path
 
 # import dependencies
-import parameters as param
-import errors as err
+import app.clustering.parameters as param
+import app.clustering.errors as err
 
 
 class ProjectLogger:

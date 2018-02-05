@@ -38,4 +38,4 @@ def now():
     return dtt.datetime.fromtimestamp(time.time())
 
 
-print("Parameters successfully imported")
+#print("Parameters successfully imported")

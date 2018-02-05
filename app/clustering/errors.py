@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import Nodes
+import app.clustering.Nodes
 
 
 class ForbidenModificationRequest(Exception):
@@ -97,4 +97,4 @@ class InadequatePartition(GraphError):
         super().__init__(descriptor)
 
 
-print("errors successfully imported")
+#print("errors successfully imported")

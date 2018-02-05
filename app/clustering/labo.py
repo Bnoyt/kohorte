@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import ProjectController as pc
-import GraphModifier
-import Nodes
-import parameters as param
+import app.clustering.ProjectController as pc
+import app.clustering.GraphModifier
+import app.clustering.Nodes
+import app.clustering.parameters as param
 import networkx as nx
 import pickle
 from pathlib import Path
