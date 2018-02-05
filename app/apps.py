@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from app.clustering.ProjectController import ProjectController
 
 
 class MyAppConfig(AppConfig):
