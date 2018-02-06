@@ -10,11 +10,12 @@ import random
 import matplotlib.pyplot as plt
 import queue
 import datetime as dtt
+import networkx as nx
 
 #import perso
-import networkx as nx
 import parameters as param
 import errors as err
+import Nodes
 
 color_sample = ['blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'red']
 
@@ -101,9 +102,18 @@ class Procedure2(GenericProcedure):
 
 
 def roots_and_leaves(g):
-    """ Renvoie un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
-    Cree de nouveaux edges de cle param.head_and_leaf_reduce"""
-    pass
+    """ A terme, renverra un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
+    Cree de nouveaux edges de cle param.head_and_leaf_reduce
+    Pour l'instant on cree juste un nouveau graphe"""
+    ng = nx.Graph()
+    for n in g.nodes:
+        if isinstance(n, Nodes.NoeudNode):
+            parent_link = get_out_edge(g, n, param.parent_post)
+            child_link = get_in_edge(g, n, param.parent_post)
+            if child_link is not None:
+                pass
+
+
 
 
 def get_bridges(g):
@@ -441,6 +451,24 @@ def ei_uphill(g, comp_list):
 
 
 '''Global'''
+
+'''Graph navigation'''
+
+
+def get_in_edge(g, node, base_key):
+    '''Returns one in_edge verifying a given charcteristics, or None if no such edge exists'''
+    for e in g.in_edges(node, data=True, keys=True):
+        if e[2][0] == base_key:
+            return e
+    return None
+
+
+def get_out_edge(g, node, base_key):
+    '''Returns one in_edge verifying a given charcteristics, or None if no such edge exists'''
+    for e in g.out_edges(node, data=True, keys=True):
+        if e[2][0] == base_key:
+            return e
+    return None
 
 
 '''Utility'''
