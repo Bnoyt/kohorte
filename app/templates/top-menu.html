@@ -22,12 +22,14 @@
 
 
                         {% include "notifications.html" %} 
-						<li>
+{% comment %}
+			<li>
                             <a href="{% url 'parametres' %}">
 								<i class="ti-settings"></i>
 								<p>Paramètres</p>
                             </a>
                         </li>
+{% endcomment %}
 
                          <li>
                             <a href="{% url 'login' %}">
