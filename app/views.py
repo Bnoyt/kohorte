@@ -217,7 +217,7 @@ def ajouter_post(request):
 					t = t[0]
 				p.tags.add(t)
 			
-			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere.id if p.pere.id != p.id else -1)
+			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere.id if p.pere != None else -1)
 
 			template = loader.get_template('post.html')
 			context={'p':[p,[]]
@@ -333,9 +333,9 @@ def profil(request) :
         sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
         posts = Post.objects.filter(auteur=user)
         # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
-        type_suivi=get_object_or_404(TypeSuivi,pk=1)
+        #type_suivi=get_object_or_404(TypeSuivi,pk=1)
 
-        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user,type_suivi=type_suivi)]
+        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user)]
         
 
         context = {
