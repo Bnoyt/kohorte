@@ -28,4 +28,27 @@
 
 		</div>
 	</div>
+
+<div class="card card-r col-md-12 pull-right"  style="z-index:100" hidden>
+
+
+		<div class="content">
+
+			<form method="post" class="form-reponse">
+				
+				{% csrf_token %}
+
+				<textarea class="form-control reponse border-input" type="text" rows="1" id="champ_{{r.0.id}}" placeholder="Répondre"></textarea>
+				<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
+				<div style="padding-top:10px;padding-bottom:50px">
+					<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
+					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
+				</div>
+			</form>
+
+
+		</div>
+
+	</div>
+
 </div>
