@@ -12,7 +12,7 @@ project_id est l'identifiant sql du projet.
 
 Tous les objets doivent être passés via leur clé principale SQL. Si le type attendu d'un argument n'est pas précisé, on attend une clé principale SQL.
 
-**create_post(database_id, noeud, tagList, author, size, parent=-1, value=-1)**
+**create_post(database_id, noeud, tagList, author, size, parent=-1)**
 
 A utiliser quand un nouveau post est publié. Si la publication su post créé des nouveaux tags par la même occasion, il faut ajouter les nouveaux tags **avant** d'ajouter le post (avec la fonction create_tag)
 * database_id : id du post. Utiliser la clé principale de la base de donnée des posts.
@@ -23,7 +23,7 @@ A utiliser quand un nouveau post est publié. Si la publication su post créé d
 * size : nombre de caractères du post. Il n'y a pas une unique façon de compter ça, donc je laisse benoît choisir comment il veut le compter. (Avec ou sans titre, citation, etc). Choisis une façon de compter et indique la ici.
 * parent : id du post auquel celui-ci est une réponse. Mettre (-1) si le post est une publication directement dans le noeud.
 
-**create_tag(database_id)**
+**create_tag(database_id, slug)**
 
 A utiliser quand un nouveau tag est créé. Pas besoin d'appeler cette fonction si le tag existe déjà.
 
