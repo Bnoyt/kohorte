@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 
-<<<<<<< HEAD
 
-"""
-import ProjectController as pc
-import GraphModifier
-import Nodes
-import parameters as param
-=======
 import app.clustering.ProjectController as pc
 import app.clustering.GraphModifier
 import app.clustering.Nodes

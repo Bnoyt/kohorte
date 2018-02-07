@@ -6,6 +6,7 @@ import socket
 import select
 import threading
 import time
+from timeit import default_timer as timer
 
 from app.clustering.parameters import SERVER_PORT
 
@@ -53,10 +54,15 @@ class Main(threading.Thread):
             else:
                 try:
                     for client in to_read:
+                        print('Receinving from client %s on %s' % self.infos[client])
+                        start_time = timer()
                         msg = client.recv(1024)
                         while msg:
-                            print('Received chunk <%s> from %s on %s' % (msg.decode(), *self.infos[client]))
+                            print('    <%s>' % (msg.decode()))
                             msg = client.recv(1024)
+                        end_time = timer()
+                        print('Done with client %s on %s' % self.infos[client])
+                        print('Done in %s' % end_time - start_time)
                         #print('Sending close connection message ...'    )
                         #client.send(b'close')
                 finally:
