@@ -11,16 +11,18 @@ import app.clustering.ProjectGraph as pg
 import app.clustering.ProjectLogger as pl
 from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
+import threading.Threads as Threads
 
 
 
-class ProjectController:
+class ProjectController(Threads):
     """Chaque projet qui tourne sera géré par une unique instance de cette classe"""
 
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
     def __init__(self, name, boot=False):
+        super().__init__()
         if boot:
             self.name = name
             self.path = Path(param.memory_path) / name
