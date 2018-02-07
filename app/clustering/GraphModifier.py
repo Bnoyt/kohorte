@@ -40,7 +40,7 @@ class GraphModifier:
         """A utiliser quand un utilisateur publie un nouveau post
         Noeud est l'ID BDD du Noeud du graphe de reflexion sous lequel ce post a été créé
         parent est l'ID BDD du post auquel celui-ci est une reponse, ou -1 si le post n'est pas une reponse
-        tag_list doit etre une liste de tous les mots cles, donnes sous forme de strings netoyés (tels qu'ils sont soques dans la BDD)
+        tag_list doit etre une liste de tous les mots cles, donnes sous forme de strings nettoyés (tels qu'ils sont stcokes dans la BDD)
         Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. """
         self._push_modification(gm.NewPost(database_id=database_id, noeud=noeud, tags=tag_list, size=size, parent=parent))
 

@@ -71,7 +71,7 @@ def page_register(request):
 			return render(request, 'register.html', context)
 		else:
 			if post["mdp"] != post["mdp2"]:
-				context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
+				context['message'] = "Inscrivez vous gratuitement sur Agorado et participez à la première plateforme d'intelligence collective en France"
 				context["notif"] = "Les deux mots de passe ne correspondent pas"
 				return render(request, 'register.html', context)
 
@@ -81,7 +81,7 @@ def page_register(request):
 			login(request,user)
 			return HttpResponseRedirect(reverse('index'))
 	else:
-		context['message'] = "Inscrivez vous gratuitement sur Kohorte et participez à la première plateforme d'intelligence collective en France"
+		context['message'] = "Inscrivez vous gratuitement sur Agorado et participez à la première plateforme d'intelligence collective en France"
 		if "csrfmiddlewaretoken" in post:
 			context["notif"] = "Vous avez oublié de remplir un champ !"
 		return render(request, 'register.html', context)
