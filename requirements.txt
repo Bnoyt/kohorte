@@ -1,0 +1,6 @@
+matplotlib==2.1.0
+Django==1.11.7
+networkx==2.0
+beautifulsoup4==4.6.0
+django-markdownx
+django-postman

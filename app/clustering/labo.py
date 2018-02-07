@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-<<<<<<< HEAD
-
 """
 import ProjectController as pc
 import GraphModifier
