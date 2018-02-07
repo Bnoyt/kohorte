@@ -1,5 +1,9 @@
+import socket
+import time
+import traceback
+
 from django.core.management.base import BaseCommand, CommandError
-from kohorte import SUPERVARIABLE
+from app.clustering.parameters import SERVER_PORT
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
@@ -7,11 +11,15 @@ from kohorte import SUPERVARIABLE
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("The command has been successfully registered")
         try:
-            self.stout.write("The variable SUPERVARIABLE was found to be %s" % SUPERVARIABLE)
-        except Exception as e:
-            self.stderr.write("The variable SUPERVARIABLE was not found")
-            self.stderr.write(str(e))
-
+            print('Establishing connection ...')
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect(('localhost', SERVER_PORT))
+            print('Sending data ...')
+            sock.sendall(b'This is test command communicating with backend Main thread')
+            sock.close()
+        except Exception as err:
+            print('The following exception occured')
+            traceback.print_tb(err.__traceback__)
+            print(err)
 

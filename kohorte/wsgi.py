@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/
 """
 
 import os
-import startup
+import kohorte.startup as startup
 
 from django.core.wsgi import get_wsgi_application
 

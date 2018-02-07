@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-#from clustering.ProjectController import ProjectController
+import time
+
+from app.clustering.Main import Main
 
 def run():
     #TODO: put startup code here
-#    print('Startup code in startup.py')
-#    p = ProjectController('Startup Controller', False)
-#    ProjectController._ProjectController__projectControllers['Startup Controller'] = p
-#    print('Done executing startup code')
-    global SUPERVARIABLE = True
+    t = Main('startup')
+    t.daemon = True
+    t.start()
+    time.sleep(0.2)
     pass

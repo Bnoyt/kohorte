@@ -3,7 +3,7 @@
 {% block nav %}
 
 <ul class="nav">
-<li>
+<f>
 	<a data-toggle="collapse" href="#arborescence">
 		<i class="ti-menu"></i>
 		<p>Arborescence
@@ -14,13 +14,13 @@
 		<ul class="nav">
 
 		{% for pere, enfants in noeudsFamille %}
-			<li>
+			<li class="list-unstyled">
 			<a href="{% url 'noeud' pere.id %}">
 				<span class="sidebar-mini"><span class="ti-arrow-circle-up"></span> </span>
 				<span class="sidebar-normal">{{ pere.label }}</span>
 			</a>
 			<ul>
-				<li class="active">
+				<li class="active list-unstyled">
 				<a href="{% url 'noeud' noeud.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ noeud.label }}</span>
@@ -40,7 +40,7 @@
 
 				{% for frere in enfants %}
 				{% if frere != noeud %}
-				<li>
+				<li class="list-unstyled">
 				<a href="{% url 'noeud' frere.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ frere.label }}</span>
@@ -55,7 +55,7 @@
 		{% if not noeudsFamille %}
 			<li>
 			<ul>
-				<li class="active">
+				<li class="active list-unstyled">
 				<a href="{% url 'noeud' noeud.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ noeud.label }}</span>
@@ -75,7 +75,7 @@
 
 				{% for frere in enfants %}
 				{% if frere != noeud %}
-				<li>
+				<li class="list-unstyled">
 				<a href="{% url 'noeud' frere.id %}">
 					<span class="sidebar-mini"><span class="ti-arrow-circle-right"></span> </span>
 					<span class="sidebar-normal">{{ frere.label }}</span>

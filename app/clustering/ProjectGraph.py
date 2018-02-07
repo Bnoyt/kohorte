@@ -5,8 +5,8 @@ import networkx as nx
 import queue
 
 # import dependencies
-import GraphModifications as mods
-import errors as err
+import app.clustering.GraphModifications as mods
+import app.clustering.errors as err
 
 
 class ProjectGraph:
@@ -66,7 +66,7 @@ class PickleGraph:
         self.databaseVoteIDMap = pg.databaseVoteIDMap
 
 
-print("ProjectGraph successfully imported")
+#print("ProjectGraph successfully imported")
 
     # Clés utilisées pour les arrêtes :
     # parent_post : post enfant -> post parent

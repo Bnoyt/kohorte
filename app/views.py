@@ -13,7 +13,7 @@ from django.template import loader
 
 from django.contrib.auth.models import User
 
-#import clustering.GraphModifier TODO l'import ne fonctionne pas
+#import clustering.GraphModifier as gm #TODO l'import ne fonctionne pas
 
 def trouver_hashtags(texte):
 	n = len(texte)
@@ -191,7 +191,7 @@ def parametres(request):
 
 
 def ajouter_post(request):
-	#gm = GraphModifier.GraphModifier.get(project_id)#TODO ou est project_id ?
+	
 	if request.user.is_authenticated:
 		post = request.POST
 
@@ -200,6 +200,7 @@ def ajouter_post(request):
 		if post['titre'] != '' and post['contenu'] != '':
 			texte = "succes"
 			question = get_object_or_404(Question,pk=int(post['id_question']))
+			#gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
 			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
 			auteur = get_object_or_404(Utilisateur,user=request.user)
 			tags = trouver_hashtags(post['contenu'])
@@ -210,13 +211,13 @@ def ajouter_post(request):
 				t = Tag.objects.filter(label=tag)
 				if len(t) == 0:
 					t = Tag(label = tag)
-					#TODO gm.create_tag
 					t.save()
+					#TODO gm.create_tag(t.id)
 				else:
 					t = t[0]
 				p.tags.add(t)
 			
-			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere)
+			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere.id if p.pere.id != p.id else -1)
 
 			template = loader.get_template('post.html')
 			context={'p':[p,[]]
@@ -254,11 +255,13 @@ def ajouter_commentaire(request):
 		if post['contenu'] != '':
 			texte = "succes"
 			question = get_object_or_404(Question,pk=int(post['id_question']))
+			#gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
 			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
 			auteur = get_object_or_404(Utilisateur,user=request.user)
 			pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
 			c = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
 			c.save()
+			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
 			template = loader.get_template('commentaire.html')
 			context={'c':[c,[]]
 			}
@@ -280,11 +283,13 @@ def ajouter_reponse(request):
 		if post['contenu'] != '':
 			texte = "succes"
 			question = get_object_or_404(Question,pk=int(post['id_question']))
+			#gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
 			noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
 			auteur = get_object_or_404(Utilisateur,user=request.user)
 			pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
 			r = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
 			r.save()
+			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
 			template = loader.get_template('reponse.html')
 			context={'r':[r,[]]
 			}
@@ -303,8 +308,10 @@ def sauvegarder_citation(request):
 
 		contenu = post['contenu']
 		publication = get_object_or_404(Post,pk = int(post['id_post']))
+		#gm = GraphModifier.get(publication.question.id) TODO gm
 		rapporteur = get_object_or_404(Utilisateur,user=request.user)
 		c = Citation(auteur=publication.auteur,post=publication,contenu=contenu,rapporteur=rapporteur)
+		#create_quote(publication.id, rapporteur.id) TODO gm
 		c.save()
 		template = loader.get_template('citation.html')
 		context={'citation':'{{' + str(c.id) + '}}'}

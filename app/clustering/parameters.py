@@ -1,6 +1,9 @@
 import datetime as dtt
 import time
 
+#port of the Main Backend Server
+SERVER_PORT = 65533
+
 # path to the clustering memory
 memory_path = "./memory/"
 
@@ -38,4 +41,4 @@ def now():
     return dtt.datetime.fromtimestamp(time.time())
 
 
-print("Parameters successfully imported")
+#print("Parameters successfully imported")

@@ -2,18 +2,16 @@
 
 # import libraries
 import networkx as nx
-import queue
 import pickle
-import datetime as dtt
+from pathlib import Path
 
 # import dependances
-import ClusteringAlgorithms
-import errors as err
-import ProjectGraph as pg
-import ProjectLogger as pl
-from GraphModifier import GraphModifier
-import parameters as param
-from pathlib import Path
+import app.clustering.errors as err
+import app.clustering.ProjectGraph as pg
+import app.clustering.ProjectLogger as pl
+from app.clustering.GraphModifier import GraphModifier
+import app.clustering.parameters as param
+
 
 
 class ProjectController:
@@ -145,4 +143,4 @@ class ProjectController:
             self.load_graph()
 
 
-print("Project controller successfully imported")
+#print("Project controller successfully imported")

@@ -20,7 +20,7 @@ A utiliser quand un nouveau post est publié. Si la publication su post créé d
 * tag_list : liste de tous les tags.
 * author : auteur du post
 * author : l'id
-* size : nombre de caractères du post. Il n'y a pas une unique façon de compter ça, donc je laisse benoît choisir comment il veut le compter. (Avec ou sans titre, citation, etc). Choisis une façon de compter et indique la ici.
+* size : nombre de caractères du post. Il n'y a pas une unique façon de compter ça, donc je laisse benoît choisir comment il veut le compter. (Avec ou sans titre, citation, etc). Choisis une façon de compter et indique la ici. -> contenu.len()
 * parent : id du post auquel celui-ci est une réponse. Mettre (-1) si le post est une publication directement dans le noeud.
 
 **create_tag(database_id, slug)**
