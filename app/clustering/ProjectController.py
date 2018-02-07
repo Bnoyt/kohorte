@@ -21,7 +21,7 @@ class ProjectController(Threads):
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
-    def __init__(self, name, boot=False):
+    def __init__(self, name, queue, boot=False):
         super().__init__()
         if boot:
             self.name = name
@@ -48,7 +48,6 @@ class ProjectController(Threads):
         self.graphIsLoading = False
         self.graphShouldBeLoaded = False
         self.projectLogger = pl.ProjectLogger(self.name)
-        self.graphModifier = GraphModifier(self.database_id)
         self.theGraph = None
 
         self.procedure_table = None

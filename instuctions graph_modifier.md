@@ -2,15 +2,17 @@
 
 **Uniquement dans l'application app**
 
-from app.clustering.GraphModifier import GraphModifier
+from app.com.api import graphModifier as GraphModifier
 
-gm = GraphModifier.get(project_id)
+GraphModifier.func(project_id, *args, **kwargs)
+
 
 project_id est l'identifiant sql du projet.
 
 # Liste des mofifications
 
 Tous les objets doivent être passés via leur clé principale SQL. Si le type attendu d'un argument n'est pas précisé, on attend une clé principale SQL.
+**WARNING** Si le type n'est pas respecté, la modification ne sera pas appliquée !
 
 **create_post(database_id, noeud, tagList, author, size, parent=-1)**
 
@@ -44,7 +46,7 @@ A utiliser pour signaler qu'un utilisateur a indiqué que deux posts devraient �
 
 **violently_remove_post(database_id)**
 
-Suprime toutes les données concernant ce post, a effectuer si le post à été retiré de la base de donnée. Le graphe peut refuser de supprimer le post si il est trop important. Opération assez violente, a éviter de préférence. Plutot marquer le post comme supprimé et utiliser mark_post_deleted.
+Supprime toutes les données concernant ce post, a effectuer si le post à été retiré de la base de donnée. Le graphe peut refuser de supprimer le post si il est trop important. Opération assez violente, a éviter de préférence. Plutot marquer le post comme supprimé et utiliser mark_post_deleted.
 
 **mark_post_deleted(database_id)**
 
@@ -58,12 +60,12 @@ Ajoute un nouveau lien entre un tag deja existant et un post deja existant. Il s
 * tag : le tag
 
 **remove_tag_from_post(post, tag)**
- 
+
 Retire un lien entre un tag et un post. Ne suprime ni le tag, ni le post.
 
 **modify_post(database_id, new_size=-1, new_tags=None)**
 
-Permet de modifier un post. Cette opération est pensée pour accompagner un bouton "EDIT". 
+Permet de modifier un post. Cette opération est pensée pour accompagner un bouton "EDIT".
 * new_size donne le nouveau nombre de caractères du post (compté comme pour create_post).
 * new_tags indique la nouvelle liste de tags du post. Ce n'est pas une list de tags à ajouter, c'est une nouvelle liste de tags qui **remplace l'ancienne liste**. Si ces arguments sont laissé à leurs valeurs par défault (-1 et None respectivement), ils ne seront pas modifiés.
 
