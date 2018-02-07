@@ -41,4 +41,4 @@ def run():
 
     gm.add_vote(post=20, user=8, vote=55, vote_type="votey_vote")
 
-    project1.apply_modifications()
+project1.apply_modifications()
