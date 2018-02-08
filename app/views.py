@@ -155,19 +155,32 @@ def noeud(request,noeud_id):
 		return HttpResponseRedirect(reverse('index'))
 		
 def whatsup(request):
-	if request.user.is_authenticated:
-		user = get_object_or_404(Utilisateur,user=request.user)
-		sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
+    if request.user.is_authenticated:
+        user = get_object_or_404(Utilisateur,user=request.user)
+        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')	
+        suggPrint = [recapNoeud(s.objet) for s in sugg]
 		
-		context = {
+		
+        context = {
 			'user':user,
 			'listSugg': sugg,
 			'whatsup':True,
+			'printList':suggPrint,
 
 		}
-		return render(request,'whatsUp.html',context)
-	else:
-		return HttpResponseRedirect(reverse('index'))
+		
+        noeudsSuivis = [r.post.noeud for r in RelationUserSuivi.objects.filter(user=user)]
+        posts = [p for p in Post.objects.filter(noeud__in=noeudsSuivis)]
+        context['posts'] = posts
+
+        return render(request,'whatsUp.html',context)
+    else:
+        return HttpResponseRedirect(reverse('index'))
+
+def recapNoeud(noeud):
+	nbPosts = Post.objects.filter(noeud=noeud).count()
+	nbNewPosts = 3 #TODO a calculer
+	return (noeud, nbPosts, nbNewPosts)
 
 def suggestions(request):
 	if request.user.is_authenticated:
@@ -329,26 +342,57 @@ def faq(request):
 
 def profil(request) :
     if request.user.is_authenticated:
-        user = get_object_or_404(Utilisateur,user=request.user)
-        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')
-        posts = Post.objects.filter(auteur=user)
+    	utilisateur = get_object_or_404(Utilisateur,user=request.user)
+    	user = utilisateur.user
+    	sugg = Suggestion.objects.filter(userVise=utilisateur).order_by('-pertinence')
+    	posts = Post.objects.filter(auteur=utilisateur)
         # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
         #type_suivi=get_object_or_404(TypeSuivi,pk=1)
-
-        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user)]
+        
+    	noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=utilisateur)]
         
 
-        context = {
-            'user':user,
+    	context = {
+            'user':utilisateur,
             'listSugg': sugg,
             'profil':True,
             'posts':posts,
             'noeudsSuivis':noeudsSuivis
 
         }
-        return render(request,'profil.html',context)
+        
+    	post = request.POST
+
+    	if ('username' in post and user.username != post['username']) or \
+	('email' in post and  user.email != post['email']) or \
+	('mdp' in post or 'mdp2' in post and len(post['mdp']) > 0):
+            if 'mdpOld' in post and user.check_password(post['mdpOld']):
+                if 'username' in post and user.username != post['username']:
+                    if User.objects.filter(username=post['username']).exists():
+                        context['notif'] = "Ce nom d'utilisateur est déjà pris"
+                    else:
+                        user.username = post['username']
+                        print(user.username, post['username'])
+                        user.save()
+                if 'email' in post and user.email != post['email']:
+                    if User.objects.filter(email=post['email']).exists():
+                        context['notif'] = "Cette adresse mail est déjà prise"
+                    else:
+                        user.email = post['email']
+                        user.save()
+                if 'mdp' in post and post['mdp'] != "":
+                    if 'mdp2' in post and post['mdp2']==post['mdp']:
+                        user.set_password(post['mdp'])
+                        user.save()
+                    else:
+                        context['notif'] = "Veuillez confirmer votre nouveau mot de passe"
+            else:
+                context['notif']="Veuillez entrer votre mot de passe actuel pour valider la modification"
+
+
+    	return render(request,'profil.html',context)
     else:
-        return HttpResponseRedirect(reverse('index'))
+    	return HttpResponseRedirect(reverse('index'))
     
     
     
@@ -364,17 +408,17 @@ def hashtags(request,hashtag):
 		return HttpResponseRedirect(reverse('index'))
 
 def suivi_noeud(request):
-	if request.user.is_authenticated:
-		utilisateur = get_object_or_404(Utilisateur,user = request.user)
-		post = request.POST
-		type_suivi = get_object_or_404(TypeSuivi, pk=1)
-		noeud = get_object_or_404(Noeud,pk = int(post["id_noeud"]))
-		if post["type"] == "suivre" and not(RelationUserSuivi.objects.filter(noeud=noeud,type_suivi=type_suivi,user=utilisateur).exists()):
-			relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi,user=utilisateur)
-			relation_suivi.save()
-		elif post["type"] == "desuivre":
-			relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,type_suivi=type_suivi,user=utilisateur)
-			relation_suivi.delete()
-		return JsonResponse({})
-	else:
-		return JsonResponse({})
+    if request.user.is_authenticated:
+        utilisateur = get_object_or_404(Utilisateur,user = request.user)
+        post = request.POST
+        type_suivi = get_object_or_404(TypeSuivi, pk=1)
+        noeud = get_object_or_404(Noeud,pk = int(post["id_noeud"]))
+        if post["type"] == "suivre" and not(RelationUserSuivi.objects.filter(noeud=noeud,type_suivi=type_suivi,user=utilisateur).exists()):
+            relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi,user=utilisateur)
+            relation_suivi.save()
+        elif post["type"] == "desuivre":
+            relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,type_suivi=type_suivi,user=utilisateur)
+            relation_suivi.delete()
+        return JsonResponse({})
+    else:
+        return JsonResponse({})
