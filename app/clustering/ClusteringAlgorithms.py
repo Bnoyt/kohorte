@@ -14,6 +14,7 @@ import networkx as nx
 import time as lib_time
 
 #import perso
+import app.clustering.Nodes as Nodes
 import app.clustering.parameters as param
 import app.clustering.errors as err
 
@@ -45,6 +46,9 @@ def graph_model_1(n, ideas, reduction):
             res_graph.remove_node(i)
             del(colors[i])
     return (res_graph, colors)
+
+def full_graph_model_1():
+    pass
 
 # define procedures
 
@@ -105,9 +109,34 @@ class Procedure2(GenericProcedure):
 
 
 def roots_and_leaves(g):
-    """ Renvoie un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
-    Cree de nouveaux edges de cle param.head_and_leaf_reduce"""
-    pass
+    """ A terme, renverra un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
+    Cree de nouveaux edges de cle param.head_and_leaf_reduce
+    Pour l'instant on cree juste un nouveau graphe"""
+    ng = nx.Graph()
+    roots = []
+    for n in g.nodes:
+        if isinstance(n, Nodes.NoeudNode):
+            ng.add_node(n)
+            if len(get_out_edges(g, n, param.parent_node)):
+                roots.append(n)
+    for e in g.edges(ng.nodes, keys=True, data=True):
+        if e[2][0] == param.parent_node:
+            ng.add_edge(e[0], e[1], length=1, default_weight=e[3]["default_weight"])
+    for rn in roots:
+        child_pile = list(ng[rn].keys())
+        while len(child_pile) > 0:
+            cn = child_pile.pop()
+            grand_children = list(ng[cn].keys())
+            grand_children.remove(rn)
+            ilength = ng[rn][cn]["length"]
+            idw = ng[rn][cn]["default_weight"]
+            for gcn in grand_children:
+                ng.add_edge(gcn, rn, length=ilength+1, default_weight= (ilength*idw + ng[cn][gcn]["default_weight"])/(ilength+1))
+                child_pile.append(gcn)
+            if len(grand_children) > 0:
+                ng.remove_node(cn)
+    return ng
+
 
 
 def get_bridges(g):
@@ -417,7 +446,7 @@ def ei_uphill(g, comp_list):
 
     num_iter = 0
 
-    while num_iter < iteration_limit and node_queue.not_empty():
+    while num_iter < 50 and node_queue.not_empty():
         n = queue.get()[1]
         if n[0] >= 0:
             break
@@ -445,6 +474,26 @@ def ei_uphill(g, comp_list):
 
 
 '''Global'''
+
+
+'''navigation'''
+
+def get_in_edges(g, node, base_key):
+    '''Returns one in_edge verifying a given charcteristics, or None if no such edge exists'''
+    res = []
+    for e in g.in_edges(node, data=True, keys=True):
+        if e[2][0] == base_key:
+            res.append(e)
+    return res
+
+
+def get_out_edges(g, node, base_key):
+    '''Returns one in_edge verifying a given charcteristics, or None if no such edge exists'''
+    res = []
+    for e in g.out_edges(node, data=True, keys=True):
+        if e[2][0] == base_key:
+            res.append(e)
+    return res
 
 
 '''Utility'''
@@ -516,9 +565,6 @@ def gen_and_compare(gen_algo, g_param, split_algo, s_param):
         clc += 1
 
     plt.show()
-
-
-print("algorithms successfully imported")
 
 
 def algo1(the_graph):
