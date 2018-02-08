@@ -4,14 +4,19 @@ import time
 #port of the Main Backend Server
 SERVER_PORT = 65533
 
+#Command keys
+
+shutdown_command = "shutdown"
+
 # path to the clustering memory
-memory_path = "./memory/"
+memory_path = "./app/clustering/memory/"
 
 # Project controler decision parameters
 
-lazyness = 1.0
-p_procedure1 = dtt.timedelta(minutes=300)
-p_procedure2 = dtt.timedelta(minutes=40)
+idle_execution_period = dtt.timedelta(seconds=3)
+
+p_procedure1 = dtt.timedelta(seconds=5)
+p_procedure2 = dtt.timedelta(seconds=12)
 
 # personalised page rank : teleport probability
 ppr_tp_prob = 0.99
@@ -36,6 +41,9 @@ group_recommended = "group_recommended"
 user_vote = "user_vote"
 
 head_and_leaf_reduce = "hnl_reduce"
+
+
+never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
 
 def now():
     return dtt.datetime.fromtimestamp(time.time())

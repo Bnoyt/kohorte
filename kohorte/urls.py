@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^markdownx/', include(markdownx)),
     url(r'^messages/', include('postman.urls', namespace='postman', app_name='postman')),
+    url(r'^notifications/', include('notify.urls', 'notifications')),
 ]
 

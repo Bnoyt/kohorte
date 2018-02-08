@@ -2,6 +2,7 @@ from .models import *
 from bs4 import *
 from django.utils.safestring import mark_safe
 from markdownx.utils import markdownify
+from notify.signals import notify
 
 from django.shortcuts import render, get_object_or_404
 
@@ -169,7 +170,7 @@ def whatsup(request):
 
 		}
 		
-        noeudsSuivis = [r.post.noeud for r in RelationUserSuivi.objects.filter(user=user)]
+        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user)]
         posts = [p for p in Post.objects.filter(noeud__in=noeudsSuivis)]
         context['posts'] = posts
 
@@ -230,6 +231,7 @@ def ajouter_post(request):
 					t = t[0]
 				p.tags.add(t)
 			
+			
 			#gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere.id if p.pere != None else -1)
 
 			template = loader.get_template('post.html')
@@ -279,6 +281,7 @@ def ajouter_commentaire(request):
 			context={'c':[c,[]]
 			}
 			publication = template.render(context,request)
+			notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='answered you.', nf_type='answer')
 		else:
 			texte = 'pasdecontenu'
 

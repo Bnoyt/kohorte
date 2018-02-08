@@ -11,10 +11,11 @@ import matplotlib.pyplot as plt
 import queue
 import datetime as dtt
 import networkx as nx
+import time as lib_time
 
 #import perso
-import parameters as param
-import errors as err
+import app.clustering.parameters as param
+import app.clustering.errors as err
 
 color_sample = ['blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'red']
 
@@ -55,10 +56,10 @@ class GenericProcedure:
         self.period = dtt.timedelta(days=1)
         self.last_run_time = param.now()
 
-    def priority(self, run_time):
-        return (run_time - self.last_run_time) / self.period
+    def next_run(self):
+        return self.last_run_time + (self.period * self.the_graph.time_dilation)
 
-    def run(self, log_channel):
+    def run(self, log_channel, command_handler):
         pass
 
 
@@ -71,10 +72,9 @@ def get_procedure_table(the_graph):
 class DoNothing(GenericProcedure):
     def __init__(self):
         super().__init__(None)
-        self.lazyness = param.lazyness
 
-    def priority(self, run_time):
-        return self.lazyness
+    def next_run(self):
+        return param.never
 
 
 class Procedure1(GenericProcedure):
@@ -83,8 +83,10 @@ class Procedure1(GenericProcedure):
         self.name = "procedure1"
         self.period = param.p_procedure1
 
-    def run(self, log_channel):
-        pass
+    def run(self, log_channel, command_handler):
+        self.last_run_time = param.now()
+        print("procedure 1 running")
+        lib_time.sleep(2)
 
 
 class Procedure2(GenericProcedure):
@@ -93,8 +95,10 @@ class Procedure2(GenericProcedure):
         self.name = "procedure2"
         self.period = param.p_procedure2
 
-    def run(self, log_channel):
-        pass
+    def run(self, log_channel, command_handler):
+        self.last_run_time = param.now()
+        print("procedure 2 running")
+        lib_time.sleep(3)
 
 
 '''filtering and preparation'''
