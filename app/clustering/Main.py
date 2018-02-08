@@ -10,12 +10,11 @@ from timeit import default_timer as timer
 from app.models import Noeud
 
 
-from app.clustering.parameters import SERVER_PORT
+from app.com.config import SERVER_PORT
 
 class Main(threading.Thread):
 
     server_address = './com_socket'
-    server_port = 55000
 
     def __init__(self, name):
         threading.Thread.__init__(self)
