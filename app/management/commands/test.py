@@ -3,7 +3,7 @@ import time
 import traceback
 
 from django.core.management.base import BaseCommand, CommandError
-from app.clustering.parameters import SERVER_PORT
+from app.com.config import SERVER_PORT
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
