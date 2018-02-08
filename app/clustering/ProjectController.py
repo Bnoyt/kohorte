@@ -11,11 +11,11 @@ import app.clustering.ProjectGraph as pg
 import app.clustering.ProjectLogger as pl
 from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
-import threading.Threads as Threads
+from threading import Thread as Thread
 
 
 
-class ProjectController(Threads):
+class ProjectController(Thread):
     """Chaque projet qui tourne sera géré par une unique instance de cette classe"""
 
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
