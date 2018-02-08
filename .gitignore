@@ -1,10 +1,11 @@
 #personal ignore
-.spyproject/*
+.spyproject/
 UP.bat
 DOWN.bat
+.idea/
 
 #__pycache__ ignore
-**/__pycache
+__pycache__/
 *.pyc
 
 #ignore database

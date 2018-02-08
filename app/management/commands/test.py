@@ -16,10 +16,10 @@ class Command(BaseCommand):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(('localhost', SERVER_PORT))
             print('Sending data ...')
-            sock.sendall(b'This is test command communicating with backend Main thread')
+            for i in range(5000):
+                sock.send(b'This is test command communicating with backend Main thread')
             sock.close()
         except Exception as err:
             print('The following exception occured')
             traceback.print_tb(err.__traceback__)
             print(err)
-

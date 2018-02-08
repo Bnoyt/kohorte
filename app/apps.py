@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from app.clustering.Main import Main
 import time
 
 
