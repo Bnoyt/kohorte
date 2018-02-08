@@ -10,31 +10,12 @@ import app.clustering.errors as err
 
 class GraphModifier:
 
-    __modifier_reference = dict()
-
-    @staticmethod
-    def get(project_database_id):
-        try:
-            return GraphModifier.__modifier_reference[project_database_id]
-        except KeyError:
-            raise KeyError("The project named " + project_database_id + " does not exist")
-
-    def __init__(self, database_id):
-        self.database_id = database_id
-        self.__modifier_reference[database_id] = self
-        self._pendingModifications = queue.Queue()
+    def __init__(self, modification_queue):
+        self._modification_queue = modification_queue
 
     def _push_modification(self, modif):
-        self._pendingModifications.put(modif)
+        self._modification_queue.put(modif)
 
-    def pull_all_modifications(self):
-        rt = self._pendingModifications
-        self._pendingModifications = queue.Queue()
-        return rt
-
-
-    def clear_all_modifications(self):
-        self._pendingModifications = queue.Queue()
 
     def create_post(self, database_id, noeud, tag_list, quote_list, author, size: int, parent=-1, value=-1):
         """A utiliser quand un utilisateur publie un nouveau post
