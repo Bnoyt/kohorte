@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'postman',
+    'notify',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +118,7 @@ USE_L10N = True
 USE_TZ = True
 
 POSTMAN_AUTO_MODERATE_AS = True
+POSTMAN_DISALLOW_ANONYMOUS = True
 
 
 # Static files (CSS, JavaScript, Images)
