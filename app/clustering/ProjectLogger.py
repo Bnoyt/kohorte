@@ -63,6 +63,9 @@ class LogChannel:
         self.log_file = log_file
         self.writer = csv.writer(log_file, delimiter=',')
 
+    def close(self):
+        self.log_file.close()
+
     def __del__(self):
         self.log_file.close()
 
@@ -79,6 +82,9 @@ class AlgorithmLogChannel(LogChannel):
 
 class DummyLogChannel:
     def __init__(self):
+        pass
+
+    def close(self):
         pass
 
     def register(self, a=None, b=None, c=None):
