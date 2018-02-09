@@ -51,24 +51,34 @@
 
 
  <div class="container-fluid">
-
-    <div class="row">
-      
-
-
-
-		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
-
-
-			{% for p in posts %}
-
-				{% include "post.html" with p=p %}
-
-			{% endfor %}
+   
+   
+  <div class="row">
+    
+    {# eventuellement noeud split ici #}
+    
+    
 
 
+      <div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+	
+	<div class="col-md-12 post">
+	    <div class="card">
+	      <div class="content" >
+		{% for n in noeudsAncetres %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> > {% endfor %}  <a href =  {% url 'noeud' noeud.id %}>{{ noeud.label }}</a>
+	      </div>
+	  </div>
+	</div>
 
-		</div>
+	{% for p in posts %}
+
+	  {% include "post.html" with p=p %}
+
+	{% endfor %}
+
+
+
+      </div>
 
 
 
