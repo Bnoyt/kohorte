@@ -117,6 +117,11 @@ class ProjectController(Thread):
     def update_suggestions(self):
         pass
 
+    def branch(self):
+        while len(self.theGraph.branch_instructions) > 0:
+            inst = self.theGraph.branch_instructions.pop(0)
+
+
     def interuptible_sleep(self, duration):
         """sleeps for approximately duration seconds, but stops if a shutdown is required."""
         for i in range(int(duration//10 + 1)):
@@ -142,7 +147,6 @@ class ProjectController(Thread):
                 try:
 
                     run_time = param.now()
-
 
                     chosen_procedure = self.dummy_procedure
 
@@ -176,6 +180,8 @@ class ProjectController(Thread):
 
                     if self.command_handler.shutdown_req():
                         break
+
+                    self.branch()
 
                     self.update_priority()
 
