@@ -14,6 +14,8 @@ class ProjectGraph:
         self.projectController = projectController
         self.projectLogger = projectLogger
 
+        self.branch_instructions = []
+
         if pg is None:
 
             self.baseGraph = nx.MultiDiGraph()
@@ -59,11 +61,3 @@ class PickleGraph:
         self.databaseVoteIDMap = pg.databaseVoteIDMap
 
         self.time_dilation = pg.time_dilation
-
-#print("ProjectGraph successfully imported")
-
-    # Clés utilisées pour les arrêtes :
-    # parent_post : post enfant -> post parent
-    # tagged_with : post -> tg utilise sur le post
-    # group_recommended -> post -> post | suggestion d'un utilisateur de grouper ces posts
-

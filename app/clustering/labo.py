@@ -15,10 +15,8 @@ import time
 
 
 def run():
+    print("on tourne")
     command_queue = queue.Queue()
-    project1 = pc.ProjectController("example", command_queue)
-    time.sleep(100)
-    print("ordering shutdown")
-    command_queue.push(param.shutdown_command)
-
+    # project1 = pc.ProjectController("example", command_queue)
+    # project1.run()
 
