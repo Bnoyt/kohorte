@@ -98,6 +98,16 @@ def index(request):
         pass
 
     return render(request, 'index.html', context)
+    
+
+def ancetres(noeud):
+	l = [parente.ideeSource for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
+	res = []
+	while len(l) > 0:
+		n = l[0]
+		res = [n] + res
+		l = [parente.ideeSource for parente in AreteReflexion.objects.filter(ideeDest = n)]
+	return res
 
 
 def noeud(request,noeud_id):
@@ -111,6 +121,7 @@ def noeud(request,noeud_id):
 		#pour la navigation entre les noeuds dans l'alpha
 		noeudsFamille = [(parente.ideeSource, [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = parente.ideeSource)]) for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
 		noeudsFils = [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = noeud)]
+		noeudsAncetres = ancetres(noeud)
 
 		citations = Citation.objects.filter(rapporteur=user)
 
@@ -127,6 +138,7 @@ def noeud(request,noeud_id):
 			'citations':["{{" + str(i.id) + "}}" for i in citations],
 			'noeudsFamille':noeudsFamille,
 			'noeudsFils':noeudsFils,
+			'noeudsAncetres': noeudsAncetres,
 			'citation' : """<blockquote>
                              <p>
                              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.
