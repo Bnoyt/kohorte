@@ -19,8 +19,8 @@
         </div>
 
         <ul class="nav">
-            <li{% if dashboard %} class="active"{% endif %}>
-                <a href="{% url 'index' %}">
+            <li{% if whatsup %} class="active"{% endif %}>
+                <a href="{% url 'whatsup' 2 %}">
                     <i class="ti-panel"></i>
                     <p>Dashboard</p>
                 </a>
@@ -35,13 +35,6 @@
                 <a href="{% url 'profil' %}">
                     <i class="ti-user"></i>
                     <p>Mon profil</p>
-                </a>
-            </li>
-
-            <li{% if whatsup %} class="active"{% endif %}>
-                <a href="{% url 'whatsup' %}">
-                    <i class="ti-help"></i>
-                    <p>What's up ?</p>
                 </a>
             </li>
             <li{% if faq %} class="active"{% endif %}>

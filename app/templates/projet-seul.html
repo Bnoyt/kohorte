@@ -1,0 +1,28 @@
+{% load app_filter %}
+
+	<div class="card card-post">
+
+
+		<div class="header">
+		<h6><a href="{% url 'whatsup' q.id %}">{{ q.label }}</a></h6>
+		</div>
+
+
+
+		<div class="content">
+
+			<div class="contenu" style="padding:5px" name="{{q.id}}">
+				<p>
+				{{ nbNewPosts }} nouveaux posts sur {{ nbPosts }} posts </br>
+				{{ nbNewNoeuds }} nouveaux nœuds sur {{ nbNoeuds }} nœuds				
+				</p>
+			</div>
+		</div>
+		
+		<div class="footer">
+		  <div class="stats">
+		    <i class="ti-calendar"></i> Créé le {{q.date}} par {{q.auteur.user.username}}
+		  </div>
+		</div>
+	</div>
+

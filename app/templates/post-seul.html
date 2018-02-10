@@ -1,8 +1,11 @@
 {% load app_filter %}
 
-<div class="col-md-11 pull-right post">
+
 	<div class="card card-post">
 
+		<div class="header">
+		<h6><a href={% url 'noeud' c.noeud.id %}> {{c.noeud.label}} </a></h6>
+		</div>
 
 		<div class="content">
 
@@ -34,4 +37,4 @@
 
 	
 
-</div>
+

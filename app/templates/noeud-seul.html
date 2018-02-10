@@ -1,11 +1,10 @@
 {% load app_filter %}
 
-<div class="col-md-11 post">
 	<div class="card card-post">
 
 
 		<div class="header">
-		<h4><a href="{% url 'noeud' 0 %}">tralala{{ n.0.label }}</a></h4>
+		<h6><a href="{% url 'noeud' n.id %}">{{ n.label }}</a></h6>
 		</div>
 
 
@@ -14,14 +13,17 @@
 
 			<div class="contenu" style="padding:5px" name="{{n.id}}">
 				<p>
-				{{ nbNewPosts }} posts non lus sur {{ nbPosts }} posts
+				{{ nbNewPosts }} nouveaux posts sur {{ nbPosts }} posts
 				</p>
+				{% if noeudsFils %}
+					<div class="alert alert-warning">
+						<!-- <button type="button" aria-hidden="true" class="close">×</button> -->
+						<span><b> Nœud split - </b> Ce nœud a maintenant des enfants : {% for n in noeudsFils %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> {% endfor %} </span>
+					</div>
+				{% endif %}
 			</div>
 
 			
 		</div>
 	</div>
 
-	
-
-</div>

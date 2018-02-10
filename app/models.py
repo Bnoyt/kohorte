@@ -54,6 +54,7 @@ class Noeud(models.Model):
     type_noeud = models.CharField(max_length=1, choices=TYPE_NOEUD)
     label = models.CharField(max_length = 30)
     question = models.ForeignKey(Question,related_name="Questiondebase")
+    date = models.DateTimeField(auto_now_add=True)
     #valeur de max_length choisie arbitrairement
     
 

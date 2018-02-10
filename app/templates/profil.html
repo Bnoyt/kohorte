@@ -22,17 +22,17 @@
         <div class="row">
             <div class="col-lg-12 col-sm-12">
                
-								<div class="card">
+		<div class="card">
                     <div class="header">
                         <h4 class="title">Modifier votre profil</h4>
                     </div>
 
                     <div class="content">
                     	<div class="col md-12">
-	                    	<p>{# Test{{message}} #}</p>
+	                    	<p>{# {{message}} #}</p>
 	                    </div>
 
-												<form method="post">
+			<form method="post">
                         {% csrf_token %}
                             <div class="row">
                                 <div class="col-md-6">
@@ -78,8 +78,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-																	{# TODO : décaler le bouton pour que ça fasse joli #}
-																	<button type="submit" class="btn btn-info btn-fill btn-wd">Enregistrer les modifications</button>
+					{# TODO : décaler le bouton pour que ça fasse joli #}
+					<button type="submit" class="btn btn-info btn-fill btn-wd">Enregistrer les modifications</button>
                                 </div>
 
                             <div class="clearfix"></div>
@@ -98,34 +98,28 @@
 
 					</div>
 					<div class="tab-pane" id="posts">
-					    <div class="header">
-								<h3>Mes posts</h3>
-								</div>
-								<div class="content">
+						<div class="header">
+							<h3>Mes posts</h3>
+						</div>
+							<div class="content">
+
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
 
 
-									Test<!-- contenu de la récap -->
+											{% for p in posts %}
+	
+												<a href =" {% url 'noeud' p.noeud.id %}">
+													{% include "post-seul.html" with c=p %}
+												</a>
 
-
-
-							</div>
-							<div class="container-fluid">
-								<div class="row">
-									<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
-
-
-										{% for p in posts %}
-
-											<a href =" {% url 'noeud' p.noeud.id %}">
-												{% include "post-seul.html" with c=p %}
-											</a>
-
-										{% endfor %}
+											{% endfor %}
 
 
 
+										</div>
 									</div>
-
 								</div>
 							</div>
 
@@ -141,32 +135,8 @@
 									<div class="row">
 										<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
 
-											{% for n in noeudsSuivis %}
-
-											<a href = "{% url 'noeud' n.id %}">
-												<div class="col-md-12 pull-right post">
-													<div class="card card-post">
-
-
-														<div class="content">
-
-															<div class="contenu">
-																<p>
-
-																{{n.label}}
-
-																</p>
-															</div>
-
-														</div>
-													</div>
-
-													
-
-												</div>
-											</a>
-
-
+												{% for noeud, nbPosts, nbNewPosts, fils in printRecap %}
+													{% include "noeud-seul.html" with n=noeud nbPosts=nbPosts nbNewPosts=nbNewPosts noeudsFils=fils %}
 											{% endfor %}
 										</div>
 									</div>
@@ -174,24 +144,6 @@
 
 
 
-							</div>
-
-
-
-
-							 <div class="container-fluid">
-
-									<div class="row">
-
-									<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
-
-
-										<!-- Afficher les noeuds suivis -->
-
-
-
-									</div>
-								</div>
 							</div>
 					</div>
 				    </div>
@@ -201,76 +153,6 @@
 	</div>
 </div>
 
-{% comment %}
-<div class="card card-post">
-	<div class="header">
-	<h3>Mes posts</h3>
-	</div>
-	<div class="content">
-
-
-		<!-- contenu de la récap -->
-
-
-
-	</div>
-
-
-</div>
-
-
-
- <div class="container-fluid">
-    <div class="row">
-		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
-
-
-			{% for p in posts %}
-
-				{% include "post-seul.html" with c=p %}
-
-			{% endfor %}
-
-
-
-		</div>
-
-	</div>
-</div>
-     
-<div class="card card-post">
-	<div class="header">
-	<h3>Noeuds suivis</h3>
-	</div>
-	<div class="content">
-
-
-		<!-- contenu de la récap -->
-
-
-
-	</div>
-
-
-</div>
-
-
-
- <div class="container-fluid">
-
-    <div class="row">
-
-		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
-
-
-			<!-- Afficher les noeuds suivis -->
-
-
-
-		</div>
-	</div>
-</div>
-{% endcomment %}
 
 
 {% endblock %}
