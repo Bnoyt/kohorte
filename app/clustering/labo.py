@@ -28,5 +28,5 @@ def run():
     g.add_edges_from([(ns[1], ns[5]), (ns[1], ns[6]), (ns[2], ns[5]), (ns[2], ns[7]), (ns[2], ns[8]), (ns[6], ns[5]),
                       (ns[7], ns[5]), (ns[7], ns[8]), (ns[8], ns[6])])
 
-    print(ca.get_central_tags_eigenvectors(g, num_wanted=1))
+    print(ca.get_central_tags_eigenvectors(g, num_wanted=1)[0].database_id)
 

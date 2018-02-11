@@ -496,6 +496,210 @@ def ec_closest(g, core_list):
 
 
 # A finir
+
+def ei_uphill_general_conductance(g, comp_list, weight):
+    """A local uphill algorithm to improve a given graph partition.
+    comp_list must be a list of node... containers I think ? In any case they must form a perfect graph partition
+    The partitions are modified by repeatidely moving a node from it's component to the component of an adjacent node.
+    This process is repeated as long as it improves global conductance (see the code for more explanation)
+    The return is a list of node list forming the new and improved components
+    """
+
+    to_remove = []
+    for c in range(len(comp_list)):
+        if len(comp_list[c]) == 0:
+            to_remove.append(c)
+    for c in to_remove:
+        del comp_list[c]
+    # no empty component
+
+    num_c = len(comp_list)
+
+    volume = [nx.volume(g, comp_list[c], weight=weight) for c in range(num_c)]
+    cut_size = [[nx.cut_size(g, S=comp_list[c1], T=comp_list[c2], weight=weight) for c1 in range(num_c)] for c2 in range(num_c)]
+
+    total_volume = nx.volume(g, g.nodes, weight=weight)
+
+    def global_conductance():
+        s = 0
+        for c1 in range(num_c):
+            for c2 in range(c1 + 1, num_c):
+                s += cut_size[c1][c2]
+        return s / (min(volume) + param.conductance_balance_dampener*total_volume)
+    # global conductance is a measure for how good a partition is
+    # I adapted it from the concept of conductance, which I found as I was researching clustering
+    # I'm not sure exactly what it represents or how good it is, but I think it's worth something
+    # It might create partitions which are too balanced,
+    # which is why the conductance_balance_dampener is there if we need it
+
+    belonging = {}
+
+    for c in range(num_c):
+        for n in comp_list[c]:
+            belonging[n] = c
+
+    def get_comp(nd):
+        try:
+            return belonging[nd]
+        except KeyError:
+            belonging[nd] = random.randint(0, num_c - 1)
+            return belonging[nd]
+
+    iter_clock = 1
+    last_mod_date = {c : 0 for c in range(num_c)}
+
+    # I heard python was an object-oriented language, so I'm gonna create objects
+    class Motion:
+        """each instance of this class represents a possible change to the components. The class also posseses
+        a gain value, which represent the gain in conductance for applying this motion. The main purpose of this object
+        is that it makes it easy to reevaluate gain values as the graph evolves.
+        The last_mod_date variable keeps track of which comps are modified when, so that we know which gain values need
+        to be recalculated"""
+
+        def __init__(self, node, dest):
+            self.node = node
+            self.dest = dest
+            self.last_update = 1
+            self.gain = self.calc_gain()
+
+        def apply(self):
+            """actually make the change"""
+            c1 = get_comp(self.node)
+            c2 = self.dest
+            if c1 == c2:
+                return
+            cut1 = 0
+            cut2 = 0
+            for n2 in nx.neighbors(g, self.node):
+                if get_comp(n2) == c1:
+                    cut1 += g[self.node][n2][weight]
+                if get_comp(n2) == c2:
+                    cut2 += g[self.node][n2][weight]
+            deg = nx.degree(g, self.node)
+            cut_size[c1][c2] += cut1 - cut2
+            cut_size[c2][c1] += cut1 - cut2
+            volume[c1] -= deg
+            volume[c2] += deg
+            belonging[self.node] = self.dest
+
+        def calc_gain(self):
+            self.last_update = iter_clock
+
+            current_cnd = global_conductance()
+            c1 = get_comp(self.node)
+            c2 = self.dest
+            if volume[c1] <= 1.0001*nx.degree(g, self.node, weight=weight):
+                return -1
+            if c1 == c2:
+                return 0
+            cut1 = 0
+            cut2 = 0
+            for n2 in nx.neighbors(g, self.node):
+                if get_comp(n2) == c1:
+                    cut1 += g[self.node][n2][weight]
+                if get_comp(n2) == c2:
+                    cut2 += g[self.node][n2][weight]
+            deg = nx.degree(g, self.node)
+            cut_size[c1][c2] += cut1 - cut2
+            cut_size[c2][c1] += cut1 - cut2
+            volume[c1] -= deg
+            volume[c2] += deg
+            new_cnd = global_conductance()
+            cut_size[c1][c2] -= cut1 - cut2
+            cut_size[c2][c1] -= cut1 - cut2
+            volume[c1] += deg
+            volume[c2] -= deg
+            return new_cnd - current_cnd
+
+        def get_gain(self):
+            if last_mod_date[self.dest] >= self.last_update or last_mod_date[belonging[self]] >= self.last_update:
+                self.gain = self.calc_gain()
+            return self.gain
+
+        def __eq__(self, other):
+            if not isinstance(other, Motion):
+                raise NotImplemented
+            return self.node == other.node and self.dest == other.dest
+
+        def __lt__(self, other):
+            if not isinstance(other, Motion):
+                raise NotImplemented
+            return self.get_gain() < other.get_gain()
+
+        def __le__(self, other):
+            if not isinstance(other, Motion):
+                raise NotImplemented
+            return self.get_gain() <= other.get_gain()
+
+        def __gt__(self, other):
+            if not isinstance(other, Motion):
+                raise NotImplemented
+            return self.get_gain() > other.get_gain()
+
+        def __ge__(self, other):
+            if not isinstance(other, Motion):
+                raise NotImplemented
+            return self.get_gain() >= other.get_gain()
+
+        # These comparaison operators do not follow standard requierements
+        # for example, a <= b and a >= b does not imply a == b
+        # but it doesn't matter, their only purpose here is to be used by the sorting algorithm
+
+    motion_list = []
+    for nd in g.nodes:
+        possible_dests = set()
+        for nd2 in nx.neighbors(g, nd):
+            possible_dests.add(get_comp(nd2))
+        for dest in list(possible_dests):
+            motion_list.append(Motion(node=nd, dest=dest))
+    motion_list.sort()
+
+    # motion list is used as a priority queue. It holds all the possible motions, sorted by their gain
+    # using an actual priority queue isn't possible, since the gain of some motions will change with each iteration
+    # instead, we take advantage of the fact that python's sort algorithm is efficient for almost sorted lists
+    # Thanks to that, we can sort in pretty much linear time (I think)
+    # this puts our whole loop down there in O(number of motions)
+    # it is probably possible to do something a lot more efficient for large graphs,
+    # since each iteration only applies local changes.
+    # But this will be ran on a single node, so not that large a graph
+    # and honestly, it was hard enough to code as is
+    # I'll optimize it if optimisation turns out to be necessary.
+
+    while motion_list[-1].get_gain() > 0 and iter_clock < param.max_number_of_iterations:
+
+        iter_clock += 1
+
+        motion = motion_list.pop()
+        last_mod_date[get_comp(motion.node)] = iter_clock
+        last_mod_date[motion.dest] = iter_clock
+        motion.apply()
+
+        for nd2 in nx.neighbors(g, motion.node):
+            if get_comp(nd2) != motion.dest:
+                new_motion = Motion(nd2, motion.dest)
+                if new_motion not in motion_list:
+                    motion_list.append(new_motion)
+
+        # new possible changes are added to the list.
+        # Notice that old, no-longer interesting changes are not removed, so that even if a node looses contact
+        # with a component the motion to that component is still in the list. This doesn't change the result of
+        # the algorithm, since that motion will probably never get a high enough gain to be applied
+        # it might slow things down a bit, but It's probably fine
+
+        motion_list.sort()
+
+    new_comps = [[] for c in range(num_c)]
+
+    for nd in g.nodes:
+        new_comps[get_comp(nd)].append(nd)
+
+    return new_comps
+
+
+
+
+
+
 def ei_uphill(g, comp_list):
     '''Les nodes sont passes sur des composantes voisines tan que ça reduit le poid total de la coupe.'''
     if(type(g) != nx.graph and type(g) != nx.multiGraph):

@@ -35,6 +35,12 @@ eigen_num_iter = 100
 # Advised between 0 and 1, but could theoretically be any nonnegative number
 tag_weight_transmition = 0.5
 
+# uphill conductance maximisation
+
+# a small, nonnegative number to reduce the importance of balance in the conductance edge_improvement algorithm
+# if it is 0, there is no balance dampening
+conductance_balance_dampener = 0
+
 # Default node caracteristics
 post_node_default_value = 10.0
 
