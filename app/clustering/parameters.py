@@ -1,10 +1,10 @@
 import datetime as dtt
 import time
 
-#port of the Main Backend Server
+# port of the Main Backend Server
 SERVER_PORT = 65533
 
-#Command keys
+# Command keys
 
 shutdown_command = "shutdown"
 
@@ -18,12 +18,22 @@ idle_execution_period = dtt.timedelta(seconds=3)
 p_procedure1 = dtt.timedelta(seconds=5)
 p_procedure2 = dtt.timedelta(seconds=12)
 
+# Algorithms
 # personalised page rank : teleport probability
 ppr_tp_prob = 0.99
 ppr_precision = 0.00000000001
 
 # heuristic algorithm parameters
 max_number_of_iterations = 1000000
+
+# Eigenvector centrality
+
+# number of iterations for calculation
+eigen_num_iter = 100
+
+# adjustment of how much other tags are taken into account for the weight of a given tag.
+# Advised between 0 and 1, but could theoretically be any nonnegative number
+tag_weight_transmition = 0.5
 
 # Default node caracteristics
 post_node_default_value = 10.0

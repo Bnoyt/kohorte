@@ -119,5 +119,3 @@ class QuoteNode(BaseNode):
     def __str__(self):
         return "(" + str(self.database_id) + ") tag node"
 
-
-#print("Nodes successfully imported")

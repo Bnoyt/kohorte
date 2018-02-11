@@ -17,6 +17,7 @@ import time as lib_time
 import app.clustering.Nodes as Nodes
 import app.clustering.parameters as param
 import app.clustering.errors as err
+import app.clustering.ClusteringObjects as co
 
 color_sample = ['blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'red']
 
@@ -108,19 +109,19 @@ class Procedure2(GenericProcedure):
 '''filtering and preparation'''
 
 
-def roots_and_leaves(g):
+def roots_and_leaves(mdg : nx.MultiDiGraph):
     """ A terme, renverra un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
     Cree de nouveaux edges de cle param.head_and_leaf_reduce
     Pour l'instant on cree juste un nouveau graphe"""
     ng = nx.Graph()
     roots = []
-    for n in g.nodes:
+    for n in mdg.nodes:
         if isinstance(n, Nodes.NoeudNode):
             ng.add_node(n)
-            if len(get_out_edges(g, n, param.parent_node)):
+            if len(get_out_edges(mdg, n, param.parent_post)):
                 roots.append(n)
-    for e in g.edges(ng.nodes, keys=True, data=True):
-        if e[2][0] == param.parent_node:
+    for e in mdg.edges(ng.nodes, keys=True, data=True):
+        if e[2][0] == param.parent_post:
             ng.add_edge(e[0], e[1], length=1, default_weight=e[3]["default_weight"])
     for rn in roots:
         child_pile = list(ng[rn].keys())
@@ -138,7 +139,6 @@ def roots_and_leaves(g):
     return ng
 
 
-
 def get_bridges(g):
     """returns the bridges. A bridge is an edge in a 1-edge biconnected component"""
     bico = nx.biconnected_components(g)
@@ -147,7 +147,7 @@ def get_bridges(g):
         if len(g.subgraph(c).edges) == 1:
             lc = list(c)
             bridges.add((lc[0],lc[1]))
-    return(bridges)
+    return bridges
 
 
 # networkx shell
@@ -163,6 +163,108 @@ def get_biconnection_components(g, bridges):
 
 
 '''seed and core identification'''
+
+
+def get_central_tags_eigenvectors(g : nx.Graph, num_wanted):
+    """ returns a set of tags to be used as seeds for a clustering algorithms.
+    The tags are chosen to convey a lot of information, and eigenvector clustering is used to quantify how interesting
+    a post node is. The argument g can be a graph of a single noeud, or a graph of the whole graph,
+    Howevr if it's of the whole graph it risks identifying ideas which cover the whole node you want to split,
+    and that would just be dumb. So, like, it's up to you but I designed it with "just one noeud" in mind.
+    And yes there's a reason why I'm using the french word for "noeud".
+    Tag nodes must only link to post nodes. """
+    centrality = nx.eigenvector_centrality(g, max_iter=param.eigen_num_iter)
+    tags = []
+    total_centrality = 0
+
+    for n in g.nodes():
+        if isinstance(n, Nodes.TagNode):
+            tags.append(n)
+        if isinstance(n, Nodes.PostNode):
+            total_centrality += centrality[n]
+
+    cover = {}
+    weight_modifier = {}
+
+    for t in tags:
+        t_cover = 0
+        for pn in g[t].keys():
+            t_cover += centrality[pn]
+        cover[t] = t_cover
+        weight_modifier[t] = 1.0
+
+    def information(tn):
+        """ roughly corresponds to the amount of information the tag brings us.
+        Same as the weight of all posts the tag links to, unless the tag covers more than half the posts
+        posts are given more or less important depending on their centrality"""
+        return min(cover[tn]/total_centrality, 1 - (cover[tn]/total_centrality)) * weight_modifier[tn]
+
+    tag_graph = nx.Graph()
+    tag_graph.add_nodes_from(tags)
+    for t in tags:
+        for n in nx.neighbors(g, t):
+            for t2 in nx.neighbors(g, n):
+                if t != t2 and isinstance(t2, Nodes.TagNode):
+                    if t2 in tag_graph[t]:
+                        tag_graph[t][t2]["shared_nodes"] += centrality[n]/2
+                    else:
+                        tag_graph.add_edge(t, t2, shared_nodes=centrality[n]/2)
+
+    for t1 in tags:
+        for t2 in nx.neighbors(tag_graph, t1):
+            both = tag_graph[t1][t2]["shared_nodes"]
+            just1 = cover[t1] - both
+            just2 = cover[t2] - both
+            neither = total_centrality - just1 - just2 - both
+            inf_both = (just1 + just2 + both + neither - max(just1, just2, both, neither)) / total_centrality
+            tag_graph[t1][t2]["difference"] = inf_both/(information(t1) + information(t2))
+
+    # The difference attribute quantifies whther these tags give the same information
+    # it ranges between 0.5 and 1
+    # 0.5 difference corresponds to tags which are exactly overlapping (or complementary)
+    # The highest value it can get is 1, corresponding for example to small enough disjointed sets
+    # It can also correspond to other fonky things, such as nested sets where the small one is small enough
+    # Basically, a high difference means the tags represent different things. And that's cool, we want tags which
+    # represent different things.
+    # By the way, notice how tags are interchangable with their complementary in all this ?
+    # It's a direct consequence of working with information, so I think it's a good idea to keep it.
+    # The interpretation is that if tag2 is complementary of tag1, then they're two words to indicate the same division
+    # Liekwise, if a tag covers the whole node, it doesn't teach us much.
+
+    def diff_key(e):
+        return -(e[2]["difference"] - 0.5) * (information(e[0]) + information(e[1]))
+
+    tag_edges = list(tag_graph.edges(data=True))
+    tag_edges.sort(key=diff_key)
+
+    for e in tag_edges:
+        if e[0] in tags and e[1] in tags:
+            if information(e[0]) < information(e[1]):
+                a = e[0]
+                b = e[1]
+            else:
+                a = e[1]
+                b = e[0]
+            weight_modifier[b] += ((e[2]["difference"] * (information(a)/information(b) + 1)) - 1) \
+                                * param.tag_weight_transmition
+
+            tags.remove(a)
+
+            # a tag is discarded this way because it is estimated that the information it carries is too also conveyed
+            # by another tag. As a result, the weight of that other tag is increased to represent the fact that it also
+            # carries the information of that first tag. I am not sure on the formula for weight modifier
+            # devising the right formula would take a bit more theoretical thinking
+
+            if len(tags) <= num_wanted:
+                break
+
+    # This should be really resilient:
+    # If there are too few tags, it just returns all the tags it has
+    # If the tags are totally unrelated, it just returns the tags with highest information
+
+    tags.sort(key=information)
+
+    return tags[-num_wanted:]
 
 
 def get_triangles(g):
@@ -185,7 +287,7 @@ def get_triangles(g):
 
 # networkx shell
 def fuse_to_cores(g, points):
-    return(list(nx.connected_components(g.subgraph(points))))
+    return list(nx.connected_components(g.subgraph(points)))
 
 
 def local_clustering_coeffs(g):

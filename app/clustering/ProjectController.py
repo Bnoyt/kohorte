@@ -154,7 +154,7 @@ class ProjectController(Thread):
                         if proc.next_run() < chosen_procedure.next_run():
                             chosen_procedure = proc
 
-                    nr = proc.next_run()
+                    nr = chosen_procedure.next_run()
 
                     if nr > run_time:
                         if nr < param.never:
