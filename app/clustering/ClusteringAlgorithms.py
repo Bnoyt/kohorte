@@ -232,7 +232,7 @@ def get_central_tags_eigenvectors(g : nx.Graph, num_wanted):
     # Liekwise, if a tag covers the whole node, it doesn't teach us much.
 
     def diff_key(e):
-        return -(e[2]["difference"] - 0.5) * (information(e[0]) + information(e[1]))
+        return (e[2]["difference"] - 0.5) * (information(e[0]) + information(e[1]))
 
     tag_edges = list(tag_graph.edges(data=True))
     tag_edges.sort(key=diff_key)
