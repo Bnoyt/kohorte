@@ -27,11 +27,11 @@ class DistantFunc(Thread):
                'args': self.args,
                'kwargs': self.kwargs}
         msg = json.dumps(msg)
-        Sender.send(msg)
+        MessageHandler.send(msg)
 
 
 
-class Sender:
+class MessageHandler:
     #Sends the function call to the Main server
     #via a thread
     @staticmethod
@@ -49,6 +49,10 @@ class Sender:
             connexion.close()
         pass
 
-class Router:
-    #Responsible for routing message to the appropriate Project
-    pass
+class Main(Thread):
+
+    def __init__(self):
+        Thread.__init__(self)
+
+    def run(self):
+        pass
