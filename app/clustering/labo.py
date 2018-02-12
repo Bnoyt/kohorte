@@ -20,13 +20,7 @@ def run():
     print("on tourne")
     access = dba.DatabaseAccess(2)
 
-    a_user, a_post = access.test()
-
-
-    branch_order=dba.BranchInstruction(the_graph=None, start_noeud=14,
-                                       moving_posts=[post.id for post in a_post[0:2]],
-                                       going_users=[7],
-                                       leaving_users=[7],
-                                       temp_title_post=a_post[1].id)
-
-    access.branch(branch_order)
+    tns = dba.TagNodeSet(access.test())
+    for tag_node in tns:
+        print(type(tag_node))
+        print(tag_node)

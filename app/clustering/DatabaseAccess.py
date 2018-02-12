@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 # import libraries
-import networkx as nx
+from collections.abc import Iterable
+from collections.abc import Iterator
 
 # import dependencies
 import app.models as models
 from notify.signals import notify
 import app.clustering.parameters as param
+import app.clustering.Nodes as Nodes
 
 
 class DatabaseAccess:
@@ -20,12 +22,7 @@ class DatabaseAccess:
         pass
 
     def test(self):
-        big_noeud = models.Noeud.objects.get(id=14)
-        a_post = models.Post.objects.filter(noeud=big_noeud)
-        a_user = set([post.auteur for post in a_post])
-        print(a_user)
-        print(a_post)
-        return (list(a_user), a_post)
+        return models.Tag.objects.all()
 
     def change_importance(self, post_id, new_importance):
         try:
@@ -87,14 +84,17 @@ class DatabaseAccess:
         notify.send(sender=ghost_user, recipient_list=[utilis.user for utilis in going_users], verb=param.branch_notification_text,
                     target=start_noeud, object=new_noeud, nf_type=param.nf_type_branch_key, actor=ghost_user)
 
+    def get_database_iterable(self):
 
+        question = models.Question.objects.get(id=self.project_id)
 
-
+        tag_iterable = TagNodeSet(models.Tag.objects.filter(question=question))
+        noeud_iterable = NoeudNodeSet(models.Noeud.objects.filter(question=question))
+        citation_iterable = CitationNodeIterator()
 
 
 class BranchInstruction:
-    def __init__(self, the_graph, start_noeud, moving_posts, going_users, leaving_users, temp_title_post):
-        self.the_graph = the_graph
+    def __init__(self, start_noeud, moving_posts, going_users, leaving_users, temp_title_post):
         self.start_noeud = start_noeud
         self.moving_posts = moving_posts
         self.temp_title_post = temp_title_post
@@ -102,7 +102,105 @@ class BranchInstruction:
         self.leaving_users = leaving_users
 
 
+class GraphElementSet(Iterable):
+    def __init__(self, query_set):
+        self.query_set = query_set
+        self.iterator_type = GraphElementIterator
 
+    def __iter__(self):
+        return self.iterator_type(iter(self.query_set))
+
+
+class GraphElementIterator(Iterator):
+    def __init__(self, qs_iterator):
+        self.qs_iterator = qs_iterator
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        pass
+
+
+class TagNodeSet(GraphElementSet):
+    def __init__(self, query_set):
+        super().__init__(query_set)
+        self.iterator_type = TagNodeIterator
+
+
+class TagNodeIterator(GraphElementIterator):
+    def next(self):
+        next_tag = next(self.qs_iterator)
+        return Nodes.TagNode(database_id=next_tag.id, slug=next_tag.label)
+
+
+class NoeudNodeSet(GraphElementSet):
+    def __init__(self, query_set):
+        super().__init__(query_set)
+        self.iterator_type = NodeIterator
+
+
+class NoeudNodeIterator(GraphElementIterator):
+    def next(self):
+        next_noeud = next(self.qs_iterator)
+        return Nodes.NoeudNode(next_noeud.id)
+
+
+class CitationNodeSet(GraphElementSet):
+    def __init__(self, query_set):
+        super().__init__(query_set)
+        self.iterator_type = NodeIterator
+
+
+class CitationNodeIterator(GraphElementIterator):
+    def next(self):
+        pass
+
+
+class NodeSet(GraphElementSet):
+    def __init__(self, query_set):
+        super().__init__(query_set)
+        self.iterator_type = NodeIterator
+
+
+class NodeIterator(GraphElementIterator):
+    def next(self):
+        pass
+
+
+class Navigator:
+    def __init__(self):
+        pass
+
+    def get_edges(self):
+        pass
+
+
+class PostNavigator(Navigator):
+
+    def get_parent(self):
+        pass
+
+    def get_children(self):
+        pass
+
+    def get_noeud(self):
+        pass
+
+    def get_citations(self):
+        pass
+
+    def get_tags(self):
+        pass
+
+
+class TagNavigator(Navigator):
+
+    def get_posts(self):
+        pass
 
 def get_database_object(a):
     pass
