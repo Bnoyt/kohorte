@@ -111,9 +111,10 @@ class AreteReflexion(models.Model):
 
 class Tag(models.Model):
     """Element qui relie des posts entre eux.
-    Important car joue sur les arretes du grand graphe
+    Important car joue sur les aretes du grand graphe
     et/ou sur sa métrique"""
     label = models.CharField(max_length = 30)
+    question = models.ForeignKey(Question,related_name="Question_de_base")
     #valeur de max_length choisie arbitrairement
     
     def postTagues(self):

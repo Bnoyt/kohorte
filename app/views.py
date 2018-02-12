@@ -122,14 +122,21 @@ def ancetres(noeud):
         l = [parente.ideeSource for parente in AreteReflexion.objects.filter(ideeDest = n)]
     return res
 
+def postsDescendants(postPere, node):
+    return [[p, postsDescendants(p, node)] for p in Post.objects.filter(pere=postPere).filter(noeud=node)]
+
 
 def noeud(request,noeud_id):
     if request.user.is_authenticated:
         noeud = get_object_or_404(Noeud,pk=noeud_id)
-        post = Post.objects.filter(noeud=noeud,pere=None)
+        postPeres = Post.objects.filter(noeud=noeud,pere=None)
         user = get_object_or_404(Utilisateur,user=request.user)
         
-        posts = [[p,[[c,[r for r in Post.objects.filter(pere=c)]] for c in Post.objects.filter(pere=p)]] for p in post]
+        posts = [[p, postsDescendants(p, noeud)] for p in postPeres] #les descendants des postsPere encore dans le noeud.
+        
+        #cOrphelins= Post.objects.filter
+
+
 
         #pour la navigation entre les noeuds dans l'alpha
         noeudsFamille = [(parente.ideeSource, [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = parente.ideeSource)]) for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
@@ -255,9 +262,9 @@ def ajouter_post(request):
             p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             p.save()
             for tag in tags:
-                t = Tag.objects.filter(label=tag)
+                t = Tag.objects.filter(label=tag).filter(question=question)
                 if len(t) == 0:
-                    t = Tag(label = tag)
+                    t = Tag(label = tag, question=question)
                     t.save()
                     #TODO gm.create_tag(t.id)
                 else:
@@ -314,7 +321,7 @@ def ajouter_commentaire(request):
             context={'c':[c,[]]
             }
             publication = template.render(context,request)
-            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='answered you.', nf_type='answer')
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
