@@ -696,93 +696,14 @@ def ei_uphill_general_conductance(g, comp_list, weight):
     return new_comps
 
 
-
-
-
-
-def ei_uphill(g, comp_list):
-    '''Les nodes sont passes sur des composantes voisines tan que ça reduit le poid total de la coupe.'''
-    if(type(g) != nx.graph and type(g) != nx.multiGraph):
-        raise err.inadequate_partition("g must be a non-oriented graph")
-    '''
-    mobile_nodes = kwargs.get("mobile_nodes", g.nodes)
-
-    if "mobile_nodes" in kwargs:
-        mobile_nodes = kwargs["mobile_nodes"]
-    else:
-        mobile_nodes = g.nodes
-
-    if "weight" in args:
-        weight = args["weight"]
-    else:
-        weight = "default_weight"
-
-    if "iteration_limit" in args:
-        iteration_limit = args["iteration_limit"]
-    else:
-        iteration_limit = param.max_number_of_iterations
-    '''
-    num_c = len(comp_list)
-    if num_c < 2:
-        raise err.inadequate_partition("The partition must have at least two different components")
-
-    cut_size = [0]*num_c
-    for i in range(num_c):
-        cut_size[i] = nx.cut_size(g, comp_list[i], weight)
-    node_queue = queue.PriorityQueue()
-    belonging = dict()
-    node_shift_gain = dict()
-    for i in range(num_c):
-        for n in comp_list[i]:
-            if n in belonging:
-                raise err.inadequate_partition("The components must not overlap")
-            belonging[n] = i
-    for n in mobile_nodes:
-        shift_gains = [1] * num_c
-        try:
-            i0 = belonging[n]
-        except KeyError:
-            raise err.inadequate_partition("All nodes must belong to a component")
-        for i in range(num_c):
-            if(i != i0):
-                shift_gains[i] = nx.cut_size(g, [n], comp_list[i])
-        node_shift_gain[n] = shift_gains
-        best_gain = min(shift_gains)
-        node_queue.put((best_gain, n))
-
-    num_iter = 0
-
-    while num_iter < 50 and node_queue.not_empty():
-        n = queue.get()[1]
-        if n[0] >= 0:
-            break
-        try:
-            i = belonging[n]
-        except KeyError:
-            raise err.inadequate_partition("All nodes must belong to a component")
-        j = (i+1)%num_c
-        shift_gains = node_shift_gain[n]
-        for j2 in range(num_c):
-            if( j2 != i and shift_gains[j2] > shift_gains[j]):
-                j = j2
-        i_neighboors = []
-        j_neighboors = []
-        for m in nx.neighbors(g, n):
-            if(belonging[m] == i):
-                i_neighboors.append(m)
-            if (belonging[m] == j):
-                j_neighboors.append(m)
-        belonging[n] = j
-        for ni in i_neighboors:
-            nsg_i = node_shift_gain[ni]
-            node_queue.remove((max(nsg_i),ni))
-            nsg_i[j] -= g[i][j][weight]
-
-
 '''Global'''
 
 
+# stuff. eventually
+
+
 '''navigation'''
+
 
 def get_in_edges(g, node, base_key):
     '''Returns one in_edge verifying a given charcteristics, or None if no such edge exists'''

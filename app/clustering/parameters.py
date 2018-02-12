@@ -58,7 +58,16 @@ user_vote = "user_vote"
 
 head_and_leaf_reduce = "hnl_reduce"
 
+# branching
 
+type_arete_label = "dependance"
+type_suivi_branch_label = "auto pendant branch"
+
+ghost_user_id = 8
+branch_notification_text = " a été créé à partir de "
+nf_type_branch_key = "branch"
+
+forbidden_titles = ["test", "titre"]
 never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
 
 def now():
