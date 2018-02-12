@@ -111,9 +111,10 @@ class AreteReflexion(models.Model):
 
 class Tag(models.Model):
     """Element qui relie des posts entre eux.
-    Important car joue sur les arretes du grand graphe
+    Important car joue sur les aretes du grand graphe
     et/ou sur sa métrique"""
     label = models.CharField(max_length = 30)
+    question = models.ForeignKey(Question,related_name="Question_du_tag")
     #valeur de max_length choisie arbitrairement
     
     def postTagues(self):
@@ -237,19 +238,6 @@ class Suggestion(models.Model):
 
     def __str__(self):
         return str(self.userVise.user) + self.objet.label + str(self.pertinence)
-
-
-class Log(models.Model):#XXX existe une classe log 
-    """on sait qu'on doit en faire un donc le voilà.
-    Il permettra des traitements par la suite.
-    """
-    user = models.ForeignKey(Utilisateur)
-    action = models.CharField(max_length = 100)
-    date = models.DateTimeField(auto_now_add=True)
-    #valeur de max_length choisie arbitrairement
-
-    def __str__(self):
-        return str(self.user.user) + self.action + ' - ' + str(self.date)
 
 class TypeSuivi(models.Model):
     label = models.CharField(max_length=100)

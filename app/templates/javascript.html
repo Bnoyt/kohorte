@@ -332,7 +332,7 @@ $(".form-commentaire").submit(function(event){
     contenu = texte_input.val();
     texte_input.val('');
     suivant = formulaire.parent().parent().next();
-    pere = suivant.attr('id');
+    pere = formulaire.attr('id');
 
      $.post('{% url "ajouter_commentaire" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
 
@@ -348,7 +348,7 @@ $(".form-reponse").submit(function(event){
     contenu = texte_input.val();
     texte_input.val('');
     suivant = formulaire.parent().parent().next();
-    pere = suivant.attr('id');
+    pere = formulaire.attr('id');
 
      $.post('{% url "ajouter_reponse" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
 

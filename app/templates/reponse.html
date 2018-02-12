@@ -8,10 +8,10 @@
 
 		<div class="content">
 
-			<div class="contenu" name="{{r.id}}">
+			<div class="contenu" name="{{r.0.id}}">
 				<p>
 
-				{{r.contenu|rendusafe|safe}}
+				{{r.0.contenu|rendusafe|safe}}
 
 				</p>
 			</div>
@@ -21,7 +21,7 @@
 			<div class="footer">
 				<hr />
 				<div class="stats">
-					<i class="ti-calendar"></i> Répondu le {{r.date}} par {{r.auteur.user.username}}
+					<i class="ti-calendar"></i> Répondu le {{r.0.date}} par {{r.0.auteur.user.username}}
 				</div>
 
 			</div>
@@ -34,7 +34,7 @@
 
 		<div class="content">
 
-			<form method="post" class="form-reponse">
+			<form method="post" class="form-reponse" id="form_{{r.0.id}}">
 				
 				{% csrf_token %}
 
@@ -51,4 +51,18 @@
 
 	</div>
 
+
+
 </div>
+
+
+<div id="r_{{r.0.id}}">
+			{% for p in r.1 %}
+
+				{% include "reponse.html" with r=p %}
+
+			{% endfor %}
+
+	</div>
+
+
