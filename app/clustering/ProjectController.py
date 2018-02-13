@@ -23,8 +23,8 @@ class ProjectController(Thread):
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
-    def __init__(self, name, control_queue):
-        super().__init__()
+    def __init__(self, name, command_queue):
+        Thread.__init__()
 
         self.name = name
         self.path = Path(param.memory_path) / name
@@ -47,7 +47,7 @@ class ProjectController(Thread):
 
         self.modification_queue = queue.Queue()
 
-        self.command_handler = CommandHandler(control_queue)
+        self.command_handler = CommandHandler(command_queue)
 
         self.procedure_table = None
         self.dummy_procedure = None
