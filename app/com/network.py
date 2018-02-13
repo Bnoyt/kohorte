@@ -38,6 +38,7 @@ class DistantFunc(Thread):
 
 
 
+
 class MessageHandler:
     @staticmethod
     def send_json(msg):
@@ -115,6 +116,9 @@ class MessageHandler:
             pass
         pass
 
+
+
+
 class Main(Thread):
 
     def __init__(self, name):
@@ -129,7 +133,7 @@ class Main(Thread):
             self.time = timer()
 
     def _init_projects(self):
-        project_ids = []
+        project_ids = [] #[project.id for project in models.objects.all]
         for project_id in project_ids:
             command_queue = queue.Queue()
             controller = ProjectController(
