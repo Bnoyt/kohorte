@@ -5,7 +5,7 @@ from app.com.network import Main
 
 def run():
     #TODO: put startup code here
-    t = Main('startup')
+    t = Main('backend - Main')
     t.daemon = True
     t.start()
     time.sleep(0.2)

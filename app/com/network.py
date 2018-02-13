@@ -6,9 +6,12 @@ import socket
 import select
 
 import traceback
+from collections import Mapping
 
-from app.com.config import SERVER_PORT, CONTROLLERS_AS_DAEMON
+from app.com.config import SERVER_PORT, CONTROLLERS_AS_DAEMON, ERROR_HANDLING, LOG_THREAD
 from app.clustering.ProjectController import ProjectController
+
+from timeit import default_timer as timer
 
 class DistantFunc(Thread):
     @classmethod
@@ -25,9 +28,11 @@ class DistantFunc(Thread):
 
     def run(self):
         msg = {'type': 'method',
-               'method_name': self.method_name,
-               'args': self.args,
-               'kwargs': self.kwargs}
+               'method_name': self.method_name}
+        if self.args and len(self.args) > 0:
+            msg['args'] = self.args
+        if self.kwargs and len(self.kwargs) > 0:
+            msg['kwargs'] = self.kwargs
         msg = json.dumps(msg)
         MessageHandler.send(msg)
 
@@ -54,6 +59,8 @@ class MessageHandler:
         try:
             msg = json.dumps(msg)
         except Exception as err:
+            if not ERROR_HANDLING:
+                raise
             pass
         else:
             connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -73,14 +80,38 @@ class MessageHandler:
     def handle(msg, destinations):
         try:
             action = json.loads(msg)
-            destination = action['type']
+            if not isinstance(action, Mapping):
+                #TODO: Error handling
+                return
+            destination = destinations[action['type']]
             method = action['method_name']
-            destination.__getattribute__(method)(*action['args'], **action['kwargs'])
+            try:
+                args = action['args']
+            except KeyError:
+                args = None
+            try:
+                kwargs = action['kwargs']
+            except KeyError:
+                kwargs = None
+            func = destination.__getattribute__(method)
+            if args is not None and kwargs is not None:
+                func(*args, **kwargs)
+                return
+            if args is not None:
+                func(*args)
+                return
+            if kwargs is not None:
+                func(**kwargs)
+                return
         except json.JSONDecodeError:
             #TODO: Handle Exceptions
+            if not ERROR_HANDLING:
+                raise
             pass
         except AttributeError:
             #TODO: Handle Exceptions
+            if not ERROR_HANDLING:
+                raise
             pass
         pass
 
@@ -88,15 +119,16 @@ class Main(Thread):
 
     def __init__(self, name):
         Thread.__init__(self)
-        self.daemon = True
         self.name = name
         self.socks = []
         self.clients = []
         self.infos = {}
         self.destinations = {'command': self}
         self.command_queues = {}
+        if LOG_THREAD:
+            self.time = timer()
 
-    def _init_project(self):
+    def _init_projects(self):
         project_ids = []
         for project_id in project_ids:
             command_queue = queue.Queue()
@@ -111,17 +143,19 @@ class Main(Thread):
     def _init_socket(self, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('localhost', port))
+        sock.listen(5)
         self.socks.append(sock)
 
 
     def _get_clients(self, timeout):
         queries, wlist, xlist = select.select(self.socks, [], [], timeout)
         for connexion in queries:
-            client, infos = queries.accept()
+            client, infos = connexion.accept()
             if infos[0] == '127.0.0.1':
                 self.clients.append(client)
                 self.infos[client] = infos
             else:
+                print('refused connexion from %s' % infos)
                 client.close()
 
     def _listen_clients(self, timeout):
@@ -142,12 +176,19 @@ class Main(Thread):
                             self._handle_message(msg)
                     except Exception as err:
                         #TODO: Handle Exceptions
+                        if not ERROR_HANDLING:
+                            raise
                         pass
             finally:
                 for client in to_read:
                     self.clients.remove(client)
                     del self.infos[client]
                     client.close()
+        if LOG_THREAD:
+            if timer() - self.time > 5:
+                self.time = timer()
+                print('Thread %s is still alive' % self.name)
+                print(self.socks)
 
     def _handle_message(self, msg):
         try:
@@ -161,10 +202,10 @@ class Main(Thread):
 
     def run(self):
         self._init_socket(SERVER_PORT)
-        self._init_project()
+        self._init_projects()
         while True:
             self._get_clients(0.05)
-            self._listen_clients()
+            self._listen_clients(0.05)
         pass
 
     def print(self, *args, **kwargs):
