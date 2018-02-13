@@ -190,11 +190,12 @@ def noeud(request,noeud_id):
 def whatsup(request, project_id):
     if request.user.is_authenticated:
         user = get_object_or_404(Utilisateur,user=request.user)
+        question = get_object_or_404(Question, id=project_id)
     
         sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')    #.filter(objet.question=project_id)
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
-        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user)]
+        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user) if r.noeud.question == question]
         posts = [p for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
         
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
