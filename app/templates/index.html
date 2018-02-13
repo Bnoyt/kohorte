@@ -3,28 +3,37 @@
         <div class="row">
             <div class="col-md-12">
                 <a href="{% url 'noeud' 2 %}">
-                    <div class="card">
+                    <!-- <div class="card"> -->
                         <div class="content">
                           
-                            <h2>Voir un exemple de page de noeud</h2>
+                            <h1>Bienvenue sur Agorado</h1>
 
                         </div> 
-                    </div>
+                    <!-- </div> -->
                 </a>                           
             </div>
             <div class="col-md-12">
                
                 <div class="card">
+										<div class="header">
+											<h2>Projets en cours</h2>
+										</div>
                     <div class="content">
-                      
-                        {% for question, nbPosts, nbNewPosts, nbNoeuds, nbNewNoeuds in printRecap %}
-                          {% include "projet-seul.html" with q=question nbPosts=nbPosts nbNewPosts=nbNewPosts nbNoeuds=nbNoeuds nbNewNoeuds=nbNewNoeuds %}
-                        {% endfor %}
+                      <div class="container-fluid">
+        								<div class="row">
 
+                        {% for question, nbPosts, nbNewPosts, nbNoeuds, nbNewNoeuds in printRecap %}
+            							<div class="col-md-4">
+                          {% include "projet-seul.html" with q=question nbPosts=nbPosts nbNewPosts=nbNewPosts nbNoeuds=nbNoeuds nbNewNoeuds=nbNewNoeuds %}
+                    			</div>
+                        {% endfor %}
+ 
+                				</div> 
+											</div>
                     </div> 
                 </div>                         
             </div>
-            <div class="col-md-12">
+            <!-- <div class="col-md-12">
                
                 <div class="card">
                     <div class="content">
@@ -33,7 +42,7 @@
 
                     </div> 
                 </div>                         
-            </div>
+            </div> -->
             
         </div>
     </div>
