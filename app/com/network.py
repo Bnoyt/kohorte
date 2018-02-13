@@ -10,6 +10,7 @@ from collections import Mapping
 
 from app.com.config import SERVER_PORT, CONTROLLERS_AS_DAEMON, ERROR_HANDLING, LOG_THREAD
 from app.clustering.ProjectController import ProjectController
+import app.models
 
 from timeit import default_timer as timer
 
@@ -133,7 +134,7 @@ class Main(Thread):
             self.time = timer()
 
     def _init_projects(self):
-        project_ids = [] #[project.id for project in models.objects.all]
+        project_ids = [int(p.id) for p in app.models.Question.objects.all()]
         for project_id in project_ids:
             command_queue = queue.Queue()
             controller = ProjectController(
@@ -142,6 +143,7 @@ class Main(Thread):
             self.command_queues[project_id] = command_queue
             controller.daemon = CONTROLLERS_AS_DAEMON
             controller.start()
+            print('[BACKEND] Started backend thread for project %s' % project_id)
         pass
 
     def _init_socket(self, port):

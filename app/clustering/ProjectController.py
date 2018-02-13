@@ -24,7 +24,7 @@ class ProjectController(Thread):
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
     def __init__(self, name, command_queue):
-        Thread.__init__()
+        Thread.__init__(self)
 
         self.name = name
         self.path = Path(param.memory_path) / name
