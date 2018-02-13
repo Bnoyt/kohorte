@@ -67,6 +67,8 @@ ghost_user_id = 8
 branch_notification_text = " a été créé à partir de "
 nf_type_branch_key = "branch"
 
+upvote_vote_key = "upvote"
+
 forbidden_titles = ["test", "titre"]
 never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
 

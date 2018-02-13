@@ -20,7 +20,4 @@ def run():
     print("on tourne")
     access = dba.DatabaseAccess(2)
 
-    tns = dba.TagNodeSet(access.test())
-    for tag_node in tns:
-        print(type(tag_node))
-        print(tag_node)
+

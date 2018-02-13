@@ -31,7 +31,7 @@ class NewPost(GenericModification):
         self.size = size
         if size < 0:
             raise err.ForbidenModificationRequest("The new post was requested with a size of + " + str(size)
-                                              + " The size of a post cannot be negative")
+                                                  + " The size of a post cannot be negative")
 
     def list_rep(self):
         return ["np", self.database_id, self.noeud, self.parent, self.size] + self.tags

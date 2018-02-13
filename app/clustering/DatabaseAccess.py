@@ -22,7 +22,7 @@ class DatabaseAccess:
         pass
 
     def test(self):
-        return models.Tag.objects.all()
+        pass
 
     def change_importance(self, post_id, new_importance):
         try:
@@ -88,9 +88,41 @@ class DatabaseAccess:
 
         question = models.Question.objects.get(id=self.project_id)
 
-        tag_iterable = TagNodeSet(models.Tag.objects.filter(question=question))
-        noeud_iterable = NoeudNodeSet(models.Noeud.objects.filter(question=question))
-        citation_iterable = CitationNodeIterator()
+        tag_iterable = NodeSet(models.Tag.objects.filter(question=question), TagNodeIterator)
+
+        noeud_iterable = NodeSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator)
+
+        citation_iterable = NodeSet(models.Citation.objects.filter(
+                                    post__in=models.Post.objects.filter(question=question)),
+                                    CitationNodeIterator)
+
+        user_iterable = NodeSet(models.Utilisateur.objects.filter(
+                                    user__in=models.RelationUserSuivi.objects.filter(
+                                        noeud__in=models.Noeud.objects.filter(question=question))),
+                                UserNodeIterator)
+
+        tag_post_iterable = EdgeSet(models.Post.objects.filter(question=question),
+                                    TagPostIterator)
+
+        post_noeud_iterable = EdgeSet(models.Post.objects.filter(question=question),
+                                      PostNoeudIterator)
+
+        post_utilise_citation_iterable = None # comme post et tags (post.citations)
+
+        post_source_citation_iterable = None # comme Post noeud (ciation.post)
+
+        utilisateur_citation = None # commme PN (citation.rapporteur)
+
+        arretes_reflexion = None # querryset AretesReflexion (attributs : ideeSource et ideeDest)
+
+        vote = EdgeSet(models.Vote.objects.filter(post__in=models.Post.objects.filter(question=question)),
+                       VoteIterator)
+
+        post_parent = None # post.pere
+
+        suivi_noeud = None # RelationUserSuivi.noeud .user
+
+        # TODO (pas ici mais todo quand même) : rajouter les arrêtes post -> noeud dans GraphModifications
 
 
 class BranchInstruction:
@@ -125,10 +157,10 @@ class GraphElementIterator(Iterator):
         pass
 
 
-class TagNodeSet(GraphElementSet):
-    def __init__(self, query_set):
+class NodeSet(GraphElementSet):
+    def __init__(self, query_set, iterator_type):
         super().__init__(query_set)
-        self.iterator_type = TagNodeIterator
+        self.iterator_type = iterator_type
 
 
 class TagNodeIterator(GraphElementIterator):
@@ -137,38 +169,61 @@ class TagNodeIterator(GraphElementIterator):
         return Nodes.TagNode(database_id=next_tag.id, slug=next_tag.label)
 
 
-class NoeudNodeSet(GraphElementSet):
-    def __init__(self, query_set):
-        super().__init__(query_set)
-        self.iterator_type = NodeIterator
-
-
 class NoeudNodeIterator(GraphElementIterator):
     def next(self):
-        next_noeud = next(self.qs_iterator)
-        return Nodes.NoeudNode(next_noeud.id)
-
-
-class CitationNodeSet(GraphElementSet):
-    def __init__(self, query_set):
-        super().__init__(query_set)
-        self.iterator_type = NodeIterator
+        return Nodes.NoeudNode(next(self.qs_iterator).id)
 
 
 class CitationNodeIterator(GraphElementIterator):
     def next(self):
-        pass
+        return Nodes.QuoteNode(next(self.qs_iterator).id)
 
 
-class NodeSet(GraphElementSet):
-    def __init__(self, query_set):
-        super().__init__(query_set)
-        self.iterator_type = NodeIterator
-
-
-class NodeIterator(GraphElementIterator):
+class UserNodeIterator(GraphElementIterator):
     def next(self):
-        pass
+        return Nodes.UserNode(next(self.qs_iterator).id)
+
+
+class EdgeSet(GraphElementSet):
+    def __init__(self, query_set, iterator_type):
+        super().__init__(query_set)
+        self.iterator_type = iterator_type
+
+
+class TagPostIterator(GraphElementIterator):
+    def __init__(self, qs_iterator):
+        super().__init__(qs_iterator)
+        self.current_post = None
+        self.tag_qs_iterator = None
+
+    def next(self):
+        if self.current_post is None:
+            self.current_post = next(self.qs_iterator)
+            self.tag_qs_iterator = iter(self.current_post.tags.all())
+        next_tag = None
+        while next_tag is None:
+            try:
+                next_tag = next(self.tag_qs_iterator)
+            except StopIteration:
+                self.current_post = next(self.qs_iterator)
+                self.tag_qs_iterator = iter(self.current_post.tags.all())
+        return self.current_post.id, next_tag.id
+
+
+class PostNoeudIterator(GraphElementIterator):
+    def next(self):
+        next_post = next(self.qs_iterator)
+        return next_post.id, next_post.noeud.id
+
+
+class VoteIterator(GraphElementIterator):
+    def next(self):
+        next_vote = next(self.qs_iterator)
+        while next_vote.type_vote.label != param.upvote_vote_key:
+            next_vote = next(self.qs_iterator)
+        return next_vote.voteur, next_vote.post
+
+
 
 
 class Navigator:
