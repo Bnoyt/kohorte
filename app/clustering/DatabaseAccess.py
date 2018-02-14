@@ -88,52 +88,56 @@ class DatabaseAccess:
 
         question = models.Question.objects.get(id=self.project_id)
 
-        tag_iterable = GraphElementSet(models.Tag.objects.filter(question=question), TagNodeIterator)
+        iterables = {
+            "tag": GraphElementSet(models.Tag.objects.filter(question=question), TagNodeIterator),
 
-        noeud_iterable = GraphElementSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator)
+            "noeud": GraphElementSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator),
 
-        citation_iterable = GraphElementSet(models.Citation.objects.filter(
-                                                post__in=models.Post.objects.filter(question=question)),
-                                            CitationNodeIterator)
+            "citation": GraphElementSet(models.Citation.objects.filter(
+                                                    post__in=models.Post.objects.filter(question=question)),
+                                        CitationNodeIterator),
 
-        user_iterable = GraphElementSet(models.Utilisateur.objects.filter(
-                                            user__in=models.RelationUserSuivi.objects.filter(
-                                                noeud__in=models.Noeud.objects.filter(question=question))),
-                                        UserNodeIterator)
+            "user": GraphElementSet(models.Utilisateur.objects.filter(
+                                                user__in=models.RelationUserSuivi.objects.filter(
+                                                    noeud__in=models.Noeud.objects.filter(question=question))),
+                                    UserNodeIterator),
 
-        post_iterable = GraphElementSet(models.Post.objects.filter(question=question),
-                                        PostNodeIterator)
+            "post": GraphElementSet(models.Post.objects.filter(question=question),
+                                    PostNodeIterator),
 
-        tag_post_iterable = GraphElementSet(models.Post.objects.filter(question=question),
-                                            TagPostIterator)
+            "tag_post": GraphElementSet(models.Post.objects.filter(question=question),
+                                        TagPostIterator),
 
-        post_noeud_iterable = GraphElementSet(models.Post.objects.filter(question=question),
-                                              PostNoeudIterator)
+            "post_noeud": GraphElementSet(models.Post.objects.filter(question=question),
+                                          PostNoeudIterator),
 
-        post_uses_citation_iterable = GraphElementSet(models.Post.objects.filter(question=question),
-                                                      PostUsesCitationIterator)
+            "post_uses_citation": GraphElementSet(models.Post.objects.filter(question=question),
+                                                          PostUsesCitationIterator),
 
-        post_source_citation_iterable = GraphElementSet(models.Citation.objects.filter(
-                                                            post__in=models.Post.objects.filter(question=question)),
-                                                        CitationSourceIterator)
+            "post_source_citation": GraphElementSet(models.Citation.objects.filter(
+                                                                post__in=models.Post.objects.filter(question=question)),
+                                                    CitationSourceIterator),
 
-        raporteur_citation = GraphElementSet(models.Citation.objects.filter(
-                                                post__in=models.Post.objects.filter(question=question)),
-                                             CitationRapporteurIterator) # commme PN (citation.rapporteur)
+            "raporteur_citation": GraphElementSet(models.Citation.objects.filter(
+                                                    post__in=models.Post.objects.filter(question=question)),
+                                                  CitationRapporteurIterator),
 
-        arretes_reflexion = GraphElementSet(models.AreteReflexion.objects.filter(
-                                                ideeSource__in=models.Noeud.objects.filter(question=question)),
-                                            AreteReflexionIterator)
+            "aretes_reflexion": GraphElementSet(models.AreteReflexion.objects.filter(
+                                                    ideeSource__in=models.Noeud.objects.filter(question=question)),
+                                                 AreteReflexionIterator),
 
-        vote = GraphElementSet(models.Vote.objects.filter(
-                                    post__in=models.Post.objects.filter(question=question)),
-                               VoteIterator)
+            "vote": GraphElementSet(models.Vote.objects.filter(
+                                        post__in=models.Post.objects.filter(question=question)),
+                                    VoteIterator),
 
-        auteur_post = GraphElementSet(models.Post.objects.filter(question=question),
-                                      AuteurPostIterator)
+            "auteur_post": GraphElementSet(models.Post.objects.filter(question=question),
+                                           AuteurPostIterator),
 
-        suivi_noeud = GraphElementSet(models.Post.objects.filter(question=question),
-                                      SuiviNoeudIterator)
+            "suivi_noeud": GraphElementSet(models.Post.objects.filter(question=question),
+                                           SuiviNoeudIterator)
+        }
+
+        return iterables
 
 class BranchInstruction:
     def __init__(self, start_noeud, moving_posts, going_users, leaving_users, temp_title_post):
@@ -223,9 +227,7 @@ class PostNoeudIterator(GraphElementIterator):
 class VoteIterator(GraphElementIterator):
     def next(self):
         next_vote = next(self.qs_iterator)
-        while next_vote.type_vote.label != param.upvote_vote_key:
-            next_vote = next(self.qs_iterator)
-        return next_vote.voteur, next_vote.post
+        return next_vote.voteur, next_vote.post, {"vote_type": next_vote.label}
 
 
 class PostUsesCitationIterator(GraphElementIterator):

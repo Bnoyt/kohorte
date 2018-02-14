@@ -27,3 +27,5 @@ uninteresting clustering algorithms :
 * composantes k-edge-connexes
 
 * Local graph partitionning algorithm
+
+Question : que se passe-t-il si il y a une arrête de poid infini ?

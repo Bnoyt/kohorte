@@ -44,7 +44,7 @@ class ProjectController(Thread):
                 self.memory_free = False
 
         except (IOError, err.LoadingError):
-                print("Could not access project memory tree. Launching project in memory-free mode.")
+                print("Could not access project memory tree. Launching project in no-saving mode.")
                 self.memory_free = True
                 self.projectLogger = pl.ProjectLogger(self.path, active=False)
                 self.register_instructions = []

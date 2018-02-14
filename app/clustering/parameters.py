@@ -44,22 +44,38 @@ conductance_balance_dampener = 0
 # Default node caracteristics
 post_node_default_value = 10.0
 
-# Defaule edge caracteristics
+# edge keys
+
+parent_noeud = "parent_noeud"  # parend -> enfant (représente la dépendance)
+belongs_to = "belongs_to"  # post -> noeud
+tagged_with = "tagged_with"  # post -> tag
+parent_post = "parent_post"  # post enfant -> post parent
+group_recommended = "group_recommended"  # post -> post (orientation not sepcified)
+user_vote = "user_vote"  # user -> vote
+uses_citation = "uses_citation"  # post -> citation
+source_citation = "source citation"  # citation -> post
+raporteur_citation = "raporteur_citation"  # citation -> utilisateur
+
+head_and_leaf_reduce = "hnl_reduce"
+
+# Default edge weights
+
+def_w = {
+    belongs_to:         1.0,
+    tagged_with:        1.5,
+    parent_post:        3.0,
+    group_recommended:  2.0,
+    user_vote:          0.3,
+    uses_citation:      2.2,
+    raporteur_citation: 3.0,
+}
+
 default_edge_weight_parent = 3.0
 default_edge_weight_tag = 1.5
 default_edge_weight_recommendation = 2.0
 default_edge_weight_vote = 0.3
 default_node_belonging_weight = 1.0
 
-# edge keys
-
-belongs_to = "belongs_to"
-tagged_with = "tagged_with"
-parent_post = "parent_post"
-group_recommended = "group_recommended"
-user_vote = "user_vote"
-
-head_and_leaf_reduce = "hnl_reduce"
 
 # branching
 

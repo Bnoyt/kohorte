@@ -15,7 +15,7 @@ class GenericModification():
         self.creation_time = param.now()
 
     def time_since_creation(self):
-        return (self.creation_time - param.now())
+        return self.creation_time - param.now()
 
     def apply_to_graph(self, project_graph):
         pass
