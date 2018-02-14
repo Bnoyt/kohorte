@@ -28,8 +28,8 @@ class ProjectController(Thread):
 
         self.database_id = database_id
         self.path = Path(param.memory_path) / str(database_id)
-        with (self.path / "control.txt").open('r') as control_file:
-            try:
+        try:
+            with (self.path / "control.txt").open('r') as control_file:
                 self.name = control_file.readline()[0:-1]
                 database_id_in_file = int(control_file.readline()[:-1])
                 if database_id_in_file != self.database_id:
@@ -43,7 +43,7 @@ class ProjectController(Thread):
 
                 self.memory_free = False
 
-            except (IOError, err.LoadingError):
+        except (IOError, err.LoadingError):
                 print("Could not access project memory tree. Launching project in memory-free mode")
                 self.memory_free = True
                 self.projectLogger = pl.ProjectLogger(self.path, active=False)
@@ -52,7 +52,6 @@ class ProjectController(Thread):
 
         self.graphLoaded = False
         self.graphIsLoading = False
-        self.projectLogger = pl.ProjectLogger(self.name)
         self.theGraph = None
 
         self.modification_queue = queue.Queue()
@@ -72,7 +71,7 @@ class ProjectController(Thread):
 
     def clear_all_modifications(self):
         while not self.modification_queue.empty():
-            self.modification_queue.pop()
+            self.modification_queue.get()
 
     def unload_graph(self):
         # TODO all the unloading procedure
@@ -143,6 +142,8 @@ class ProjectController(Thread):
 
         self.load_graph()
 
+        print("Backend successfully initiated. Begining algorithmic analysis.")
+
         while not self.command_handler.shutdown_req():
 
 
@@ -179,7 +180,8 @@ class ProjectController(Thread):
                     if self.command_handler.shutdown_req():
                         break
 
-                    if self.register_instructions[-1] == chosen_procedure.name:
+                    if len(self.register_instructions) > 0 and self.register_instructions[-1] == chosen_procedure.name:
+                        self.register_instructions.pop()
                         self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
 
                     chosen_procedure.run(self.open_algo_log_file, self.command_handler)

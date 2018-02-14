@@ -97,12 +97,10 @@ class Procedure1(GenericProcedure):
 class Procedure2(GenericProcedure):
     def __init__(self, the_graph):
         super().__init__(the_graph)
-        self.name = "procedure2"
         self.period = param.p_procedure2
 
     def run(self, log_channel, command_handler):
         self.last_run_time = param.now()
-        print("procedure 2 running")
         lib_time.sleep(3)
 
 
