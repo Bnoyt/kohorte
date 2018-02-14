@@ -23,26 +23,34 @@ class ProjectController(Thread):
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
-    def __init__(self, name, control_queue):
+    def __init__(self, database_id, control_queue):
         super().__init__()
 
-        self.name = name
-        self.path = Path(param.memory_path) / name
+        self.database_id = database_id
+        self.path = Path(param.memory_path) / str(database_id)
         with (self.path / "control.txt").open('r') as control_file:
             try:
-                name_in_file = control_file.readline()[0:-1]
-                if name_in_file != self.name:
+                self.name = control_file.readline()[0:-1]
+                database_id_in_file = int(control_file.readline()[:-1])
+                if database_id_in_file != self.database_id:
                     raise err.LoadingError("Incompatible control file format : name not valid")
-                self.database_id = int(control_file.readline()[:-1])
                 # TODO : go check if this id is indeed in the database
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
                 self.register_instructions = (control_file.readline()[0:-1]).split(";")
 
-            except IOError:
-                raise err.LoadingError()
+                self.projectLogger = pl.ProjectLogger(self.path)
+
+                self.memory_free = False
+
+            except (IOError, err.LoadingError):
+                print("Could not access project memory tree. Launching project in memory-free mode")
+                self.memory_free = True
+                self.projectLogger = pl.ProjectLogger(self.path, active=False)
+                self.register_instructions = []
+                self.clean_shutdown = False
+
         self.graphLoaded = False
         self.graphIsLoading = False
-        self.projectLogger = pl.ProjectLogger(self.name)
         self.theGraph = None
 
         self.modification_queue = queue.Queue()
@@ -62,7 +70,7 @@ class ProjectController(Thread):
 
     def clear_all_modifications(self):
         while not self.modification_queue.empty():
-            self.modification_queue.pop()
+            self.modification_queue.get()
 
     def unload_graph(self):
         # TODO all the unloading procedure
@@ -101,13 +109,13 @@ class ProjectController(Thread):
             pickle.dump(self.theGraph.get_pickle_graph(), dl)
         except IOError:
             self.projectLogger.active = False
-        finally :
+        finally:
             dl.close()
 
     def apply_modifications(self, expect_errors=False):
         if self.graphLoaded:
             while not self.modification_queue.empty():
-                self.theGraph.apply_modification(self.modification_queue.pop())
+                self.theGraph.apply_modification(self.modification_queue.get())
         else:
             self.clear_all_modifications()
 
@@ -119,8 +127,7 @@ class ProjectController(Thread):
 
     def branch(self):
         while len(self.theGraph.branch_instructions) > 0:
-            inst = self.theGraph.branch_instructions.pop(0)
-
+            inst = self.theGraph.branch_instructions.get(0)
 
     def interuptible_sleep(self, duration):
         """sleeps for approximately duration seconds, but stops if a shutdown is required."""
@@ -135,7 +142,6 @@ class ProjectController(Thread):
         self.load_graph()
 
         while not self.command_handler.shutdown_req():
-
 
             if not self.graphLoaded:
                 self.interuptible_sleep(param.idle_execution_period.total_seconds())
@@ -211,7 +217,7 @@ class CommandHandler:
 
     def read_commands(self):
         while not self._control_queue.empty():
-            instruction = self._control_queue.pop()
+            instruction = self._control_queue.get()
             if instruction == param.shutdown_command:
                 print("shutdown request aknowledged")
                 self._shutdown_requested = True
@@ -219,5 +225,3 @@ class CommandHandler:
     def shutdown_req(self):
         self.read_commands()
         return self._shutdown_requested
-
-#print("Project controller successfully imported")

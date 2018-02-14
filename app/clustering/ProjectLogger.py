@@ -11,17 +11,26 @@ import app.clustering.errors as err
 
 
 class ProjectLogger:
-    def __init__(self, name : str):
-        self.name = name
-        self.path = Path(param.memory_path) / name / "logs"
-        if not self.path.exists():
-            raise err.LoadingError("Could not find project log directory for project " + name)
-        self.graph_is_loaded = False
-        self.loaded_graph_path = Path()
-        self.active = True
+    def __init__(self, project_path: Path, active=True):
+        if active:
+            self.active = True
+            self.path = project_path / "logs"
+            if not self.path.exists():
+                print("Could not find project log directory for project. De-activating")
+                self.active = False
+            self.graph_is_loaded = False
+            self.loaded_graph_path = Path()
+        else:
+            self.path = project_path / "logs"
+            self.active = False
+            self.graph_is_loaded = False
+            self.loaded_graph_path = Path()
 
     def register_graph_loading(self):
         self.active = True
+        if not self.path.exists():
+            self.active = False
+            raise IOError
         p = self.path / str(param.now().date())
         if not p.exists():
             p.mkdir()
