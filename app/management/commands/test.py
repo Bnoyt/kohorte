@@ -1,9 +1,7 @@
-import socket
-import time
 import traceback
 
 from django.core.management.base import BaseCommand, CommandError
-from app.com.config import SERVER_PORT
+from app.com.network import MessageHandler
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
@@ -12,13 +10,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            print('Establishing connection ...')
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(('localhost', SERVER_PORT))
-            print('Sending data ...')
-            for i in range(5000):
-                sock.send(b'This is test command communicating with backend Main thread')
-            sock.close()
+            msg = {'type': 'command',
+                   'method_name': 'print',
+                   'args':['Test command communicating']}
+            MessageHandler.send_python(msg)
         except Exception as err:
             print('The following exception occured')
             traceback.print_tb(err.__traceback__)

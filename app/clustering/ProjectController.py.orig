@@ -23,8 +23,13 @@ class ProjectController(Thread):
     # the_graph contient le supergraphe, de type networkx : multiDiGraph
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
-    def __init__(self, database_id, command_queue):
+<<<<<<< HEAD
+    def __init__(self, database_id, control_queue):
+        super().__init__()
+=======
+    def __init__(self, name, command_queue):
         Thread.__init__(self)
+>>>>>>> 9646b5e31d9e4ea176d415ab52b31db81241b659
 
         self.database_id = database_id
         self.path = Path(param.memory_path) / str(database_id)
@@ -34,7 +39,6 @@ class ProjectController(Thread):
                 database_id_in_file = int(control_file.readline()[:-1])
                 if database_id_in_file != self.database_id:
                     raise err.LoadingError("Incompatible control file format : name not valid")
-                self.database_id = int(control_file.readline()[:-1])
                 # TODO : go check if this id is indeed in the database
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
                 self.register_instructions = (control_file.readline()[0:-1]).split(";")
@@ -52,7 +56,6 @@ class ProjectController(Thread):
 
         self.graphLoaded = False
         self.graphIsLoading = False
-        self.projectLogger = pl.ProjectLogger(self.name)
         self.theGraph = None
 
         self.modification_queue = queue.Queue()
@@ -72,7 +75,7 @@ class ProjectController(Thread):
 
     def clear_all_modifications(self):
         while not self.modification_queue.empty():
-            self.modification_queue.pop()
+            self.modification_queue.get()
 
     def unload_graph(self):
         # TODO all the unloading procedure
@@ -111,7 +114,7 @@ class ProjectController(Thread):
             pickle.dump(self.theGraph.get_pickle_graph(), dl)
         except IOError:
             self.projectLogger.active = False
-        finally :
+        finally:
             dl.close()
 
     def apply_modifications(self, expect_errors=False):
@@ -144,7 +147,6 @@ class ProjectController(Thread):
         self.load_graph()
 
         while not self.command_handler.shutdown_req():
-
 
             if not self.graphLoaded:
                 self.interuptible_sleep(param.idle_execution_period.total_seconds())
@@ -228,5 +230,3 @@ class CommandHandler:
     def shutdown_req(self):
         self.read_commands()
         return self._shutdown_requested
-
-#print("Project controller successfully imported")
