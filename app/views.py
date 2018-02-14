@@ -159,29 +159,7 @@ def noeud(request,noeud_id):
             'noeudsFamille':noeudsFamille,
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
-            'citation' : """<blockquote>
-                             <p>
-                             Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.
-                             </p>
-                             <small>
-                             Steve Jobs, CEO Apple
-                             </small>
-
-                            </blockquote>
-                            <pre class="prettyprint">class Voila {
-                            public:
-                              // Voila
-                              static const string VOILA = "Voila";
-
-                              // will not interfere with embedded <a href="#voila2">tags</a>.
-                            }</pre>
-
-
-
-
-
-                            """,
-
+            
         }
         return render(request,'noeud.html',context)
     else:
