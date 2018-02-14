@@ -49,8 +49,11 @@ default_edge_weight_parent = 3.0
 default_edge_weight_tag = 1.5
 default_edge_weight_recommendation = 2.0
 default_edge_weight_vote = 0.3
+default_node_belonging_weight = 1.0
 
 # edge keys
+
+belongs_to = "belongs_to"
 tagged_with = "tagged_with"
 parent_post = "parent_post"
 group_recommended = "group_recommended"

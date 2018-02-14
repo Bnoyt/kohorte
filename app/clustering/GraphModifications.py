@@ -44,6 +44,14 @@ class NewPost(GenericModification):
         new_node = Nodes.PostNode(self.database_id, self.size)
         project_graph.databasePostIDMap[self.database_id] = new_node
         project_graph.baseGraph.add_node(new_node)
+
+        try:
+            home_noeud = project_graph.databaseNoeudIDMap[self.noeud]
+        except KeyError:
+            raise err.NodeMissing("Error while creating nodes : could not find home Noeud", Nodes.NoeudNode, self.noeud)
+        project_graph.baseGraph.add_edge(new_node, home_noeud, key=param.belongs_to,
+                                         default_weight=param.default_node_belonging_weight)
+
         if self.parent != -1:
             try:
                 parent_node = project_graph.databasePostIDMap[self.parent]

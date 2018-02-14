@@ -88,42 +88,52 @@ class DatabaseAccess:
 
         question = models.Question.objects.get(id=self.project_id)
 
-        tag_iterable = NodeSet(models.Tag.objects.filter(question=question), TagNodeIterator)
+        tag_iterable = GraphElementSet(models.Tag.objects.filter(question=question), TagNodeIterator)
 
-        noeud_iterable = NodeSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator)
+        noeud_iterable = GraphElementSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator)
 
-        citation_iterable = NodeSet(models.Citation.objects.filter(
+        citation_iterable = GraphElementSet(models.Citation.objects.filter(
+                                                post__in=models.Post.objects.filter(question=question)),
+                                            CitationNodeIterator)
+
+        user_iterable = GraphElementSet(models.Utilisateur.objects.filter(
+                                            user__in=models.RelationUserSuivi.objects.filter(
+                                                noeud__in=models.Noeud.objects.filter(question=question))),
+                                        UserNodeIterator)
+
+        post_iterable = GraphElementSet(models.Post.objects.filter(question=question),
+                                        PostNodeIterator)
+
+        tag_post_iterable = GraphElementSet(models.Post.objects.filter(question=question),
+                                            TagPostIterator)
+
+        post_noeud_iterable = GraphElementSet(models.Post.objects.filter(question=question),
+                                              PostNoeudIterator)
+
+        post_uses_citation_iterable = GraphElementSet(models.Post.objects.filter(question=question),
+                                                      PostUsesCitationIterator)
+
+        post_source_citation_iterable = GraphElementSet(models.Citation.objects.filter(
+                                                            post__in=models.Post.objects.filter(question=question)),
+                                                        CitationSourceIterator)
+
+        raporteur_citation = GraphElementSet(models.Citation.objects.filter(
+                                                post__in=models.Post.objects.filter(question=question)),
+                                             CitationRapporteurIterator) # commme PN (citation.rapporteur)
+
+        arretes_reflexion = GraphElementSet(models.AreteReflexion.objects.filter(
+                                                ideeSource__in=models.Noeud.objects.filter(question=question)),
+                                            AreteReflexionIterator)
+
+        vote = GraphElementSet(models.Vote.objects.filter(
                                     post__in=models.Post.objects.filter(question=question)),
-                                    CitationNodeIterator)
+                               VoteIterator)
 
-        user_iterable = NodeSet(models.Utilisateur.objects.filter(
-                                    user__in=models.RelationUserSuivi.objects.filter(
-                                        noeud__in=models.Noeud.objects.filter(question=question))),
-                                UserNodeIterator)
+        auteur_post = GraphElementSet(models.Post.objects.filter(question=question),
+                                      AuteurPostIterator)
 
-        tag_post_iterable = EdgeSet(models.Post.objects.filter(question=question),
-                                    TagPostIterator)
-
-        post_noeud_iterable = EdgeSet(models.Post.objects.filter(question=question),
-                                      PostNoeudIterator)
-
-        post_utilise_citation_iterable = None # comme post et tags (post.citations)
-
-        post_source_citation_iterable = None # comme Post noeud (ciation.post)
-
-        utilisateur_citation = None # commme PN (citation.rapporteur)
-
-        arretes_reflexion = None # querryset AretesReflexion (attributs : ideeSource et ideeDest)
-
-        vote = EdgeSet(models.Vote.objects.filter(post__in=models.Post.objects.filter(question=question)),
-                       VoteIterator)
-
-        post_parent = None # post.pere
-
-        suivi_noeud = None # RelationUserSuivi.noeud .user
-
-        # TODO (pas ici mais todo quand même) : rajouter les arrêtes post -> noeud dans GraphModifications
-
+        suivi_noeud = GraphElementSet(models.Post.objects.filter(question=question),
+                                      SuiviNoeudIterator)
 
 class BranchInstruction:
     def __init__(self, start_noeud, moving_posts, going_users, leaving_users, temp_title_post):
@@ -135,9 +145,9 @@ class BranchInstruction:
 
 
 class GraphElementSet(Iterable):
-    def __init__(self, query_set):
+    def __init__(self, query_set, iterator_type):
         self.query_set = query_set
-        self.iterator_type = GraphElementIterator
+        self.iterator_type = iterator_type
 
     def __iter__(self):
         return self.iterator_type(iter(self.query_set))
@@ -157,16 +167,16 @@ class GraphElementIterator(Iterator):
         pass
 
 
-class NodeSet(GraphElementSet):
-    def __init__(self, query_set, iterator_type):
-        super().__init__(query_set)
-        self.iterator_type = iterator_type
-
-
 class TagNodeIterator(GraphElementIterator):
     def next(self):
         next_tag = next(self.qs_iterator)
         return Nodes.TagNode(database_id=next_tag.id, slug=next_tag.label)
+
+
+class PostNodeIterator(GraphElementIterator):
+    def next(self):
+        next_post = next(self.qs_iterator)
+        return Nodes.PostNode(database_id=next_post.id, size=next_post.size())
 
 
 class NoeudNodeIterator(GraphElementIterator):
@@ -182,12 +192,6 @@ class CitationNodeIterator(GraphElementIterator):
 class UserNodeIterator(GraphElementIterator):
     def next(self):
         return Nodes.UserNode(next(self.qs_iterator).id)
-
-
-class EdgeSet(GraphElementSet):
-    def __init__(self, query_set, iterator_type):
-        super().__init__(query_set)
-        self.iterator_type = iterator_type
 
 
 class TagPostIterator(GraphElementIterator):
@@ -224,6 +228,56 @@ class VoteIterator(GraphElementIterator):
         return next_vote.voteur, next_vote.post
 
 
+class PostUsesCitationIterator(GraphElementIterator):
+    def __init__(self, qs_iterator):
+        super().__init__(qs_iterator)
+        self.current_post = None
+        self.tag_qs_iterator = None
+
+    def next(self):
+        if self.current_post is None:
+            self.current_post = next(self.qs_iterator)
+            self.tag_qs_iterator = iter(self.current_post.citations.all())
+        next_citation = None
+        while next_citation is None:
+            try:
+                next_citation = next(self.tag_qs_iterator)
+            except StopIteration:
+                self.current_post = next(self.qs_iterator)
+                self.tag_qs_iterator = iter(self.current_post.tags.all())
+        return self.current_post.id, next_citation.id
+
+
+class CitationSourceIterator(GraphElementIterator):
+    def next(self):
+        next_citation = next(self.qs_iterator)
+        return next_citation.id, next_citation.post.id
+
+
+class CitationRapporteurIterator(GraphElementIterator):
+    def next(self):
+        next_citation = next(self.qs_iterator)
+        return next_citation.id, next_citation.rapporteur.id
+
+
+class AreteReflexionIterator(GraphElementIterator):
+    def next(self):
+        next_arete = next(self.qs_iterator)
+        return next_arete.ideeSource, next_arete.ideeDest
+
+
+class AuteurPostIterator(GraphElementIterator):
+    def next(self):
+        next_post = next(self.qs_iterator)
+        return next_post.id, next_post.pere.id
+
+
+class SuiviNoeudIterator(GraphElementIterator):
+    def next(self):
+        next_suivi = next(self.qs_iterator)
+        return next_suivi.user, next_suivi.noeud
+
+
 
 
 class Navigator:
@@ -256,11 +310,3 @@ class TagNavigator(Navigator):
 
     def get_posts(self):
         pass
-
-def get_database_object(a):
-    pass
-    # a placeholder function for all django database queries
-
-def change_database_field():
-    pass
-# another placeholder function

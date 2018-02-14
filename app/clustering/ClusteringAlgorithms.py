@@ -90,7 +90,6 @@ class Procedure1(GenericProcedure):
 
     def run(self, log_channel, command_handler):
         self.last_run_time = param.now()
-        print("procedure 1 running")
         lib_time.sleep(2)
 
 

@@ -148,15 +148,15 @@ class Post(models.Model):
     """Le post qui sera écrit et lu par des utilisateurs
     Il devra en outre traiter des 
     citations (2017-11-22)"""
-    pere = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
-    titre = models.CharField(max_length=100,blank=True)
+    pere = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    titre = models.CharField(max_length=100, blank=True)
     auteur = models.ForeignKey(Utilisateur)
     tags = models.ManyToManyField(Tag, blank=True)
     contenu = MarkdownxField()
     citations = models.ManyToManyField(Citation, related_name='postsCites', blank=True)
-    date = models.DateTimeField(auto_now_add = True, auto_now = False)
-    question = models.ForeignKey(Question,related_name="Question_de_base")
-    noeud = models.ForeignKey(Noeud,related_name="Noeud")
+    date = models.DateTimeField(auto_now_add=True, auto_now = False)
+    question = models.ForeignKey(Question, related_name="Question_de_base")
+    noeud = models.ForeignKey(Noeud, related_name="Noeud")
     importance = models.IntegerField(default=0)
     disabled = models.BooleanField(default=False)
     
@@ -166,14 +166,21 @@ class Post(models.Model):
         la citation"""
         pass
 
-    def recup_post(self,user):
+    def recup_post(self, user):
         """
         L'objectif de cette méthode est de pouvoir récuperer pour 
         un post donné la liste ordonnée des posts fils à afficher.
         Elle prend en plus en argument l'utilisateur concerné.
         C'est ici qu'il faut faire tourner la machinerie
+        R : Si "machinerie" designe le code que moi je cree pour analyser le graphe,
+            alors non ce n'est pas là qu'elle tourne
         """
         pass
+
+    def size(self):
+        """Renvoi le nombre de characteres du post. Peu importe comment on compte exactement,
+        il suffit de choisir une façon de compter et de l'implementer"""
+        return 12
 
     def __str__(self):
         if self.pere == None:
