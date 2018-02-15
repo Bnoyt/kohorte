@@ -143,7 +143,7 @@ def noeud(request,noeud_id):
         noeudsFils = [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = noeud)]
         noeudsAncetres = ancetres(noeud)
 
-        citations = Citation.objects.filter(rapporteur=user)
+        citations = [c for c in Citation.objects.filter(rapporteur=user) if c.post.question==noeud.question]
 
         suivi_simple = TypeSuivi.objects.filter(pk=1)
         suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi=suivi_simple).exists()

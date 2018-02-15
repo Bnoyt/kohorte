@@ -178,9 +178,9 @@ class Post(models.Model):
         pass
 
     def size(self):
-        """Renvoi le nombre de characteres du post. Peu importe comment on compte exactement,
+        """Renvoie le nombre de characteres du post. Peu importe comment on compte exactement,
         il suffit de choisir une façon de compter et de l'implementer"""
-        return 12
+        return len(self.contenu)
 
     def __str__(self):
         if self.pere == None:
