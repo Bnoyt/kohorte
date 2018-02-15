@@ -90,7 +90,7 @@ class Procedure1(GenericProcedure):
 
     def run(self, log_channel, command_handler):
         self.last_run_time = param.now()
-        lib_time.sleep(2)
+        lib_time.sleep(20)
 
 
 class Procedure2(GenericProcedure):
@@ -106,7 +106,7 @@ class Procedure2(GenericProcedure):
 '''filtering and preparation'''
 
 
-def roots_and_leaves(mdg : nx.MultiDiGraph):
+def roots_and_leaves(mdg: nx.MultiDiGraph):
     """ A terme, renverra un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
     Cree de nouveaux edges de cle param.head_and_leaf_reduce
     Pour l'instant on cree juste un nouveau graphe"""

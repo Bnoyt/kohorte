@@ -15,9 +15,6 @@ class DatabaseAccess:
     def __init__(self, project_id):
         self.project_id = project_id
 
-    def load_database_to_graph(self):
-        pass
-
     def get_local_graph_explorer(self):
         pass
 
@@ -97,10 +94,8 @@ class DatabaseAccess:
                                                     post__in=models.Post.objects.filter(question=question)),
                                         CitationNodeIterator),
 
-            "user": GraphElementSet(models.Utilisateur.objects.filter(
-                                                user__in=models.RelationUserSuivi.objects.filter(
-                                                    noeud__in=models.Noeud.objects.filter(question=question))),
-                                    UserNodeIterator),
+            "user": GraphElementSet(models.Utilisateur.objects.all(), UserNodeIterator),
+            # TODO : chopper les bons utilisateurs
 
             "post": GraphElementSet(models.Post.objects.filter(question=question),
                                     PostNodeIterator),
@@ -133,7 +128,8 @@ class DatabaseAccess:
             "auteur_post": GraphElementSet(models.Post.objects.filter(question=question),
                                            AuteurPostIterator),
 
-            "suivi_noeud": GraphElementSet(models.Post.objects.filter(question=question),
+            "suivi_noeud": GraphElementSet(models.RelationUserSuivi.objects.filter(
+                                                noeud__in=models.Noeud.objects.filter(question=question)),
                                            SuiviNoeudIterator)
         }
 
@@ -271,7 +267,7 @@ class AreteReflexionIterator(GraphElementIterator):
 class AuteurPostIterator(GraphElementIterator):
     def next(self):
         next_post = next(self.qs_iterator)
-        return next_post.id, next_post.pere.id
+        return next_post.id, next_post.auteur.id
 
 
 class SuiviNoeudIterator(GraphElementIterator):

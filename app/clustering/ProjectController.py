@@ -7,6 +7,7 @@ from pathlib import Path
 import time as lib_time
 import queue
 from threading import Thread
+import traceback
 
 # import dependances
 import app.clustering.errors as err
@@ -15,6 +16,7 @@ import app.clustering.ProjectLogger as pl
 from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
 import app.clustering.ClusteringAlgorithms as ClusterAlg
+import app.clustering.DatabaseAccess as DbAccess
 
 
 class ProjectController(Thread):
@@ -26,7 +28,10 @@ class ProjectController(Thread):
     def __init__(self, database_id, command_queue):
         Thread.__init__(self)
 
-        self.database_id = database_id
+        # self.database_id = database_id
+        self.database_id = 2
+        database_id = 2
+
         self.path = Path(param.memory_path) / str(database_id)
         try:
             with (self.path / "control.txt").open('r') as control_file:
@@ -53,6 +58,7 @@ class ProjectController(Thread):
         self.graphLoaded = False
         self.graphIsLoading = False
         self.theGraph = None
+        self.database_access = DbAccess.DatabaseAccess(self.database_id)
 
         self.modification_queue = queue.Queue()
 
@@ -87,17 +93,21 @@ class ProjectController(Thread):
         self.clear_all_modifications()
 
         try:
-            pass
-            # TODO : access appropriate databases and load the graph
+
+            self.theGraph.load_from_database(self.database_access)
 
             self.graphIsLoading = False
             self.graphLoaded = True
 
             self.apply_modifications(expect_errors=True)
 
-        except (err.GraphError, nx.NetworkXError):
+
+        except (err.GraphError, nx.NetworkXError) as error:
             self.graphIsLoading = False
             self.theGraph = None
+            print("Error while loeading graph from database : ")
+            traceback.print_tb(error.__traceback__)
+            print(err)
             return
 
         self.procedure_table = ClusterAlg.get_procedure_table(self.theGraph)
@@ -110,7 +120,7 @@ class ProjectController(Thread):
             pickle.dump(self.theGraph.get_pickle_graph(), dl)
         except IOError:
             self.projectLogger.active = False
-        finally :
+        finally:
             dl.close()
 
     def apply_modifications(self, expect_errors=False):
@@ -145,7 +155,6 @@ class ProjectController(Thread):
         print("Backend successfully initiated. Begining algorithmic analysis.")
 
         while not self.command_handler.shutdown_req():
-
 
             if not self.graphLoaded:
                 self.interuptible_sleep(param.idle_execution_period.total_seconds())

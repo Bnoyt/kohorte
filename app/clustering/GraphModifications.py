@@ -22,10 +22,11 @@ class GenericModification():
 
 
 class NewPost(GenericModification):
-    def __init__(self, database_id, noeud, tags, size, parent):
+    def __init__(self, database_id, noeud, tags, size, author, parent):
         super().__init__()
         self.database_id = database_id
         self.noeud = noeud
+        self.author = author
         self.parent = parent
         self.tags = list(tags)
         self.size = size
@@ -50,7 +51,14 @@ class NewPost(GenericModification):
         except KeyError:
             raise err.NodeMissing("Error while creating nodes : could not find home Noeud", Nodes.NoeudNode, self.noeud)
         project_graph.baseGraph.add_edge(new_node, home_noeud, key=param.belongs_to,
-                                         default_weight=param.default_node_belonging_weight)
+                                         default_weight=param.def_w[param.belongs_to])
+
+        try:
+            author_node = project_graph.databaseUserIDMap[self.author]
+        except KeyError:
+            raise err.NodeMissing("Error while creating nodes : could not find author", Nodes.UserNode, self.author)
+        project_graph.baseGraph.add_edge(new_node, author_node, key=param.auteur_of_post,
+                                         default_weight=param.def_w[param.auteur_of_post])
 
         if self.parent != -1:
             try:

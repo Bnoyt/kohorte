@@ -16,14 +16,15 @@ class GraphModifier:
     def _push_modification(self, modif):
         self._modification_queue.put(modif)
 
-
     def create_post(self, database_id, noeud, tag_list, quote_list, author, size: int, parent=-1, value=-1):
         """A utiliser quand un utilisateur publie un nouveau post
         Noeud est l'ID BDD du Noeud du graphe de reflexion sous lequel ce post a été créé
         parent est l'ID BDD du post auquel celui-ci est une reponse, ou -1 si le post n'est pas une reponse
-        tag_list doit etre une liste de tous les mots cles, donnes sous forme de strings nettoyés (tels qu'ils sont stcokes dans la BDD)
+        tag_list doit etre une liste de tous les mots cles, donnes sous forme de strings nettoyés
+        (tels qu'ils sont stcokes dans la BDD)
         Ne pas passer de Tag en argument avant d`avoir creé ces mots-clés avec create_tag. """
-        self._push_modification(gm.NewPost(database_id=database_id, noeud=noeud, tags=tag_list, size=size, parent=parent))
+        self._push_modification(gm.NewPost(database_id=database_id, noeud=noeud, tags=tag_list, size=size,
+                                           author=author, parent=parent))
 
     def create_tag(self, database_id, slug):
         """La premiere fois qu'un mot-clé est utilisé et ajouté a la base de données, il doit être passé via cette fonction

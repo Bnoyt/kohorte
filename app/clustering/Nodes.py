@@ -48,7 +48,7 @@ class BaseNode:
         return (self.randomised_id, self.ClassInt, self.database_id) > (other.randomised_id, self.ClassInt, other.database_id)
 
     def __repr__(self):
-        return "<supergraph.tg_node>"
+        return "<Nodes.BaseNode>"
 
     def __str__(self):
         return "(" + self.database_id + ") generic_node"
@@ -68,6 +68,9 @@ class PostNode(BaseNode):
             self.value = param.post_node_default_value
         self.deleted = False
 
+    def __repr__(self):
+        return "<Nodes.PostNode>"
+
     def __str__(self):
         return "(" + str(self.database_id) + ") post node : " + str(self.value)
 
@@ -76,6 +79,9 @@ class NoeudNode(BaseNode):
     """Noeud correspondant a un Noeud du graphe de reflexion"""
     def __init__(self, database_id):
         super().__init__(database_id)
+
+    def __repr__(self):
+        return "<Nodes.NoeudNode>"
 
     def __str__(self):
         return "(" + str(self.database_id) + ") noeud node"
