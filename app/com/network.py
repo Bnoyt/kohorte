@@ -105,6 +105,9 @@ class MessageHandler:
             if kwargs is not None:
                 func(**kwargs)
                 return
+            if args is None and kwargs is None:
+                func()
+                return
         except json.JSONDecodeError:
             #TODO: Handle Exceptions
             if not ERROR_HANDLING:
