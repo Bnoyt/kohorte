@@ -14,8 +14,6 @@ from django.template import loader
 
 from django.contrib.auth.models import User
 
-#import clustering.GraphModifier as gm #TODO l'import ne fonctionne pas
-
 def trouver_hashtags(texte):
     n = len(texte)
     a = 0
@@ -240,25 +238,23 @@ def ajouter_post(request):
         if post['titre'] != '' and post['contenu'] != '':
             texte = "succes"
             question = get_object_or_404(Question,pk=int(post['id_question']))
-            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
             noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
             auteur = get_object_or_404(Utilisateur,user=request.user)
             tags = trouver_hashtags(post['contenu'])
 
             p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             p.save()
+            
             for tag in tags:
                 t = Tag.objects.filter(label=tag).filter(question=question)
                 if len(t) == 0:
                     t = Tag(label = tag, question=question)
                     t.save()
-                    #TODO gm.create_tag(t.id)
                 else:
                     t = t[0]
                 p.tags.add(t)
             
             
-            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags],  author.id, p.contenu.len(), p.pere.id if p.pere != None else -1)
 
             template = loader.get_template('post.html')
             context={'p':[p,[]]

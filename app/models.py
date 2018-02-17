@@ -8,6 +8,8 @@ from markdownx.models import MarkdownxField
 
 from django.contrib.auth.models import User
 
+#from app.com.api import GraphModifier as GraphModifier
+
 
 
 # Create your models here.
@@ -122,6 +124,11 @@ class Tag(models.Model):
         implementation) de posts tagués par un tag 
         particulier."""
         return self.posts_lies.all()
+    
+    def save(self, *args, **kwargs):
+        super(Tag, self).save(*args, **kwargs)
+        #GraphModifier.func(self.question.id)
+        #GraphModifier.create_tag(self.id, self.label)
 
     def __str__(self):
         return self.label
@@ -135,11 +142,15 @@ class Citation(models.Model):
     et/ou sur sa métrique"""
     auteur = models.ForeignKey(Utilisateur, related_name='userAuteur')#TODO user comme nom ?
     post = models.ForeignKey('Post', related_name='postSource') 
-
     contenu = models.TextField(default=None)
     #j'utilise le nom de la classe car elle est définie après,
     #comme indiqué dans la documentation
     rapporteur = models.ForeignKey(Utilisateur, related_name='userRapporteur')
+    
+    def save(self, *args, **kwargs):
+        super(Citation, self).save(*args, **kwargs)
+        #GraphModifier.func(self.post.question.id)
+        #GraphModifier.create_quote(self.post.id, self.rapporteur.id)
 
     def __str__(self):
         return str(self.rapporteur.user) + ' cite ' + str(self.auteur.user) + ' dans ' + self.contenu
@@ -181,6 +192,11 @@ class Post(models.Model):
         """Renvoie le nombre de characteres du post. Peu importe comment on compte exactement,
         il suffit de choisir une façon de compter et de l'implementer"""
         return len(self.contenu)
+    
+    def save(self, *args, **kwargs):
+        super(Post, self).save(*args, **kwargs)
+        #GraphModifier.func(question.id)
+        #GraphModifier.create_post(self.id, noeud.id, [t.id for t in self.tags], auteur.id, self.size(), pere.id)
 
     def __str__(self):
         if self.pere == None:
