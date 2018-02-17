@@ -19,12 +19,14 @@
         </div>
 
         <ul class="nav">
+            {% if whatsUpId > -1 %}
             <li{% if whatsup %} class="active"{% endif %}>
-                <a href="{% url 'whatsup' 2 %}">
+                <a href="{% url 'whatsup' whatsUpId %}">
                     <i class="ti-panel"></i>
                     <p>Dashboard</p>
                 </a>
             </li>
+            {% endif %}
             <li {{request.path | menumessagerie | safe }}>
                 <a href="{% url 'postman:inbox' %}">
                     <i class="ti-comment-alt"></i>

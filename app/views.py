@@ -89,7 +89,7 @@ def page_register(request):
 
 def index(request):
     #call database
-    context = {'dashboard':True}
+    context = {'whatsUpId':-1}
     if request.user.is_authenticated:
         user = get_object_or_404(Utilisateur, user=request.user)
         
@@ -98,6 +98,9 @@ def index(request):
         
         context['user'] = user
         context['printRecap'] = printRecap
+        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]
+        if len(projSuivis)==1:
+            context['whatsUpId'] = projSuivis[0]
         
     else:
         #TODO: handle unlogged user
@@ -159,8 +162,10 @@ def noeud(request,noeud_id):
             'noeudsFamille':noeudsFamille,
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
+            'whatsUpId': noeud.question.id,
             
         }
+        print(context['whatsUpId'])
         return render(request,'noeud.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
@@ -179,6 +184,7 @@ def whatsup(request, project_id):
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
         
         
+        
         context = {
             'user':user,
             'listSugg': sugg,
@@ -186,7 +192,8 @@ def whatsup(request, project_id):
             'printSugg':suggPrint,
             'printRecap':printRecap,
             'titre_page': "What's up ?",
-            'posts': posts
+            'posts': posts,
+            'whatsUpId':project_id
 
         }
         
@@ -358,7 +365,14 @@ def sauvegarder_citation(request):
 
 
 def faq(request):
-    context={'faq':True}
+    context={'faq':True, 'whatsUpId':-1}
+    if request.user.is_authenticated:
+        utilisateur = get_object_or_404(Utilisateur,user=request.user)
+        user = utilisateur.user
+        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]
+        if len(projSuivis)==1:
+            context['whatsUpId'] = projSuivis[0].id
+     
     return render(request,'faq.html',context)
 
 
@@ -370,6 +384,9 @@ def profil(request) :
         noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=utilisateur)]
         printRecap = [recapNoeud(n, user) for n in noeudsSuivis]
         
+        projets=list(set([n.question for n in noeudsSuivis]))
+        whatsUpId = (-1 if len(projets)!=1 else projets[0].id)
+        
         posts = Post.objects.filter(auteur=utilisateur)
             # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
             #type_suivi=get_object_or_404(TypeSuivi,pk=1)
@@ -380,7 +397,8 @@ def profil(request) :
                 'profil':True,
                 'posts':posts,
                 'noeudsSuivis':noeudsSuivis,
-                'titre_page_':'Profil'
+                'titre_page_':'Profil',
+                'whatsUpId':whatsUpId
     
             }
             
