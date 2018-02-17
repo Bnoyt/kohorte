@@ -163,7 +163,6 @@ def noeud(request,noeud_id):
             'whatsUpId': noeud.question.id,
             
         }
-        print(context['whatsUpId'])
         return render(request,'noeud.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
@@ -182,16 +181,15 @@ def whatsup(request, project_id):
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
         
         
-        
         context = {
             'user':user,
             'listSugg': sugg,
             'whatsup':True,
             'printSugg':suggPrint,
             'printRecap':printRecap,
-            'titre_page': "What's up ?",
+            'titre_page': question.label,
             'posts': posts,
-            'whatsUpId':project_id
+            'whatsUpId':question.id
 
         }
         
@@ -409,7 +407,6 @@ def profil(request) :
                             context['notif'] = "Ce nom d'utilisateur est déjà pris"
                         else:
                             user.username = post['username']
-                            print(user.username, post['username'])
                             user.save()
                     if 'email' in post and user.email != post['email']:
                         if User.objects.filter(email=post['email']).exists():

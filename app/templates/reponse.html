@@ -9,11 +9,24 @@
 		<div class="content">
 
 			<div class="contenu" name="{{r.0.id}}">
-				<p>
+				<div class="row">
+						<div class="col-xs-12">
+							<p>
 
-				{{r.0.contenu|rendusafe|safe}}
+								{{r.0.contenu|rendusafe|safe}}
 
-				</p>
+							</p>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-xs-12 pull-right">
+							<div class="pull-right">
+								<button type="button" class="btn btn-success btn-sm"><span class="ti-thumb-up"></span></button>
+								<button type="button" class="btn btn-danger btn-sm"><span class="ti-flag-alt"></span></button>
+							</div>
+						</div>
+					</div>
 			</div>
 			
 

@@ -10,31 +10,38 @@
 		<div class="content">
 
 			<div class="contenu" name="{{c.0.id}}">
-				<p>
+				
+					<div class="row">
+						<div class="col-xs-12">
+							<p>
 
-				{{c.contenu|rendusafe|safe}}
+								{{c.contenu|rendusafe|safe}}
 
-				</p>
+							</p>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-xs-12 pull-right">
+							<div class="pull-right">
+								<button type="button" class="btn btn-success btn-sm"><span class="ti-thumb-up"></span></button>
+								<button type="button" class="btn btn-danger btn-sm"><span class="ti-flag-alt"></span></button>
+							</div>
+						</div>
+					</div>
+					
+				
 			</div>
-
-
-
-			
 
 
 			<div class="footer">
 			<hr />
 				<div class="stats">
-					<i class="ti-calendar"></i> Posté le {{c.date}} par {{c.auteur.user.username}}
+							<i class="ti-calendar"></i> Posté le {{c.date}} par {{c.auteur.user.username}}
 				</div>
 				</p>
-				
-
 			</div>
 
 		</div>
 	</div>
-
-	
-
 
