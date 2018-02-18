@@ -233,7 +233,7 @@ class Vote(models.Model):
     voteur = models.ForeignKey(User)
 
     def __str__(self):
-        return str(self.typeVote) + ' sur ' + self.post.label + ' de ' + str(self.voteur.user)
+        return str(self.typeVote) + ' sur ' + self.post.titre + ' de ' + str(self.voteur)
 
 class Reputation(models.Model):
     """est ensuite associée à chaque utilisateur

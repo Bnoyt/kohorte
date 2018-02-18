@@ -54,9 +54,6 @@ function show_posts(id){
         h.show();
 
     }
-
-
-
 };
 
 
@@ -322,6 +319,38 @@ $("#btn-epingle-s").click(
        $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'desuivre',id_noeud:id_noeud,},function(){},'json');
 
     });
+    
+function vote(type_vote, id) {
+  var voteDo = $('#btn-'+type_vote+'-do-' + id);
+  var voteUndo = $('#btn-'+type_vote+'-undo-' + id);
+  
+  voteDo.hide(10);
+  voteUndo.show(10);
+
+  if (type_vote === "upvote"){
+    notifier("Vous avez upvoté ce post","info");
+  } else if (type_vote === "signal") {
+    notifier("Vous avez signalé ce post","info");
+  }
+    
+  $.post('{% url "vote" %}',{csrfmiddlewaretoken:crsftoken, type:'vote',post:id, typeVote:type_vote,},function(){},'json');
+}
+
+function unvote(type_vote, id) {
+  var voteDo = $('#btn-'+type_vote+'-do-' + id);
+  var voteUndo = $('#btn-'+type_vote+'-undo-' + id);
+  
+  voteUndo.hide(10);
+  voteDo.show(10);
+  
+  if (type_vote==="upvote"){
+    notifier("Vous avez annulé l'upvote de ce post","info");
+  } else if (type_vote === "signal") {
+    notifier("Vous avez annulé le signalement de ce post","info");
+  }
+    
+  $.post('{% url "vote" %}',{csrfmiddlewaretoken:crsftoken, type:'unvote',post:id, typeVote:type_vote,},function(){},'json');
+}
 
 
 

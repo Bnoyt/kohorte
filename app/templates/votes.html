@@ -1,0 +1,32 @@
+<div class="row">
+	{% csrf_token %}
+	<div class="col-xs-12 pull-right">
+		<div class="pull-right" id="votes-{{ p.0.id }}">
+				<a {% if p.2.upvote %} hidden {% endif %} id="btn-upvote-do-{{ p.0.id }}" href="javascript:vote('upvote',{{p.0.id}})">
+						<button  type="button" class="btn btn-success btn-sm"  >
+								<span class="ti-thumb-up">
+							</span>
+						</button>
+					</a>
+			<a {% if not p.2.upvote %} hidden {% endif %} href="javascript:unvote('upvote',{{p.0.id}})" id="btn-upvote-undo-{{ p.0.id }}">
+				<button type="button" class="btn btn-success btn-sm btn-fill"  >
+					<span class="ti-thumb-up">
+					</span>
+				</button>
+				</a>
+			<a {% if p.2.signal %} hidden {% endif %} href="javascript:vote('signal',{{p.0.id}})" id="btn-signal-do-{{ p.0.id }}">
+				<button type="button" class="btn btn-danger btn-sm"  >
+					<span class="ti-flag-alt">
+					</span>
+				</button>
+			</a>
+			<a {% if not p.2.signal %} hidden {% endif %} href="javascript:unvote('signal',{{p.0.id}})" id="btn-signal-undo-{{ p.0.id }}">
+				<button type="button" class="btn btn-danger btn-sm btn-fill"  >
+					<span class="ti-flag-alt">
+					</span>
+				</button>
+				</a>
+			
+		</div>
+	</div>
+</div>

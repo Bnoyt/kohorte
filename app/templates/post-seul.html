@@ -4,12 +4,12 @@
 	<div class="card card-post">
 
 		<div class="header">
-		<h6><a href={% url 'noeud' c.noeud.id %}> {{c.noeud.label}} </a></h6>
+		<h6><a href={% url 'noeud' p.0.noeud.id %}> {{p.0.noeud.label}} </a></h6>
 		</div>
 
 		<div class="content">
 
-			<div class="contenu" name="{{c.0.id}}">
+			<div class="contenu" name="{{p.0.id}}">
 				
 					<div class="row">
 						<div class="col-xs-12">
@@ -21,14 +21,7 @@
 						</div>
 					</div>
 					
-					<div class="row">
-						<div class="col-xs-12 pull-right">
-							<div class="pull-right">
-								<button type="button" class="btn btn-success btn-sm"><span class="ti-thumb-up"></span></button>
-								<button type="button" class="btn btn-danger btn-sm"><span class="ti-flag-alt"></span></button>
-							</div>
-						</div>
-					</div>
+					{% include "votes.html" with p=p %}
 					
 				
 			</div>
@@ -37,7 +30,7 @@
 			<div class="footer">
 			<hr />
 				<div class="stats">
-							<i class="ti-calendar"></i> Posté le {{c.date}} par {{c.auteur.user.username}}
+							<i class="ti-calendar"></i> Posté le {{p.0.date}} par {{p.0.auteur.user.username}}
 				</div>
 				</p>
 			</div>

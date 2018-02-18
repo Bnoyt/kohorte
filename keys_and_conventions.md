@@ -21,3 +21,7 @@ branch d'un noeud : "branch"
 l'utilisateur a cliqué sur suivre : "Suivi simple"
 l'utilisateur a posté : "auto apres post"
 branch :  "auto pendant branch"
+
+*TypeVote
+upvote : "upvote"
+signalement de posts : "signal"

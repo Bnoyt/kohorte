@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^profil/$',views.profil,name='profil'),
     url(r'^hashtags/(?P<hashtag>[0-9a-zA-Z]+)/$',views.hashtags,name='hashtags'),
     url(r'^suivi_noeud/$',views.suivi_noeud,name='suivi_noeud'),
+    url(r'^vote/$',views.vote,name='vote'),
 ]

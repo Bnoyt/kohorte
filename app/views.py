@@ -123,8 +123,12 @@ def ancetres(noeud):
         l = [parente.ideeSource for parente in AreteReflexion.objects.filter(ideeDest = n)]
     return res
 
-def postsDescendants(postPere, node):
-    return [[p, postsDescendants(p, node)] for p in Post.objects.filter(pere=postPere).filter(noeud=node)]
+def postsDescendants(postPere, node, user):
+    return [(p, postsDescendants(p, node, user), aVote(user, p)) for p in Post.objects.filter(pere=postPere).filter(noeud=node)]
+
+def aVote(user, p):
+  """renvoie les infos de vote pour un user et un post donné, pour tous les types de votes."""
+  return {tVote.label:Vote.objects.filter(voteur=user.user).filter(post=p).filter(typeVote=tVote).exists() for tVote in TypeVote.objects.all()}
 
 
 def noeud(request,noeud_id):
@@ -133,10 +137,7 @@ def noeud(request,noeud_id):
         postPeres = Post.objects.filter(noeud=noeud,pere=None)
         user = get_object_or_404(Utilisateur,user=request.user)
         
-        posts = [[p, postsDescendants(p, noeud)] for p in postPeres] #les descendants des postsPere encore dans le noeud.
-        
-        #cOrphelins= Post.objects.filter
-
+        posts = [(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres] #les descendants des postsPere encore dans le noeud.
 
 
         #pour la navigation entre les noeuds dans l'alpha
@@ -176,7 +177,7 @@ def whatsup(request, project_id):
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
         noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user) if r.noeud.question == question]
-        posts = [p for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
+        posts = [(p, aVote(user, p)) for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
         
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
         
@@ -381,7 +382,7 @@ def profil(request) :
         projets=list(set([n.question for n in noeudsSuivis]))
         whatsUpId = (-1 if len(projets)!=1 else projets[0].id)
         
-        posts = Post.objects.filter(auteur=utilisateur)
+        posts = [(p, aVote(utilisateur, p)) for p in Post.objects.filter(auteur=utilisateur)]
             # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
             #type_suivi=get_object_or_404(TypeSuivi,pk=1)
     
@@ -453,6 +454,24 @@ def suivi_noeud(request):
         elif post["type"] == "desuivre":
             relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,type_suivi=type_suivi,user=utilisateur)
             relation_suivi.delete()
+        return JsonResponse({})
+    else:
+        return JsonResponse({})
+
+def vote(request):
+    if request.user.is_authenticated:
+        utilisateur = get_object_or_404(Utilisateur,user = request.user)
+        user = utilisateur.user
+        post = request.POST
+        type_vote = get_object_or_404(TypeVote, label=post['typeVote'])
+        idPostVote = post["post"]#.split("-")[1] #post['post'] de la forme "id-%n"
+        postVote = get_object_or_404(Post,pk = idPostVote)
+        if post["type"] == "vote" and not(Vote.objects.filter(typeVote=type_vote, post=postVote, voteur=user).exists()):
+            vote = Vote(typeVote=type_vote, post=postVote, voteur=user)
+            vote.save()
+        elif post["type"] == "unvote":
+            vote = get_object_or_404(Vote,typeVote=type_vote, post=postVote, voteur=user)
+            vote.delete()
         return JsonResponse({})
     else:
         return JsonResponse({})
