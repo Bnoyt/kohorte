@@ -177,7 +177,7 @@ def whatsup(request, project_id):
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
         noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user) if r.noeud.question == question]
-        posts = [(p, aVote(user, p)) for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
+        posts = [(p, [], aVote(user, p)) for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
         
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
         
@@ -382,7 +382,7 @@ def profil(request) :
         projets=list(set([n.question for n in noeudsSuivis]))
         whatsUpId = (-1 if len(projets)!=1 else projets[0].id)
         
-        posts = [(p, aVote(utilisateur, p)) for p in Post.objects.filter(auteur=utilisateur)]
+        posts = [(p, [], aVote(utilisateur, p)) for p in Post.objects.filter(auteur=utilisateur)]
             # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
             #type_suivi=get_object_or_404(TypeSuivi,pk=1)
     
@@ -431,10 +431,14 @@ def profil(request) :
     
     
     
-def hashtags(request,hashtag):
+def hashtags(request,project_id,hashtag):
     if request.user.is_authenticated:
+        q = get_object_or_404(Question, id=project_id)
+        t = get_object_or_404(Tag,label=hashtag,question=q)
+        
+        posts = t.postTagues()
 
-        context = {}
+        context = {'posts':posts}
 
 
         

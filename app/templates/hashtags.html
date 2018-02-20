@@ -5,68 +5,23 @@
  <div class="container-fluid">
 
     <div class="row">
-	<!-- ce commentaire est le reste du fichier "noeud.html" dont je me suis inspirée de manière bourrine -->
-            
-
-		    	
-
+	<!-- ce commentaire est le reste du fichier "whatsup.html" dont je me suis inspirée de manière bourrine -->
 		
-		<div class="col-md-4 col-sm-12 pull-left">
+		<div class="col-md-6 col-sm-6 pull-left">
+			<div class="card">
+					<div class="header">
+					<h3>Nouveautés</h3>
+					</div>
 
-			<div class="card card-post">
-				<div class="header">
-				<h3>Recap</h3>
+					<div class="content">
+						{% for p in posts %}
+
+							{% include "post-seul.html" with c=p %}
+
+						{% endfor %}
+					</div>
 				</div>
-				<div class="content">
-
-
-					<!-- contenu de la récap -->
-
-
-
-				</div>
-
 			
-			</div>
-
-
-		</div>
-
-
-
-
-
-
-		<div class="col-md-4 col-sm-12 col-xs-12">
-			<div class="card card-post">
-				<div class="header">
-				<h3>Nouveautés</h3>
-				</div>
-
-				<div class="content">
-					<!-- {% for p in posts %}
-
-						{% include "post.html" with p=p %}
-
-					{% endfor %} -->
-				</div>
-
-			</div>
-
-
-		</div> 
-
-		<div class="col-md-4 col-sm-12 pull-right" id="filDeSugg">
-			<div class="card card-post">
-
-				<div class="header">
-				<h3>Suggestions</h3>
-				</div>
-
-			<div class="content">
-
-
-			</div>
 		</div>
 
 	</div>
