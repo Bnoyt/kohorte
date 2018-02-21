@@ -11,8 +11,8 @@ import traceback
 
 # import dependances
 import app.clustering.errors as err
-import app.clustering.ProjectGraph as pg
-import app.clustering.ProjectLogger as pl
+import app.clustering.ProjectGraph as prg
+import app.clustering.ProjectLogger as prl
 from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
 import app.clustering.ClusteringAlgorithms as ClusterAlg
@@ -28,9 +28,7 @@ class ProjectController(Thread):
     def __init__(self, database_id, command_queue):
         Thread.__init__(self)
 
-        # self.database_id = database_id
-        self.database_id = 2
-        database_id = 2
+        self.database_id = database_id
 
         self.path = Path(param.memory_path) / str(database_id)
         try:
@@ -44,14 +42,14 @@ class ProjectController(Thread):
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
                 self.register_instructions = (control_file.readline()[0:-1]).split(";")
 
-                self.projectLogger = pl.ProjectLogger(self.path)
+                self.projectLogger = prl.ProjectLogger(self.path)
 
                 self.memory_free = False
 
         except (IOError, err.LoadingError):
                 print("Could not access project memory tree. Launching project in no-saving mode.")
                 self.memory_free = True
-                self.projectLogger = pl.ProjectLogger(self.path, active=False)
+                self.projectLogger = prl.ProjectLogger(self.path, active=False)
                 self.register_instructions = []
                 self.clean_shutdown = False
 
@@ -88,7 +86,7 @@ class ProjectController(Thread):
     def load_graph(self):
         if self.graphLoaded:
             self.unload_graph()
-        self.theGraph = pg.ProjectGraph(self, self.projectLogger)
+        self.theGraph = prg.ProjectGraph(self, self.projectLogger)
         self.graphIsLoading = True
         self.clear_all_modifications()
 
@@ -101,8 +99,7 @@ class ProjectController(Thread):
 
             self.apply_modifications(expect_errors=True)
 
-
-        except (err.GraphError, nx.NetworkXError) as error:
+        except (err.LoadingError, err.GraphError, nx.NetworkXError) as error:
             self.graphIsLoading = False
             self.theGraph = None
             print("Error while loeading graph from database : ")
@@ -129,6 +126,17 @@ class ProjectController(Thread):
                 self.theGraph.apply_modification(self.modification_queue.get())
         else:
             self.clear_all_modifications()
+
+    def modify_config_file(self, clean_shutdown=False, register_instructions=[]):
+        with (self.path / "control.txt").open('r') as control_file:
+            control_file.write(self.name)
+            control_file.write(str(self.database_id))
+            control_file.write(str(clean_shutdown))
+            reg_i = ""
+            for inst in register_instructions:
+                reg_i += inst
+                reg_i += ";"
+            control_file.write(reg_i)
 
     def update_priority(self):
         pass

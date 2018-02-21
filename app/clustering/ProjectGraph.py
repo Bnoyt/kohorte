@@ -12,7 +12,7 @@ import app.clustering.parameters as param
 
 
 class ProjectGraph:
-    def __init__(self, projectController, projectLogger, pg=None):
+    def __init__(self, projectController, projectLogger, pg=None, cfg=None):
         self.projectController = projectController
         self.projectLogger = projectLogger
 
@@ -29,8 +29,6 @@ class ProjectGraph:
             self.databaseCitationIDMap = dict()
             self.databaseVoteIDMap = dict()
 
-            self.time_dilation = 1.0
-
         else:
 
             self.baseGraph = pg.baseGraph
@@ -41,7 +39,13 @@ class ProjectGraph:
             self.databaseCitationIDMap = pg.databaseCitationIDMap
             self.databaseVoteIDMap = pg.databaseVoteIDMap
 
-            self.time_dilation = pg.time_dilation
+        if cfg is None:
+
+            self.time_dilation = 1.0
+
+        else:
+
+            self.time_dilation = cfg.time_dilation
 
     def load_from_database(self, database_access: dba.DatabaseAccess):
 
@@ -190,9 +194,6 @@ class ProjectGraph:
         print("Graph loaded. No critical issue encountered. " + str(incoherences)
               + " incoherences encounered and silenced.")
 
-
-
-
     def apply_modification(self, modif: mods.GenericModification):
         try:
             modif.apply_to_graph(self)
@@ -205,7 +206,7 @@ class ProjectGraph:
 
 class PickleGraph:
 
-    def __init__(self, pg : ProjectGraph):
+    def __init__(self, pg: ProjectGraph):
         self.base_graph = pg.baseGraph
         self.databasePostIDMap = pg.databasePostIDMap
         self.databaseNoeudIDMap = pg.databaseNoeudIDMap
@@ -214,4 +215,23 @@ class PickleGraph:
         self.databaseCitationIDMap = pg.databaseCitationIDMap
         self.databaseVoteIDMap = pg.databaseVoteIDMap
 
+
+class PickleAnalysis:
+
+    def __init__(self, pg: ProjectGraph):
+        pass
+
+
+class CSVConfigs:
+
+    def __init__(self, pg: ProjectGraph):
+
         self.time_dilation = pg.time_dilation
+
+    def write_to_file(self, csv_file):
+
+        csv_file.writerow(["time_dilation", self.time_dilation])
+
+    def read_from_file(self, csv_file):
+
+        self.time_dilation = csv_file.readrow()[1]
