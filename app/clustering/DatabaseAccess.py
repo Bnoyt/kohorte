@@ -3,12 +3,14 @@
 # import libraries
 from collections.abc import Iterable
 from collections.abc import Iterator
+import django.core.exceptions as dj_err
 
 # import dependencies
 import app.models as models
 from notify.signals import notify
 import app.clustering.parameters as param
 import app.clustering.Nodes as Nodes
+import app.clustering.errors as err
 
 
 class DatabaseAccess:
@@ -83,55 +85,59 @@ class DatabaseAccess:
 
     def get_database_iterable(self):
 
-        question = models.Question.objects.get(id=self.project_id)
+        try:
 
-        iterables = {
-            "tag": GraphElementSet(models.Tag.objects.filter(question=question), TagNodeIterator),
+            question = models.Question.objects.get(id=self.project_id)
 
-            "noeud": GraphElementSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator),
+            iterables = {
+                "tag": GraphElementSet(models.Tag.objects.filter(question=question), TagNodeIterator),
 
-            "citation": GraphElementSet(models.Citation.objects.filter(
-                                                    post__in=models.Post.objects.filter(question=question)),
-                                        CitationNodeIterator),
+                "noeud": GraphElementSet(models.Noeud.objects.filter(question=question), NoeudNodeIterator),
 
-            "user": GraphElementSet(models.Utilisateur.objects.all(), UserNodeIterator),
-            # TODO : chopper les bons utilisateurs
+                "citation": GraphElementSet(models.Citation.objects.filter(
+                                                        post__in=models.Post.objects.filter(question=question)),
+                                            CitationNodeIterator),
 
-            "post": GraphElementSet(models.Post.objects.filter(question=question),
-                                    PostNodeIterator),
+                "user": GraphElementSet(models.Utilisateur.objects.all(), UserNodeIterator),
+                # TODO : chopper les bons utilisateurs
 
-            "tag_post": GraphElementSet(models.Post.objects.filter(question=question),
-                                        TagPostIterator),
+                "post": GraphElementSet(models.Post.objects.filter(question=question),
+                                        PostNodeIterator),
 
-            "post_noeud": GraphElementSet(models.Post.objects.filter(question=question),
-                                          PostNoeudIterator),
+                "tag_post": GraphElementSet(models.Post.objects.filter(question=question),
+                                            TagPostIterator),
 
-            "post_uses_citation": GraphElementSet(models.Post.objects.filter(question=question),
-                                                          PostUsesCitationIterator),
+                "post_noeud": GraphElementSet(models.Post.objects.filter(question=question),
+                                              PostNoeudIterator),
 
-            "post_source_citation": GraphElementSet(models.Citation.objects.filter(
-                                                                post__in=models.Post.objects.filter(question=question)),
-                                                    CitationSourceIterator),
+                "post_uses_citation": GraphElementSet(models.Post.objects.filter(question=question),
+                                                              PostUsesCitationIterator),
 
-            "raporteur_citation": GraphElementSet(models.Citation.objects.filter(
-                                                    post__in=models.Post.objects.filter(question=question)),
-                                                  CitationRapporteurIterator),
+                "post_source_citation": GraphElementSet(models.Citation.objects.filter(
+                                                                    post__in=models.Post.objects.filter(question=question)),
+                                                        CitationSourceIterator),
 
-            "aretes_reflexion": GraphElementSet(models.AreteReflexion.objects.filter(
-                                                    ideeSource__in=models.Noeud.objects.filter(question=question)),
-                                                 AreteReflexionIterator),
+                "raporteur_citation": GraphElementSet(models.Citation.objects.filter(
+                                                        post__in=models.Post.objects.filter(question=question)),
+                                                      CitationRapporteurIterator),
 
-            "vote": GraphElementSet(models.Vote.objects.filter(
-                                        post__in=models.Post.objects.filter(question=question)),
-                                    VoteIterator),
+                "aretes_reflexion": GraphElementSet(models.AreteReflexion.objects.filter(
+                                                        ideeSource__in=models.Noeud.objects.filter(question=question)),
+                                                     AreteReflexionIterator),
 
-            "auteur_post": GraphElementSet(models.Post.objects.filter(question=question),
-                                           AuteurPostIterator),
+                "vote": GraphElementSet(models.Vote.objects.filter(
+                                            post__in=models.Post.objects.filter(question=question)),
+                                        VoteIterator),
 
-            "suivi_noeud": GraphElementSet(models.RelationUserSuivi.objects.filter(
-                                                noeud__in=models.Noeud.objects.filter(question=question)),
-                                           SuiviNoeudIterator)
-        }
+                "auteur_post": GraphElementSet(models.Post.objects.filter(question=question),
+                                               AuteurPostIterator),
+
+                "suivi_noeud": GraphElementSet(models.RelationUserSuivi.objects.filter(
+                                                    noeud__in=models.Noeud.objects.filter(question=question)),
+                                               SuiviNoeudIterator)
+            }
+        except dj_err.ObjectDoesNotExist as exe:
+            raise err.LoadingError("Error while accessing database : innexistant access attempt")
 
         return iterables
 
