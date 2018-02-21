@@ -209,11 +209,17 @@ class Main(Thread):
 
 
     def run(self):
-        self._init_socket(SERVER_PORT)
-        self._init_projects()
-        while True:
-            self._get_clients(0.05)
-            self._listen_clients(0.05)
+        try:
+            self._init_socket(SERVER_PORT)
+            self._init_projects()
+            while True:
+                self._get_clients(0.05)
+                self._listen_clients(0.05)
+        finally:
+            print('Closing ports used by backend ...')
+            for sock in self.socks:
+                sock.close()
+            print('Done.')
         pass
 
     def print(self, *args, **kwargs):

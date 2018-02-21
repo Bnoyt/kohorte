@@ -45,8 +45,7 @@ class Subcommander(BaseCommand):
         if len(argv) > 2 and not argv[2].startswith('-') and argv[2] in self.subcommands.keys():
             subcommand = argv[2]
             klass = self.get_subcommand(subcommand)
-            parser = OptionParser(prog=argv[0], usage=klass.usage('{0} {1}'.format(argv[1], subcommand)),
-                version=klass.get_version(), option_list=klass.option_list)
+            parser = OptionParser(prog=argv[0], version=klass.get_version())
             options, args = parser.parse_args(argv[3:])
             args = [subcommand] + args
         else:
