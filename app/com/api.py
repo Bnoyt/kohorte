@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from app.com.phantom import PhantomClassFactory, PhantomMethodFactory
-from app.com.network import DistantFunc
+import app.com.network as net
 
 GraphModifier = PhantomClassFactory('GraphModifier',
                                     PhantomMethodFactory('network_callback',
-                                                         DistantFunc.distant_call))
+                                                         net.DistantFunc.distant_call))

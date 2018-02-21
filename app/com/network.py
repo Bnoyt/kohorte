@@ -140,8 +140,7 @@ class Main(Thread):
         project_ids = [int(p.id) for p in app.models.Question.objects.all()]
         for project_id in project_ids:
             command_queue = queue.Queue()
-            controller = ProjectController(
-                    'project_controller_%s' % str(project_id), command_queue)
+            controller = ProjectController(project_id, command_queue)
             self.destination[project_id] = controller.get_graph_modifier()
             self.command_queues[project_id] = command_queue
             controller.daemon = CONTROLLERS_AS_DAEMON
