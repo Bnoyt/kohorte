@@ -34,7 +34,7 @@ def remplacer_code(texte):
 
 	return texte
 
-def remplacer_hashtag(texte):
+def remplacer_hashtag(texte, question):
 	new_texte = ""
 	for i in range(len(texte)-1):
 		if texte[i] == "#" and texte[i+1] != " ":
@@ -46,21 +46,21 @@ def remplacer_hashtag(texte):
 	except:
 		pass
 
-
+	q = question
 	hashtags = re.findall(r"\\#[A-Za-z1-9]+",new_texte,re.S)
 	for h in hashtags:
-		t = """<a href = '/hashtags/""" + h[2:] + """/'> """ + h + """ </a> """
+		t = """<a href = '/"""+str(q)+ """/hashtags/""" + h[2:] + """/'> """ + h + """ </a> """
 		new_texte = new_texte.replace(h,t)
 	return new_texte
 
 
 @register.filter(name="rendusafe",is_safe=True)
-def rendusafe(texte):
+def rendusafe(texte, id_question):
 	texte = str(texte)
 	texte = BeautifulSoup(texte,"lxml").text
 	texte = remplacer_citations(texte)
 	texte = remplacer_code(texte)
-	texte = remplacer_hashtag(texte)
+	texte = remplacer_hashtag(texte, id_question)
 	texte = markdownify(texte)
 	return texte
 

@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^sauvegarder_citation/$',views.sauvegarder_citation,name='sauvegarder_citation'),
     url(r'^faq/$',views.faq,name='faq'),
     url(r'^profil/$',views.profil,name='profil'),
-    url(r'^hashtags/(?P<project_id>[0-9]+)/(?P<hashtag>[0-9a-zA-Z]+)/$',views.hashtags,name='hashtags'),
+    url(r'^(?P<project_id>[0-9]+)/hashtags/(?P<hashtag>[0-9a-zA-Z]+)/$',views.hashtags,name='hashtags'),
     url(r'^suivi_noeud/$',views.suivi_noeud,name='suivi_noeud'),
     url(r'^vote/$',views.vote,name='vote'),
 ]
