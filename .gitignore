@@ -10,6 +10,6 @@ __pycache__/
 *.py.orig
 
 #ignore database
-db.sqlite3
+*.sqlite3
 app/clustering/memory
 
