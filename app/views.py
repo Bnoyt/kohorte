@@ -158,6 +158,7 @@ def noeud(request,noeud_id):
             'question':noeud.question,    
             'titre_page':'Noeud : ' +  noeud.label,
             'citations':["{{" + str(i.id) + "}}" for i in citations],
+            'vraiCitation':citations,
             'noeudsFamille':noeudsFamille,
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
@@ -225,6 +226,19 @@ def parametres(request):
         return render(request,'parametres.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
+        
+def include_tags(postHTTP, post):
+  tags = trouver_hashtags(postHTTP['contenu'])
+  
+  for tag in tags:
+      t = Tag.objects.filter(label=tag).filter(question=post.question)
+      if len(t) == 0:
+          t = Tag(label = tag, question=post.question)
+          t.save()
+      else:
+          t = t[0]
+      post.tags.add(t)
+  pass
 
 
 def ajouter_post(request):
@@ -239,19 +253,11 @@ def ajouter_post(request):
             question = get_object_or_404(Question,pk=int(post['id_question']))
             noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
             auteur = get_object_or_404(Utilisateur,user=request.user)
-            tags = trouver_hashtags(post['contenu'])
 
             p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             p.save()
             
-            for tag in tags:
-                t = Tag.objects.filter(label=tag).filter(question=question)
-                if len(t) == 0:
-                    t = Tag(label = tag, question=question)
-                    t.save()
-                else:
-                    t = t[0]
-                p.tags.add(t)
+            include_tags(post, p)
             
             
 
@@ -297,6 +303,8 @@ def ajouter_commentaire(request):
             pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
             c = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             c.save()
+            
+            include_tags(post, c)
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('commentaire.html')
             context={'c':(c,[], {})}
@@ -325,6 +333,8 @@ def ajouter_reponse(request):
             pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
             r = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             r.save()
+            
+            include_tags(post, r)
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('reponse.html')
             context={'r':[r,[]]

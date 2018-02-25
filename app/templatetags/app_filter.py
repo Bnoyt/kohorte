@@ -8,14 +8,14 @@ import re
 register = template.Library()
 
 
-def remplacer_citations(texte):
+def remplacer_citations(texte, limit=0):
 	citations = re.findall(r"\{\{[0-9]+\}\}",texte)
 	for c in citations:
 		a = Citation.objects.filter(pk=int(c[2:][:-2]))
 		if len(a) > 0:
 			date = a[0].post.date
 			k = """<blockquote>
-			<p>""" + BeautifulSoup(a[0].contenu).text + """
+			<p>""" + BeautifulSoup(a[0].contenu, "lxml").text + """
 			</p>
 			<small> 
 			""" + a[0].post.auteur.user.username + """ le """ + (date.ctime()) + """ dans le noeud <strong>""" + a[0].post.noeud.label + """</strong>
@@ -54,11 +54,11 @@ def remplacer_hashtag(texte, question):
 	return new_texte
 
 
-@register.filter(name="rendusafe",is_safe=True)
-def rendusafe(texte, id_question):
+@register.filter(name="rendusafe")
+def rendusafe(texte, id_question, limit=0):
 	texte = str(texte)
 	texte = BeautifulSoup(texte,"lxml").text
-	texte = remplacer_citations(texte)
+	texte = remplacer_citations(texte, limit)
 	texte = remplacer_code(texte)
 	texte = remplacer_hashtag(texte, id_question)
 	texte = markdownify(texte)
