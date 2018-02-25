@@ -90,13 +90,14 @@ def index(request):
     context = {'whatsUpId':-1}
     if request.user.is_authenticated:
         user = get_object_or_404(Utilisateur, user=request.user)
+        types_suivi_reel = TypeSuivi.objects.filter(actif=True)
         
-        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]        
+        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user,type_suivi__in=types_suivi_reel)]        
         printRecap = [recapProjet(q, user.user) for q in list(set(projSuivis))]
         
         context['user'] = user
         context['printRecap'] = printRecap
-        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]
+        
         if len(projSuivis)==1:
             context['whatsUpId'] = projSuivis[0]
         
@@ -139,7 +140,6 @@ def noeud(request,noeud_id):
         
         posts = [(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres] #les descendants des postsPere encore dans le noeud.
 
-
         #pour la navigation entre les noeuds dans l'alpha
         noeudsFamille = [(parente.ideeSource, [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = parente.ideeSource)]) for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
         noeudsFils = [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = noeud)]
@@ -147,8 +147,8 @@ def noeud(request,noeud_id):
 
         citations = [c for c in Citation.objects.filter(rapporteur=user) if c.post.question==noeud.question]
 
-        suivi_simple = TypeSuivi.objects.filter(pk=1)
-        suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi=suivi_simple).exists()
+        suivi = TypeSuivi.objects.filter(actif=True)
+        suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi__in=suivi).exists()
 
         context = {
             'suivi':suivi,
@@ -177,7 +177,8 @@ def whatsup(request, project_id):
         sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')    #.filter(objet.question=project_id)
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
-        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user) if r.noeud.question == question]
+        types_suivi_reel = TypeSuivi.objects.filter(actif=True)
+        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user,type_suivi__in=types_suivi_reel) if r.noeud.question == question]
         posts = [(p, [], aVote(user, p)) for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
         
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
@@ -463,14 +464,22 @@ def suivi_noeud(request):
     if request.user.is_authenticated:
         utilisateur = get_object_or_404(Utilisateur,user = request.user)
         post = request.POST
-        type_suivi = get_object_or_404(TypeSuivi, pk=1)
+        type_suivi_simple = get_object_or_404(TypeSuivi, label="suivi simple")
+        type_suivi_unactivated = get_object_or_404(TypeSuivi, label="post puis unfollow")
+        types_suivi_reel = TypeSuivi.objects.filter(actif=True)
         noeud = get_object_or_404(Noeud,pk = int(post["id_noeud"]))
-        if post["type"] == "suivre" and not(RelationUserSuivi.objects.filter(noeud=noeud,type_suivi=type_suivi,user=utilisateur).exists()):
-            relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi,user=utilisateur)
+        if post["type"] == "suivre" and not (RelationUserSuivi.objects.filter(user=utilisateur,noeud=noeud,type_suivi__in=types_suivi_reel).exists()):
+            if (RelationUserSuivi.objects.filter(user=utilisateur,noeud=noeud).exclude(type_suivi__in= types_suivi_reel).exists()):
+                relation_suivi = get_object_or_404(RelationUserSuivi,user=utilisateur, noeud=noeud, type_suivi = type_suivi_unactivated)
+                relation_suivi.type_suivi = type_suivi_simple
+                relation_suivi.save()
+            else:
+                relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi_simple,user=utilisateur)
+                relation_suivi.save()
+        elif post["type"] == "desuivre" and (RelationUserSuivi.objects.filter(user=utilisateur,noeud=noeud).exists()):
+            relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,user=utilisateur)
+            relation_suivi.type_suivi = type_suivi_unactivated
             relation_suivi.save()
-        elif post["type"] == "desuivre":
-            relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,type_suivi=type_suivi,user=utilisateur)
-            relation_suivi.delete()
         return JsonResponse({})
     else:
         return JsonResponse({})

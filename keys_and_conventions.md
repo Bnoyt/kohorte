@@ -18,9 +18,10 @@ branch d'un noeud : "branch"
 *TypeArete
 
 *TypeSuivi
-l'utilisateur a cliqué sur suivre : "Suivi simple"
+l'utilisateur a cliqué sur suivre : "suivi simple"
 l'utilisateur a posté : "auto apres post"
 branch :  "auto pendant branch"
+l'utilisateur a posté puis s'est désabonné : "post puis unfollow"
 
 *TypeVote
 upvote : "upvote"

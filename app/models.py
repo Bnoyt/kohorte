@@ -8,6 +8,8 @@ from markdownx.models import MarkdownxField
 
 from django.contrib.auth.models import User
 
+from django.shortcuts import get_object_or_404
+
 #from app.com.api import GraphModifier as GraphModifier
 
 
@@ -195,6 +197,9 @@ class Post(models.Model):
     
     def save(self, *args, **kwargs):
         super(Post, self).save(*args, **kwargs)
+        typeSuivi = get_object_or_404(TypeSuivi, label="auto apres post")
+        s = RelationUserSuivi(noeud=self.noeud, type_suivi=typeSuivi, user=self.auteur)
+        s.save()
         #GraphModifier.func(question.id)
         #GraphModifier.create_post(self.id, noeud.id, [t.id for t in self.tags], auteur.id, self.size(), pere.id)
 
@@ -219,7 +224,7 @@ class TypeVote(models.Model):
     impact = models.IntegerField()
 
     def __str__(self):
-        return self.label + ' - ' + str(self.impact)
+        return self.label + ' - ' + str(self.impact) + ' - ' + str(self.actif)
 
 class Vote(models.Model):
     """Un vote est donné par un utilisateur à
@@ -264,6 +269,7 @@ class Suggestion(models.Model):
 
 class TypeSuivi(models.Model):
     label = models.CharField(max_length=100)
+    actif=models.BooleanField()
 
     def __str__(self):
         return self.label

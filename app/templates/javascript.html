@@ -306,19 +306,19 @@ $("#btn-epingle-s").click(
 
     });
 
-    $("#btn-epingle-n").click(
+$("#btn-epingle-n").click(
 
-    function() {
+	function() {
 
-       
-       $("#btn-epingle-n").hide(10);
-       $("#btn-epingle-s").show(10);
+		 
+		 $("#btn-epingle-n").hide(10);
+		 $("#btn-epingle-s").show(10);
 
-       notifier("Vous ne suivrez plus ce noeud","info");
-    
-       $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'desuivre',id_noeud:id_noeud,},function(){},'json');
+		 notifier("Vous ne suivrez plus ce noeud","info");
 
-    });
+		 $.post('{% url "suivi_noeud" %}',{csrfmiddlewaretoken:crsftoken,type:'desuivre',id_noeud:id_noeud,},function(){},'json');
+
+	});
     
 function vote(type_vote, id) {
   var voteDo = $('#btn-'+type_vote+'-do-' + id);
