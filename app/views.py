@@ -105,7 +105,7 @@ def index(request):
             return render(request, 'index.html', context)
         
     else:
-        return page_login(request)
+        return redirect(page_login)
     pass
 
 def recapProjet(question, user):
@@ -218,6 +218,8 @@ def suggestions(request):
             'listSugg':listSugg,
             }
         return render(request, 'suggestions.html', context)
+    else:
+        return redirect(index)
 
 
 def parametres(request):
