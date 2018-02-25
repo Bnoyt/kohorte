@@ -229,7 +229,7 @@ class PostNoeudIterator(GraphElementIterator):
 class VoteIterator(GraphElementIterator):
     def next(self):
         next_vote = next(self.qs_iterator)
-        return next_vote.voteur, next_vote.post, {"vote_type": next_vote.label}
+        return next_vote.voteur, next_vote.post, {"vote_type": next_vote.typeVote.label}
 
 
 class PostUsesCitationIterator(GraphElementIterator):
