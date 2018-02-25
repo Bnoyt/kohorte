@@ -448,7 +448,10 @@ def hashtags(request,project_id,hashtag):
         
         posts = [(p, [], aVote(utilisateur, p)) for p in  t.postTagues()]
 
-        context = {'posts':posts}
+        context = {
+        'posts':posts,
+        'titre_page' : "#" + t.label,
+        }
 
 
         
