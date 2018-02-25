@@ -299,8 +299,7 @@ def ajouter_commentaire(request):
             c.save()
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('commentaire.html')
-            context={'c':[c,[]]
-            }
+            context={'c':(c,[], {})}
             publication = template.render(context,request)
             notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', nf_type='answer')
         else:
@@ -433,10 +432,11 @@ def profil(request) :
     
 def hashtags(request,project_id,hashtag):
     if request.user.is_authenticated:
+        utilisateur = get_object_or_404(Utilisateur, user=request.user)
         q = get_object_or_404(Question, id=project_id)
         t = get_object_or_404(Tag,label=hashtag,question=q)
         
-        posts = t.postTagues()
+        posts = [(p, [], aVote(utilisateur, p)) for p in  t.postTagues()]
 
         context = {'posts':posts}
 

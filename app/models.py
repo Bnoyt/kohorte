@@ -123,7 +123,7 @@ class Tag(models.Model):
         """renvoie un querySet (quelque soit son
         implementation) de posts tagués par un tag 
         particulier."""
-        return self.posts_lies.all()
+        return self.post_set.all()
     
     def save(self, *args, **kwargs):
         super(Tag, self).save(*args, **kwargs)
