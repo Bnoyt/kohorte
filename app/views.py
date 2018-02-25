@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from markdownx.utils import markdownify
 from notify.signals import notify
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
@@ -60,7 +60,7 @@ def page_login(request):
 def page_register(request):
     context = {}
     if request.user.is_authenticated:
-        return render(request, 'content_index.html', context)
+        return redirect(index)
     post = request.POST
     if 'username' in post and 'email' in post and 'mdp' and 'mdp2' in post:
         if User.objects.filter(email=post['email']).exists() or User.objects.filter(username=post['username']).exists():
@@ -100,12 +100,13 @@ def index(request):
         
         if len(projSuivis)==1:
             context['whatsUpId'] = projSuivis[0]
+            return redirect(whatsup, projSuivis[0].id)
+        else:
+            return render(request, 'index.html', context)
         
     else:
-        #TODO: handle unlogged user
-        pass
-
-    return render(request, 'index.html', context)
+        return page_login(request)
+    pass
 
 def recapProjet(question, user):
     nbPosts = Post.objects.filter(question=question).count()
