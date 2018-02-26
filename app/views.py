@@ -363,8 +363,9 @@ def sauvegarder_citation(request):
         c = Citation(auteur=publication.auteur,post=publication,contenu=contenu,rapporteur=rapporteur)
         #create_quote(publication.id, rapporteur.id) TODO gm
         c.save()
+        question=publication.question
         template = loader.get_template('citation.html')
-        context={'citation':'{{' + str(c.id) + '}}'}
+        context={'citation':'{{' + str(c.id) + '}}',"question":question}
         contenu = template.render(context,request)
 
         return JsonResponse({'contenu':contenu,'id_citation':c.id})
