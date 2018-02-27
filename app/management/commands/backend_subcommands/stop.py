@@ -10,5 +10,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         msg = {'type': 'command',
                'method_name': 'stop_backend'}
+
         MessageHandler.send_python(msg)
 

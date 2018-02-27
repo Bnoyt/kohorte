@@ -17,6 +17,7 @@ from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
 import app.clustering.ClusteringAlgorithms as ClusterAlg
 import app.clustering.DatabaseAccess as DbAccess
+from app.com.messaging import MessageHandler
 
 
 class ProjectController(Thread):
@@ -230,6 +231,62 @@ class ProjectController(Thread):
 
         # TODO : clean shutdown code
         print("shutting down")
+
+    def _handle_command(self, msg):
+        MessageHandler.handle_json(msg, self)
+        pass
+
+    def handle_commands(self):
+        try:
+            while True:
+                msg = self.command_queue.get_nowait()
+                self._handle_command(msg)
+        except queue.Empty:
+            pass
+        pass
+
+    #The following code is an example for making a difference between command
+    #type and handling them at separated time
+    def _command_name_here(self, *args, **kwargs):
+        #this is invoked by handle_commands
+        #the handling is then schedule to a different time because it
+        #cannot be handled now
+        self._command_category.append({'method_name':'handling_method_name',
+                                       'args': args,
+                                       'kwargs': kwargs})
+
+    def _handle_category(self):
+        for command in self._command_category:
+            MessageHandler.handle_decoded(command, self)
+
+    def _handling_method_name(self, *args, **kwargs):
+        #Actually do something here
+        pass
+    #------------------------------------------------------
+
+    #Another idea for handling methods
+    def _another_command_name_here(self, *args, **kwargs):
+        #self.CONFIG or another variable is used to determine if the command
+        #can be handled now
+        if self.CONFIG['UNIQUE_KEY_FOR_THIS_COMMAND']:
+            #now this command can be handled
+            #do something
+            pass
+        else:
+            #command is delayed
+            self.delayed.put({'method_name':'_another_command_name_here',
+                              'args': args,
+                              'kwargs': kwargs})
+
+    def schedule_delayed_commands(self):
+        #INLY USE THIS WHEN handle_commands HAS TERMINATED
+        #OTHERISE, IT MIGHT CREATE AN INFINITE LOOP
+        #MOREOVER, queue.queue EXPLICITELY DOESN'T SUPPORT MULTIPLE ACCESS FROM
+        #THE SAME THREAD
+        for command in self.delayed:
+            self.command_queue.put(command)
+    #END OF SECOND IDEA -------------------------------------------------------
+
 
 
 class CommandHandler:

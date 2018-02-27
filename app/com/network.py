@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
+import sys
 import json
 from threading import Thread
 import queue
 import socket
 import select
 
-import traceback
-from collections import Mapping
 
 from app.com.config import SERVER_PORT, CONTROLLERS_AS_DAEMON, ERROR_HANDLING, LOG_THREAD
+from app.com.messaging import MessageHandler
 from app.clustering.ProjectController import ProjectController
-import app.models
 
 from timeit import default_timer as timer
 
@@ -38,91 +37,6 @@ class DistantFunc(Thread):
         MessageHandler.send(msg)
 
 
-
-
-class MessageHandler:
-    @staticmethod
-    def send_json(msg):
-        connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexion.connect(('localhost', SERVER_PORT))
-        try:
-            connexion.sendall(msg.encode())
-        except Exception as err:
-            print('An error occured while sending the following messaeg:\n%s' % msg)
-            print('The traceback is as follows:')
-            traceback.print_tb(err.__traceback__)
-            print(err)
-        finally:
-            connexion.close()
-        pass
-
-    @staticmethod
-    def send_python(msg):
-        try:
-            msg = json.dumps(msg)
-        except Exception as err:
-            if not ERROR_HANDLING:
-                raise
-            pass
-        else:
-            connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            connexion.connect(('localhost', SERVER_PORT))
-            try:
-                connexion.sendall(msg.encode())
-            except Exception as err:
-                print('An error occured while sending the following message:\n%s' % msg)
-                print('The traceback is as follows:')
-                traceback.print_tb(err.__traceback__)
-                print(err)
-            finally:
-                connexion.close()
-        pass
-
-    @staticmethod
-    def handle(msg, destinations):
-        try:
-            action = json.loads(msg)
-            if not isinstance(action, Mapping):
-                #TODO: Error handling
-                return
-            destination = destinations[action['type']]
-            method = action['method_name']
-            try:
-                args = action['args']
-            except KeyError:
-                args = None
-            try:
-                kwargs = action['kwargs']
-            except KeyError:
-                kwargs = None
-            func = destination.__getattribute__(method)
-            if args is not None and kwargs is not None:
-                func(*args, **kwargs)
-                return
-            if args is not None:
-                func(*args)
-                return
-            if kwargs is not None:
-                func(**kwargs)
-                return
-            if args is None and kwargs is None:
-                func()
-                return
-        except json.JSONDecodeError:
-            #TODO: Handle Exceptions
-            if not ERROR_HANDLING:
-                raise
-            pass
-        except AttributeError:
-            #TODO: Handle Exceptions
-            if not ERROR_HANDLING:
-                raise
-            pass
-        pass
-
-
-
-
 class Main(Thread):
 
     def __init__(self, name):
@@ -137,6 +51,7 @@ class Main(Thread):
             self.time = timer()
 
     def _init_projects(self):
+        import app.models
         project_ids = [int(p.id) for p in app.models.Question.objects.all()]
         for project_id in project_ids:
             command_queue = queue.Queue()
@@ -145,7 +60,8 @@ class Main(Thread):
             self.command_queues[project_id] = command_queue
             controller.daemon = CONTROLLERS_AS_DAEMON
             controller.start()
-            print('[BACKEND] Started backend thread for project %s' % project_id)
+            sys.stdout.write('[BACKEND] Started backend thread for project %s' % project_id)
+            sys.stdout.flush()
         pass
 
     def _init_socket(self, port):
@@ -163,7 +79,8 @@ class Main(Thread):
                 self.clients.append(client)
                 self.infos[client] = infos
             else:
-                print('refused connexion from %s' % infos)
+                sys.stdout.write('refused connexion from %s' % infos)
+                sys.stdout.flush()
                 client.close()
 
     def _listen_clients(self, timeout):
@@ -195,8 +112,9 @@ class Main(Thread):
         if LOG_THREAD:
             if timer() - self.time > 5:
                 self.time = timer()
-                print('Thread %s is still alive' % self.name)
-                print(self.socks)
+                sys.stdout.write('Thread %s is still alive' % self.name)
+                sys.stdout.write(self.socks)
+                sys.stdout.flush()
 
     def _handle_message(self, msg):
         try:
@@ -205,7 +123,7 @@ class Main(Thread):
             #TODO: Handle Exceptions
             pass
         else:
-            MessageHandler.handle(msg, self.destinations)
+            MessageHandler.route_json(msg, self.destinations)
 
 
     def run(self):
@@ -216,11 +134,14 @@ class Main(Thread):
                 self._get_clients(0.05)
                 self._listen_clients(0.05)
         finally:
-            print('Closing ports used by backend ...')
+            sys.stout.write('Closing ports used by backend ...')
+            sys.stdout.flush()
             for sock in self.socks:
                 sock.close()
-            print('Done.')
+            sys.stdout.write('Done.')
+            sys.stdout.flush()
         pass
 
     def print(self, *args, **kwargs):
-        print(*args, **kwargs)
+        sys.stdout.write(*args, **kwargs)
+        sys.stdout.flush()
