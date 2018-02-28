@@ -117,8 +117,7 @@ function ajout_post(post,id_pere){
 }
 
 function retour_ajout_post(reponse){
-    $('#id_titre').val('');
-    $('#id_contenu').val('');
+    
     var message;
     var type;
     var text = reponse['texte'];
@@ -131,7 +130,8 @@ function retour_ajout_post(reponse){
         type = 'success';
         notifier(message,type);
         ajout_post(post,"fildepost");
-
+        $('#id_titre').val('');
+    	$('#id_contenu').val('');
 
     } else {
         type = "danger";
