@@ -3,8 +3,10 @@
 
 	<div class="card card-post">
 
+		{% if p.0.auteur == utilisateur %}<div class="close title btn-edit" style="padding:10px"><p class=""><i class="ti-pencil"></i> Éditer</p></div>{% endif %}
+
 		<div class="header">
-		<h6><a href={% url 'noeud' p.0.noeud.id %}> {{p.0.noeud.label}} </a></h6>
+		<h6><a href="{% url 'noeud' p.0.noeud.id %}"> {{p.0.noeud.label}} </a></h6>
 		</div>
 
 		<div class="content">

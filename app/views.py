@@ -164,7 +164,7 @@ def noeud(request,noeud_id):
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
             'whatsUpId': noeud.question.id,
-            
+            'utilisateur':user,
         }
         return render(request,'noeud.html',context)
     else:
@@ -406,7 +406,7 @@ def profil(request) :
                 'profil':True,
                 'posts':posts,
                 'noeudsSuivis':noeudsSuivis,
-                'titre_page_':'Profil',
+                'titre_page':'Profil',
                 'whatsUpId':whatsUpId
     
             }
