@@ -14,6 +14,7 @@ class Command(BaseCommand):
                    'method_name': 'print',
                    'args':['Test command communicating']}
             MessageHandler.send_python(msg)
+
         except Exception as err:
             print('The following exception occured')
             traceback.print_tb(err.__traceback__)
