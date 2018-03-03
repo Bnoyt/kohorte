@@ -505,3 +505,27 @@ def vote(request):
         return JsonResponse({})
     else:
         return JsonResponse({})
+
+def posts_signales(request, project_id):
+    if request.user.is_authenticated: #plus tard il faudra que l'utilisateur soit modo ou admin
+        utilisateur = get_object_or_404(Utilisateur,user = request.user)
+        user = utilisateur.user
+        
+        type_signal = get_object_or_404(TypeVote, label='signal')
+        signalements = Vote.objects.filter(typeVote = type_signal).select_related('post')
+        posts = [v.post for v in signalements if v.post.question.id == int(project_id)]
+        postsToPrint = [(p, [], aVote(utilisateur, p)) for p in posts]
+        #for v in signalements:
+        #    if v.post.question.id == int(project_id):
+        #        posts.add((v.post, [], aVote(utilisateur, v.post)))
+        print(posts)
+            
+        context = {
+                'user':utilisateur,
+                'posts': postsToPrint,
+                'titre_page':'Posts signalés',
+                'whatsUpId':int(project_id),
+            }
+        return render(request, 'modo/posts_signales.html', context)
+        
+               

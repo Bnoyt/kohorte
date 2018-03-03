@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^(?P<project_id>[0-9]+)/hashtags/(?P<hashtag>[0-9a-zA-Z]+)/$',views.hashtags,name='hashtags'),
     url(r'^suivi_noeud/$',views.suivi_noeud,name='suivi_noeud'),
     url(r'^vote/$',views.vote,name='vote'),
+    url(r'^(?P<project_id>[0-9]+)/modo/signal$', views.posts_signales, name='posts_signales'),
 ]

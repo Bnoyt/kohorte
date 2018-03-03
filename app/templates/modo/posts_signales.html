@@ -1,0 +1,28 @@
+{% extends 'base.html' %} {% load static%} {% load app_filter %} {% block content %}
+
+
+
+ <div class="container-fluid">
+
+
+						<div class="row">
+						{% for p in posts %}
+							<div class="col-md-4 col-sm-6">
+							{% include "post-seul.html" with p=p %}
+							</div>
+						{% endfor %}
+						</div>
+
+
+		
+
+
+
+
+
+
+</div>
+
+
+
+{% endblock %}
