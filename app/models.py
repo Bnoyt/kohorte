@@ -32,6 +32,7 @@ class Utilisateur(models.Model):
         ('1', 'questionneur'),
         ('2', 'contributeur'),
     )
+    projetModo = models.ManyToManyField('Question', related_name='projetModo')
     profil = models.CharField(max_length=1, choices=DROITS, default='2')
 
     def __str__(self):
@@ -252,6 +253,19 @@ class Reputation(models.Model):
 
     def __str__(self):
         return str(self.user.user) + ' : ' + str(self.puissance)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Suggestion(models.Model):
     """La suggestion est un outil très orienté utilisateur
