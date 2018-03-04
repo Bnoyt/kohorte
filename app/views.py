@@ -150,6 +150,8 @@ def noeud(request,noeud_id):
 
         suivi = TypeSuivi.objects.filter(actif=True)
         suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi__in=suivi).exists()
+        
+        ideesTag = Tag.objects.filter(question=noeud.question)[:5]
 
         context = {
             'suivi':suivi,
@@ -165,6 +167,7 @@ def noeud(request,noeud_id):
             'noeudsAncetres': noeudsAncetres,
             'whatsUpId': noeud.question.id,
             'utilisateur':user,
+            'ideesTag':ideesTag,
         }
         return render(request,'noeud.html',context)
     else:
@@ -175,7 +178,7 @@ def whatsup(request, project_id):
         user = get_object_or_404(Utilisateur,user=request.user)
         question = get_object_or_404(Question, id=project_id)
     
-        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')    #.filter(objet.question=project_id)
+        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence') #.filter(objet.question=project_id)
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
         types_suivi_reel = TypeSuivi.objects.filter(actif=True)
@@ -516,7 +519,6 @@ def posts_signales(request, project_id):
             signalements = Vote.objects.filter(typeVote = type_signal).select_related('post')
             posts = [v.post for v in signalements if v.post.question == question]
             postsToPrint = [(p, [], aVote(utilisateur, p)) for p in posts]
-            print(posts)
                 
             context = {
                     'user':utilisateur,
