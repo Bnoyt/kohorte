@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
 
-from app.com.network import Main
-from app.com.config import MAIN_AS_DAEMON
+from app.backend.main import Main
+from app.backend.config import MAIN_AS_DAEMON
 
 def run():
     #TODO: put startup code here

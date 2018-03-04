@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
-from app.com.messaging import MessageHandler
+from app.backend.network import MessageHandler
 
 import app.models
 

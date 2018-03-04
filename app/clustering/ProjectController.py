@@ -17,7 +17,7 @@ from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
 import app.clustering.ClusteringAlgorithms as ClusterAlg
 import app.clustering.DatabaseAccess as DbAccess
-from app.com.messaging import MessageHandler
+from app.backend.network import MessageHandler
 
 
 class ProjectController(Thread):

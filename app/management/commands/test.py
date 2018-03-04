@@ -1,7 +1,7 @@
 import traceback
 
 from django.core.management.base import BaseCommand, CommandError
-from app.com.network import MessageHandler
+from app.backend.network import MessageHandler
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
@@ -13,7 +13,7 @@ class Command(BaseCommand):
             msg = {'type': 'command',
                    'method_name': 'print',
                    'args':['Test command communicating']}
-            MessageHandler.send_python(msg)
+            self.stdout.write(str(MessageHandler.send_recv_python(msg)))
 
         except Exception as err:
             print('The following exception occured')
