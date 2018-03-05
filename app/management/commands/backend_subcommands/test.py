@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+import traceback
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from app.backend.network import MessageHandler
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
@@ -8,6 +9,13 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('Command successfully registered')
+        try:
+            msg = {'type': 'command',
+                   'method_name': 'print',
+                   'args':['Test command communicating']}
+            MessageHandler.send_python(msg)
 
-
+        except Exception as err:
+            print('The following exception occured')
+            traceback.print_tb(err.__traceback__)
+            print(err)

@@ -14,6 +14,7 @@ class Main(Server):
         super().__init__(name)
         self.destinations = {'command': self}
         self.command_queues = {}
+        self.controllers = {}
 
     def _init_projects(self):
         import app.models
@@ -24,6 +25,7 @@ class Main(Server):
             command_queue = queue.Queue()
             self.print('Creating thread for project %s' % project_id)
             controller = ProjectController(project_id, command_queue)
+            self.controllers[project_id] = controller
             self.destinations[project_id] = controller.get_graph_modifier()
             self.command_queues[project_id] = command_queue
             controller.daemon = CONTROLLERS_AS_DAEMON
@@ -33,9 +35,9 @@ class Main(Server):
         pass
 
     def handle_message(self, msg, client, info):
-        output = MessageHandler.route_json(msg, self.destinations)
+        output = MessageHandler.route_json(msg, self.destinations, self.print)
         if output:
-            json = MessageHandler.encode_python(output)
+            json = MessageHandler.encode_python(output, self.print)
             MessageHandler.send_over(json.encode(), client)
 
     def preinit(self):
@@ -46,3 +48,10 @@ class Main(Server):
 
     def exception(self):
         raise SystemError
+
+    def list_projects(self):
+        import app.models
+        project_ids = [int(p.id) for p in app.models.Question.objects.all()]
+        started = list(self.controllers.keys())
+        return [(project_id, (1 if project_id in started else 0))
+                for project_id in project_ids]
