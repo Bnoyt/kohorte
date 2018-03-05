@@ -79,13 +79,13 @@ class MessageHandler:
     @staticmethod
     def send_python(msg):
         try:
-            msg = json.dumps(msg, separators=(',', ':'))
+            json_msg = json.dumps(msg, separators=(',', ':'))
         except Exception as err:
             if not ERROR_HANDLING:
                 raise
             pass
         else:
-            MessageHandler.send_json(msg)
+            MessageHandler.send_json(json_msg)
         pass
 
     @staticmethod
@@ -206,7 +206,7 @@ class Server(Thread):
                 self.clients.append(client)
                 self.infos[client] = infos
             else:
-                print('refused connexion from %s' % infos)
+                self.print('refused connexion from %s' % infos)
                 client.close()
 
     def _listen_clients(self, timeout):
@@ -234,8 +234,8 @@ class Server(Thread):
         if LOG_THREAD:
             if timer() - self.time > 5:
                 self.time = timer()
-                print('Thread %s is still alive' % self.name)
-                print(self.socks)
+                self.print('Thread %s is still alive' % self.name)
+                self.print(self.socks)
 
     def _handle_message(self, msg, client, info):
         try:
@@ -244,23 +244,26 @@ class Server(Thread):
             #TODO: Handle Exceptions
             pass
         else:
-            self.handle_message(self, msg, client, info)
+            self.handle_message(msg, client, info)
 
     def run(self):
         try:
             self.preinit()
+            #count = 0
             while True:
+                #self.print('Entering loop for the %s time' % count)
+                #count += 1
                 self._get_clients(0.05)
                 self._listen_clients(0.05)
         except Exception as err:
-            print('The following exception occured in thread %s:\n' % self.name)
+            self.print('The following exception occured in thread %s:\n' % self.name)
             traceback.print_tb(err.__traceback__)
-            print(err)
+            self.print(err)
         finally:
-            print('Closing ports used by backend ...')
+            self.print('Closing ports used by backend ...')
             for sock in self.socks:
                 sock.close()
-            print('Done.')
+            self.print('Done.')
         pass
 
     def preinit(self):
@@ -272,6 +275,9 @@ Used for initializing the thread"""
         """Handles the message received from clients. msg is of type str
 For handling the message before byte decoding, see _handle_message"""
         pass
+
+    def print(self, *args, **kwargs):
+        print(*['[BACKEND][Thread %s] ' % self.name + str(arg) for arg in args], **kwargs)
 
 
     pass

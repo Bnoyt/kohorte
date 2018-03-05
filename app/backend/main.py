@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
-from threading import Thread
 import queue
 
 
@@ -20,32 +18,31 @@ class Main(Server):
     def _init_projects(self):
         import app.models
         project_ids = [int(p.id) for p in app.models.Question.objects.all()]
+        self.print('The list of projects is as follows : %s' % project_ids)
 
         for project_id in project_ids:
             command_queue = queue.Queue()
+            self.print('Creating thread for project %s' % project_id)
             controller = ProjectController(project_id, command_queue)
-            self.destination[project_id] = controller.get_graph_modifier()
+            self.destinations[project_id] = controller.get_graph_modifier()
             self.command_queues[project_id] = command_queue
             controller.daemon = CONTROLLERS_AS_DAEMON
+            self.print('Starting thread for project %s' % project_id)
             controller.start()
-            sys.stdout.write('[BACKEND] Started backend thread for project %s' % project_id)
-            sys.stdout.flush()
+            self.print('Started ProjectController thread for project %s' % project_id)
         pass
 
     def handle_message(self, msg, client, info):
         output = MessageHandler.route_json(msg, self.destinations)
         if output:
             json = MessageHandler.encode_python(output)
-            MessageHandler.send_over(json, client)
+            MessageHandler.send_over(json.encode(), client)
 
     def preinit(self):
-        self._init_socket(SERVER_PORT)
+        self.print('Starting main backend thread %s' % self.name)
         self._init_projects()
-
-    def print(self, *args, **kwargs):
-        #sys.stdout.write(*args, **kwargs)
-        print(*args, **kwargs)
-        #sys.stdout.flush()
+        self._init_socket(SERVER_PORT)
+        self.print('Done starting main backend thread %s' % self.name)
 
     def exception(self):
         raise SystemError

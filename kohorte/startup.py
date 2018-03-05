@@ -6,7 +6,7 @@ from app.backend.config import MAIN_AS_DAEMON
 
 def run():
     #TODO: put startup code here
-    t = Main('backend - Main')
+    t = Main('BACKEND_main')
     t.daemon = MAIN_AS_DAEMON
     t.start()
     time.sleep(0.2)
