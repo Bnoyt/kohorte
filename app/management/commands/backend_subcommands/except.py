@@ -7,8 +7,8 @@ from app.backend.network import MessageHandler
 
 class Command(BaseCommand):
 
-    def handle(self, *args, **kwargs):
-        msg = {'type': 'command',
-               'method_name': 'stop_backend'}
-        MessageHandler.send_python(msg)
 
+    def handle(self, *args, **options):
+        msg = {'type': 'command',
+               'method_name': 'exception'}
+        MessageHandler.send_python(msg)

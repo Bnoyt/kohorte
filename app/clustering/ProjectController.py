@@ -17,7 +17,7 @@ from app.clustering.GraphModifier import GraphModifier
 import app.clustering.parameters as param
 import app.clustering.ClusteringAlgorithms as ClusterAlg
 import app.clustering.DatabaseAccess as DbAccess
-from app.com.messaging import MessageHandler
+from app.backend.network import MessageHandler
 
 
 class ProjectController(Thread):
@@ -27,8 +27,7 @@ class ProjectController(Thread):
     # graph_loaded est un boolean indiquant si le supergraph est actuelement chargé
 
     def __init__(self, database_id, command_queue):
-        Thread.__init__(self)
-
+        super().__init__()
         self.database_id = database_id
 
         self.path = Path(param.memory_path) / str(database_id)
@@ -69,7 +68,8 @@ class ProjectController(Thread):
         self.open_algo_log_file = self.projectLogger.log_nothing()
         self.open_modif_log_file = self.projectLogger.log_nothing()
 
-        self.run()
+        ##NE PAS APPELER self.run : C'EST AU THREAD DEMARRANT CELUI-LA D'APPELER
+        ## self.strat() SUR UN OBJECT THREAD !!!!!!!
 
     def get_graph_modifier(self):
         return GraphModifier(self.modification_queue)
