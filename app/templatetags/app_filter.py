@@ -64,6 +64,12 @@ def rendusafe(texte, id_question, limit=0):
 	texte = markdownify(texte)
 	return texte
 
+@register.filter(name="markdownify")
+def markdownifyFilter(texte):
+	texte = str(texte)
+	texte = markdownify(texte)
+	return texte
+
 @register.filter(name="menumessagerie")
 def menumessagerie(path):
 	a = path.split("/")

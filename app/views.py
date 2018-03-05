@@ -235,16 +235,17 @@ def parametres(request):
         return HttpResponseRedirect(reverse('index'))
         
 def include_tags(postHTTP, post):
-  tags = trouver_hashtags(postHTTP['contenu'])
+  tags_list_texts = trouver_hashtags(postHTTP['contenu'])
   
-  for tag in tags:
-      t = Tag.objects.filter(label=tag).filter(question=post.question)
-      if len(t) == 0:
-          t = Tag(label = tag, question=post.question)
-          t.save()
+  for tag_text in tags_list_texts:
+      tags_query = Tag.objects.filter(label=tag_text).filter(question=post.question)
+      if len(tags_query) == 0:
+          tag_object = Tag(label = tag_text, question=post.question)
+          tag_object.save()
       else:
-          t = t[0]
-      post.tags.add(t)
+          tag_object = tags_query[0]
+      if tag_object not in post.tags:
+          post.tags.add(tag_object)
   pass
 
 
@@ -322,6 +323,35 @@ def ajouter_commentaire(request):
 
 
         return JsonResponse({'texte':texte,'post':publication,'id_pere':post['pere']})
+    else:
+        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+
+def edit_message(request):
+    if request.user.is_authenticated:
+        post = request.POST
+
+        publication="rien"
+
+        if post['contenu'] != '':
+            texte = "succes"
+            question = get_object_or_404(Question,pk=int(post['id_question']))
+            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
+            noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+            auteur = get_object_or_404(Utilisateur,user=request.user)
+            postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
+            postToEdit.contenu = post['contenu']
+            postToEdit.save()
+            
+            include_tags(post, postToEdit)
+            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
+            template = loader.get_template('commentaire.html')
+            context={'c':(postToEdit,[], {})}
+            publication = template.render(context,request)
+        else:
+            texte = 'pasdecontenu'
+
+
+        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
     else:
         return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
 
