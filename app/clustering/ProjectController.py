@@ -99,7 +99,7 @@ class ProjectController(Thread):
 
             self.apply_modifications(expect_errors=True)
 
-        except (err.LoadingError, err.GraphError, nx.NetworkXError) as error:
+        except (err.DatabaseError, err.GraphError, nx.NetworkXError) as error:
             self.graphIsLoading = False
             self.theGraph = None
             print("Error while loeading graph from database : ")
