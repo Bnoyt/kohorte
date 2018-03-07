@@ -30,6 +30,8 @@ class ProjectController(Thread):
         super().__init__()
         self.database_id = database_id
 
+        self.projectParam = ProjectParameters()
+
         self.path = Path(param.memory_path) / str(database_id)
         try:
             with (self.path / "control.txt").open('r') as control_file:
@@ -68,8 +70,8 @@ class ProjectController(Thread):
         self.open_algo_log_file = self.projectLogger.log_nothing()
         self.open_modif_log_file = self.projectLogger.log_nothing()
 
-        ##NE PAS APPELER self.run : C'EST AU THREAD DEMARRANT CELUI-LA D'APPELER
-        ## self.strat() SUR UN OBJECT THREAD !!!!!!!
+        # NE PAS APPELER self.run : C'EST AU THREAD DEMARRANT CELUI-LA D'APPELER
+        # self.strat() SUR UN OBJECT THREAD !!!!!!!
 
     def get_graph_modifier(self):
         return GraphModifier(self.modification_queue)
@@ -216,6 +218,7 @@ class ProjectController(Thread):
 
                     self.update_suggestions()
 
+
                 except (err.GraphError, nx.NetworkXError):
                     # There are two possibilities for how a GraphError can be caught here
                     # possibility 1 : a procedure below decided that things were out of control and the graph needed
@@ -232,71 +235,16 @@ class ProjectController(Thread):
         # TODO : clean shutdown code
         print("shutting down")
 
-    def _handle_command(self, msg):
-        MessageHandler.handle_json(msg, self)
-        pass
-
-    def handle_commands(self):
-        try:
-            while True:
-                msg = self.command_queue.get_nowait()
-                self._handle_command(msg)
-        except queue.Empty:
-            pass
-        pass
-
-    #The following code is an example for making a difference between command
-    #type and handling them at separated time
-    def _command_name_here(self, *args, **kwargs):
-        #this is invoked by handle_commands
-        #the handling is then schedule to a different time because it
-        #cannot be handled now
-        self._command_category.append({'method_name':'handling_method_name',
-                                       'args': args,
-                                       'kwargs': kwargs})
-
-    def _handle_category(self):
-        for command in self._command_category:
-            MessageHandler.handle_decoded(command, self)
-
-    def _handling_method_name(self, *args, **kwargs):
-        #Actually do something here
-        pass
-    #------------------------------------------------------
-
-    #Another idea for handling methods
-    def _another_command_name_here(self, *args, **kwargs):
-        #self.CONFIG or another variable is used to determine if the command
-        #can be handled now
-        if self.CONFIG['UNIQUE_KEY_FOR_THIS_COMMAND']:
-            #now this command can be handled
-            #do something
-            pass
-        else:
-            #command is delayed
-            self.delayed.put({'method_name':'_another_command_name_here',
-                              'args': args,
-                              'kwargs': kwargs})
-
-    def schedule_delayed_commands(self):
-        #INLY USE THIS WHEN handle_commands HAS TERMINATED
-        #OTHERISE, IT MIGHT CREATE AN INFINITE LOOP
-        #MOREOVER, queue.queue EXPLICITELY DOESN'T SUPPORT MULTIPLE ACCESS FROM
-        #THE SAME THREAD
-        for command in self.delayed:
-            self.command_queue.put(command)
-    #END OF SECOND IDEA -------------------------------------------------------
-
-
 
 class CommandHandler:
-    def __init__(self, control_queue):
-        self._control_queue = control_queue
+    def __init__(self, command_queue):
+        self._command_queue = command_queue
         self._shutdown_requested = False
+        self.parameter_updates = []
 
     def read_commands(self):
-        while not self._control_queue.empty():
-            instruction = self._control_queue.get()
+        while not self._command_queue.empty():
+            instruction = self._command_queue.get()
             if instruction == param.shutdown_command:
                 print("shutdown request aknowledged")
                 self._shutdown_requested = True
@@ -305,4 +253,93 @@ class CommandHandler:
         self.read_commands()
         return self._shutdown_requested
 
-#print("Project controller successfully imported")
+    def _handle_command(self, msg):
+        MessageHandler.handle_json(msg, self)
+        pass
+
+    def handle_commands(self):
+        try:
+            while True:
+                msg = self._command_queue.get_nowait()
+                self._handle_command(msg)
+        except queue.Empty:
+            pass
+        pass
+
+    # The following code is an example for making a difference between command
+    # type and handling them at separated time
+    def _command_name_here(self, *args, **kwargs):
+        # this is invoked by handle_commands
+        # the handling is then schedule to a different time because it
+        # cannot be handled now
+        self._command_category.append({'method_name': 'handling_method_name',
+                                       'args': args,
+                                       'kwargs': kwargs})
+
+    def _shutdown(self):
+        self._shutdown_requested = True
+
+    def _change_algorithm_parameters(self, *args, **kwargs):
+        self.parameter_updates.append({'args': args, 'kwargs': kwargs})
+
+    def _handle_category(self):
+        for command in self._command_category:
+            MessageHandler.handle_decoded(command, self)
+
+    def _handling_method_name(self, *args, **kwargs):
+        # Actually do something here
+        pass
+    # ------------------------------------------------------
+
+    # Another idea for handling methods
+    def _another_command_name_here(self, *args, **kwargs):
+        # self.CONFIG or another variable is used to determine if the command
+        # can be handled now
+        if self.CONFIG['UNIQUE_KEY_FOR_THIS_COMMAND']:
+            # now this command can be handled
+            # do something
+            pass
+        else:
+            # command is delayed
+            self.delayed.put({'method_name':'_another_command_name_here',
+                              'args': args,
+                              'kwargs': kwargs})
+
+    def schedule_delayed_commands(self):
+        # ONLY USE THIS WHEN handle_commands HAS TERMINATED
+        # OTHERISE, IT MIGHT CREATE AN INFINITE LOOP
+        # MOREOVER, queue.queue EXPLICITELY DOESN'T SUPPORT MULTIPLE ACCESS FROM
+        # THE SAME THREAD
+        for command in self.delayed:
+            self._command_queue.put(command)
+    # END OF SECOND IDEA -------------------------------------------------------
+
+
+class ProjectParameters:
+
+    def __init__(self):
+        self.dictionnary = {}
+        self.assertions = {}
+
+    def write_to_file(self, csv_file):
+
+        csv_file.writerow(["time_dilation", self.time_dilation])
+
+    def read_from_file(self, csv_file):
+
+        self.time_dilation = csv_file.readrow()[1]
+
+    def verify_value(self, key, value):
+        if key not in self.dictionnary:
+            print(key + " is not a valid parameter")
+            return False
+        if key in self.assertions:
+            if not self.assertions[key](value):
+                print(str(value) + " is not a valid value for parameter " + key)
+                return False
+        return True
+
+    def update_parameters(self, kwargs):
+        for key in kwargs:
+            if self.verify_value(key, kwargs[key]):
+                self.dictionnary[key] = kwargs[key]

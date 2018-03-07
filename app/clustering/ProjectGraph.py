@@ -12,9 +12,10 @@ import app.clustering.parameters as param
 
 
 class ProjectGraph:
-    def __init__(self, projectController, projectLogger, pg=None, cfg=None):
+    def __init__(self, projectController, projectLogger, projectParam, pg=None):
         self.projectController = projectController
         self.projectLogger = projectLogger
+        self.projectParam = projectParam
 
         self.branch_instructions = []
 
@@ -38,14 +39,6 @@ class ProjectGraph:
             self.databaseTagIDMap = pg.databaseTagIDMap
             self.databaseCitationIDMap = pg.databaseCitationIDMap
             self.databaseVoteIDMap = pg.databaseVoteIDMap
-
-        if cfg is None:
-
-            self.time_dilation = 1.0
-
-        else:
-
-            self.time_dilation = cfg.time_dilation
 
     def load_from_database(self, database_access: dba.DatabaseAccess):
 
@@ -87,7 +80,7 @@ class ProjectGraph:
                 n0 = self.databaseTagIDMap[edge[0]]
                 n1 = self.databasePostIDMap[edge[1]]
                 k = 0
-                edge_key = param.tagged_with
+                edge_key = self.param.tagged_with
                 while n1 in self.baseGraph[n0] and (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
                 self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
@@ -221,17 +214,3 @@ class PickleAnalysis:
     def __init__(self, pg: ProjectGraph):
         pass
 
-
-class CSVConfigs:
-
-    def __init__(self, pg: ProjectGraph):
-
-        self.time_dilation = pg.time_dilation
-
-    def write_to_file(self, csv_file):
-
-        csv_file.writerow(["time_dilation", self.time_dilation])
-
-    def read_from_file(self, csv_file):
-
-        self.time_dilation = csv_file.readrow()[1]
