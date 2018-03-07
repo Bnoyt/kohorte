@@ -296,3 +296,4 @@ class RelationUserSuivi(models.Model):
     def __str__(self):
         return str(self.type_suivi) + " -- " + str(self.user) + " -- " + str(self.noeud)
 
+

@@ -31,7 +31,7 @@
 			<div class="contenu" name="edit-{{p.0.id}}" id="edit_{{p.0.id}}" hidden>
 				<div class="row">
 					<div class="col-xs-12">
-						<p>							
+						<p>
 							<form method="post" class="form-edit" id="contenuForm_{{p.0.id}}">
 								{% csrf_token %}
 								<textarea class="form-control message border-input" type="text" rows="1" id="champEdit_{{p.0.id}}" value={{p.0.contenu|markdownify|safe}}></textarea>

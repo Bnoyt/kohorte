@@ -1,6 +1,7 @@
 from .models import *
 from bs4 import *
 from django.utils.safestring import mark_safe
+from django.utils.encoding import uri_to_iri
 from markdownx.utils import markdownify
 from notify.signals import notify
 
@@ -15,6 +16,7 @@ from django.template import loader
 from django.contrib.auth.models import User
 
 def trouver_hashtags(texte):
+    #utiliser regex
     n = len(texte)
     a = 0
     tags = []
@@ -166,8 +168,7 @@ def noeud(request,noeud_id):
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
             'whatsUpId': noeud.question.id,
-            'utilisateur':user,
-            'ideesTag':ideesTag,
+            'nouveau_nom':True,
         }
         return render(request,'noeud.html',context)
     else:
@@ -178,7 +179,7 @@ def whatsup(request, project_id):
         user = get_object_or_404(Utilisateur,user=request.user)
         question = get_object_or_404(Question, id=project_id)
     
-        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence') #.filter(objet.question=project_id)
+        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')    #.filter(objet.question=project_id)
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
         types_suivi_reel = TypeSuivi.objects.filter(actif=True)
@@ -244,7 +245,7 @@ def include_tags(postHTTP, post):
           tag_object.save()
       else:
           tag_object = tags_query[0]
-      if tag_object not in post.tags:
+      if tag_object not in post.tags.all():
           post.tags.add(tag_object)
   pass
 
@@ -296,6 +297,36 @@ def epingler(request):
     else:
         return JsonResponse({"texte":"vafanculo",'post':'arrete gros'})
 
+def edit_message(request):
+    if request.user.is_authenticated:
+        post = request.POST
+
+        publication="rien"
+
+        if post['contenu'] != '':
+            texte = "succes"
+            question = get_object_or_404(Question,pk=int(post['id_question']))
+            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
+            noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+            auteur = get_object_or_404(Utilisateur,user=request.user)
+            postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
+            postToEdit.contenu = post['contenu']
+            postToEdit.save()
+            
+            include_tags(post, postToEdit)
+            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
+            template = loader.get_template('commentaire.html')
+            context={'c':(postToEdit,[], {})}
+            publication = template.render(context,request)
+        else:
+            texte = 'pasdecontenu'
+
+
+        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
+    else:
+        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+
+
 def ajouter_commentaire(request):
     if request.user.is_authenticated:
         post = request.POST
@@ -323,35 +354,6 @@ def ajouter_commentaire(request):
 
 
         return JsonResponse({'texte':texte,'post':publication,'id_pere':post['pere']})
-    else:
-        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
-
-def edit_message(request):
-    if request.user.is_authenticated:
-        post = request.POST
-
-        publication="rien"
-
-        if post['contenu'] != '':
-            texte = "succes"
-            question = get_object_or_404(Question,pk=int(post['id_question']))
-            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
-            noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
-            auteur = get_object_or_404(Utilisateur,user=request.user)
-            postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
-            postToEdit.contenu = post['contenu']
-            postToEdit.save()
-            
-            include_tags(post, postToEdit)
-            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
-            template = loader.get_template('commentaire.html')
-            context={'c':(postToEdit,[], {})}
-            publication = template.render(context,request)
-        else:
-            texte = 'pasdecontenu'
-
-
-        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
     else:
         return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
 
@@ -479,6 +481,7 @@ def profil(request) :
     
     
 def hashtags(request,project_id,hashtag):
+    #hashtag = uri_to_iri(hashtag) #les caracteres speciaux etaient transformes
     if request.user.is_authenticated:
         utilisateur = get_object_or_404(Utilisateur, user=request.user)
         q = get_object_or_404(Question, id=project_id)
@@ -559,5 +562,4 @@ def posts_signales(request, project_id):
             return render(request, 'modo/posts_signales.html', context)
         else:
             return HttpResponseRedirect(reverse('index'))
-        
-               
+

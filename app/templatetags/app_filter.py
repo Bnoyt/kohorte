@@ -3,6 +3,7 @@ from ..models import *
 from bs4 import BeautifulSoup
 from markdownx.utils import markdownify
 from django.utils.safestring import mark_safe
+from django.utils.http import urlquote_plus
 import re
 
 register = template.Library()
@@ -47,9 +48,10 @@ def remplacer_hashtag(texte, question):
 		pass
 
 	q = question
-	hashtags = re.findall(r"\\#[A-Za-z1-9]+",new_texte,re.S)
+	hashtags = re.findall(r"\\#\w+",new_texte,re.S)
 	for h in hashtags:
-		t = """<a href = '/"""+str(q)+ """/hashtags/""" + h[2:] + """/'> """ + h + """ </a> """
+		t = "<a href = '/{question}/hashtags/{hashtag}/'> {display} </a>".format(question = str(q), hashtag = urlquote_plus(h[2:]), display = h)
+		#t = """<a href = '/"""+str(q)+ """/hashtags/""" + h[2:] + """/'> """ + h + """ </a> """
 		new_texte = new_texte.replace(h,t)
 	return new_texte
 
@@ -67,6 +69,7 @@ def rendusafe(texte, id_question, limit=0):
 @register.filter(name="markdownify")
 def markdownifyFilter(texte):
 	texte = str(texte)
+	texte = BeautifulSoup(texte,"lxml").text
 	texte = markdownify(texte)
 	return texte
 
