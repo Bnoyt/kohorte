@@ -1,12 +1,13 @@
 {% load app_filter %}
 
+
 <div class="col-12">
 	<a href="javascript:ajouter_citation('{{citation}}')">
 	    <div class="card" style="margin:10px">
 
 	        <div class="content">
 
-	        	{{citation|rendusafe|safe}}
+	        	{{citation|rendusafe:question.id|safe}}
 	            
 	        </div>
 

@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from markdownx.utils import markdownify
 from notify.signals import notify
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
@@ -60,7 +60,7 @@ def page_login(request):
 def page_register(request):
     context = {}
     if request.user.is_authenticated:
-        return render(request, 'content_index.html', context)
+        return redirect(index)
     post = request.POST
     if 'username' in post and 'email' in post and 'mdp' and 'mdp2' in post:
         if User.objects.filter(email=post['email']).exists() or User.objects.filter(username=post['username']).exists():
@@ -90,21 +90,23 @@ def index(request):
     context = {'whatsUpId':-1}
     if request.user.is_authenticated:
         user = get_object_or_404(Utilisateur, user=request.user)
+        types_suivi_reel = TypeSuivi.objects.filter(actif=True)
         
-        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]        
+        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user,type_suivi__in=types_suivi_reel)]        
         printRecap = [recapProjet(q, user.user) for q in list(set(projSuivis))]
         
         context['user'] = user
         context['printRecap'] = printRecap
-        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]
+        
         if len(projSuivis)==1:
             context['whatsUpId'] = projSuivis[0]
+            return redirect(whatsup, projSuivis[0].id)
+        else:
+            return render(request, 'index.html', context)
         
     else:
-        #TODO: handle unlogged user
-        pass
-
-    return render(request, 'index.html', context)
+        return redirect(page_login)
+    pass
 
 def recapProjet(question, user):
     nbPosts = Post.objects.filter(question=question).count()
@@ -139,7 +141,6 @@ def noeud(request,noeud_id):
         
         posts = [(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres] #les descendants des postsPere encore dans le noeud.
 
-
         #pour la navigation entre les noeuds dans l'alpha
         noeudsFamille = [(parente.ideeSource, [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = parente.ideeSource)]) for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
         noeudsFils = [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = noeud)]
@@ -147,8 +148,10 @@ def noeud(request,noeud_id):
 
         citations = [c for c in Citation.objects.filter(rapporteur=user) if c.post.question==noeud.question]
 
-        suivi_simple = TypeSuivi.objects.filter(pk=1)
-        suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi=suivi_simple).exists()
+        suivi = TypeSuivi.objects.filter(actif=True)
+        suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi__in=suivi).exists()
+        
+        ideesTag = Tag.objects.filter(question=noeud.question)[:5]
 
         context = {
             'suivi':suivi,
@@ -158,11 +161,13 @@ def noeud(request,noeud_id):
             'question':noeud.question,    
             'titre_page':'Noeud : ' +  noeud.label,
             'citations':["{{" + str(i.id) + "}}" for i in citations],
+            'vraiCitation':citations,
             'noeudsFamille':noeudsFamille,
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
             'whatsUpId': noeud.question.id,
-            
+            'utilisateur':user,
+            'ideesTag':ideesTag,
         }
         return render(request,'noeud.html',context)
     else:
@@ -173,10 +178,11 @@ def whatsup(request, project_id):
         user = get_object_or_404(Utilisateur,user=request.user)
         question = get_object_or_404(Question, id=project_id)
     
-        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence')    #.filter(objet.question=project_id)
+        sugg = Suggestion.objects.filter(userVise=user).order_by('-pertinence') #.filter(objet.question=project_id)
         suggPrint = [recapNoeud(s.objet, user.user) for s in sugg]
     
-        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user) if r.noeud.question == question]
+        types_suivi_reel = TypeSuivi.objects.filter(actif=True)
+        noeudsSuivis = [r.noeud for r in RelationUserSuivi.objects.filter(user=user,type_suivi__in=types_suivi_reel) if r.noeud.question == question]
         posts = [(p, [], aVote(user, p)) for p in Post.objects.filter(noeud__in=noeudsSuivis, question=project_id)]
         
         printRecap = [recapNoeud(n, user.user) for n in noeudsSuivis]
@@ -215,6 +221,8 @@ def suggestions(request):
             'listSugg':listSugg,
             }
         return render(request, 'suggestions.html', context)
+    else:
+        return redirect(index)
 
 
 def parametres(request):
@@ -225,6 +233,20 @@ def parametres(request):
         return render(request,'parametres.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
+        
+def include_tags(postHTTP, post):
+  tags_list_texts = trouver_hashtags(postHTTP['contenu'])
+  
+  for tag_text in tags_list_texts:
+      tags_query = Tag.objects.filter(label=tag_text).filter(question=post.question)
+      if len(tags_query) == 0:
+          tag_object = Tag(label = tag_text, question=post.question)
+          tag_object.save()
+      else:
+          tag_object = tags_query[0]
+      if tag_object not in post.tags:
+          post.tags.add(tag_object)
+  pass
 
 
 def ajouter_post(request):
@@ -239,19 +261,11 @@ def ajouter_post(request):
             question = get_object_or_404(Question,pk=int(post['id_question']))
             noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
             auteur = get_object_or_404(Utilisateur,user=request.user)
-            tags = trouver_hashtags(post['contenu'])
 
             p = Post(titre=post['titre'],contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             p.save()
             
-            for tag in tags:
-                t = Tag.objects.filter(label=tag).filter(question=question)
-                if len(t) == 0:
-                    t = Tag(label = tag, question=question)
-                    t.save()
-                else:
-                    t = t[0]
-                p.tags.add(t)
+            include_tags(post, p)
             
             
 
@@ -297,10 +311,11 @@ def ajouter_commentaire(request):
             pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
             c = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             c.save()
+            
+            include_tags(post, c)
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('commentaire.html')
-            context={'c':[c,[]]
-            }
+            context={'c':(c,[], {})}
             publication = template.render(context,request)
             notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', nf_type='answer')
         else:
@@ -308,6 +323,35 @@ def ajouter_commentaire(request):
 
 
         return JsonResponse({'texte':texte,'post':publication,'id_pere':post['pere']})
+    else:
+        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+
+def edit_message(request):
+    if request.user.is_authenticated:
+        post = request.POST
+
+        publication="rien"
+
+        if post['contenu'] != '':
+            texte = "succes"
+            question = get_object_or_404(Question,pk=int(post['id_question']))
+            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
+            noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+            auteur = get_object_or_404(Utilisateur,user=request.user)
+            postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
+            postToEdit.contenu = post['contenu']
+            postToEdit.save()
+            
+            include_tags(post, postToEdit)
+            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
+            template = loader.get_template('commentaire.html')
+            context={'c':(postToEdit,[], {})}
+            publication = template.render(context,request)
+        else:
+            texte = 'pasdecontenu'
+
+
+        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
     else:
         return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
 
@@ -326,6 +370,8 @@ def ajouter_reponse(request):
             pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
             r = Post(pere=pere,contenu=post['contenu'],question=question,noeud=noeud,auteur=auteur)
             r.save()
+            
+            include_tags(post, r)
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('reponse.html')
             context={'r':[r,[]]
@@ -350,8 +396,9 @@ def sauvegarder_citation(request):
         c = Citation(auteur=publication.auteur,post=publication,contenu=contenu,rapporteur=rapporteur)
         #create_quote(publication.id, rapporteur.id) TODO gm
         c.save()
+        question=publication.question
         template = loader.get_template('citation.html')
-        context={'citation':'{{' + str(c.id) + '}}'}
+        context={'citation':'{{' + str(c.id) + '}}',"question":question}
         contenu = template.render(context,request)
 
         return JsonResponse({'contenu':contenu,'id_citation':c.id})
@@ -392,7 +439,7 @@ def profil(request) :
                 'profil':True,
                 'posts':posts,
                 'noeudsSuivis':noeudsSuivis,
-                'titre_page_':'Profil',
+                'titre_page':'Profil',
                 'whatsUpId':whatsUpId
     
             }
@@ -433,12 +480,16 @@ def profil(request) :
     
 def hashtags(request,project_id,hashtag):
     if request.user.is_authenticated:
+        utilisateur = get_object_or_404(Utilisateur, user=request.user)
         q = get_object_or_404(Question, id=project_id)
         t = get_object_or_404(Tag,label=hashtag,question=q)
         
-        posts = t.postTagues()
+        posts = [(p, [], aVote(utilisateur, p)) for p in  t.postTagues()]
 
-        context = {'posts':posts}
+        context = {
+        'posts':posts,
+        'titre_page' : "#" + t.label,
+        }
 
 
         
@@ -450,14 +501,22 @@ def suivi_noeud(request):
     if request.user.is_authenticated:
         utilisateur = get_object_or_404(Utilisateur,user = request.user)
         post = request.POST
-        type_suivi = get_object_or_404(TypeSuivi, pk=1)
+        type_suivi_simple = get_object_or_404(TypeSuivi, label="suivi simple")
+        type_suivi_unactivated = get_object_or_404(TypeSuivi, label="post puis unfollow")
+        types_suivi_reel = TypeSuivi.objects.filter(actif=True)
         noeud = get_object_or_404(Noeud,pk = int(post["id_noeud"]))
-        if post["type"] == "suivre" and not(RelationUserSuivi.objects.filter(noeud=noeud,type_suivi=type_suivi,user=utilisateur).exists()):
-            relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi,user=utilisateur)
+        if post["type"] == "suivre" and not (RelationUserSuivi.objects.filter(user=utilisateur,noeud=noeud,type_suivi__in=types_suivi_reel).exists()):
+            if (RelationUserSuivi.objects.filter(user=utilisateur,noeud=noeud).exclude(type_suivi__in= types_suivi_reel).exists()):
+                relation_suivi = get_object_or_404(RelationUserSuivi,user=utilisateur, noeud=noeud, type_suivi = type_suivi_unactivated)
+                relation_suivi.type_suivi = type_suivi_simple
+                relation_suivi.save()
+            else:
+                relation_suivi = RelationUserSuivi(noeud=noeud,type_suivi=type_suivi_simple,user=utilisateur)
+                relation_suivi.save()
+        elif post["type"] == "desuivre" and (RelationUserSuivi.objects.filter(user=utilisateur,noeud=noeud).exists()):
+            relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,user=utilisateur)
+            relation_suivi.type_suivi = type_suivi_unactivated
             relation_suivi.save()
-        elif post["type"] == "desuivre":
-            relation_suivi = get_object_or_404(RelationUserSuivi,noeud=noeud,type_suivi=type_suivi,user=utilisateur)
-            relation_suivi.delete()
         return JsonResponse({})
     else:
         return JsonResponse({})
@@ -479,3 +538,26 @@ def vote(request):
         return JsonResponse({})
     else:
         return JsonResponse({})
+
+def posts_signales(request, project_id):
+    if request.user.is_authenticated: #plus tard il faudra que l'utilisateur soit modo ou admin
+        utilisateur = get_object_or_404(Utilisateur,user = request.user)
+        user = utilisateur.user
+        question = get_object_or_404(Question,pk=int(project_id))
+        if question in utilisateur.projetModo.all():
+            type_signal = get_object_or_404(TypeVote, label='signal')
+            signalements = Vote.objects.filter(typeVote = type_signal).select_related('post')
+            posts = [v.post for v in signalements if v.post.question == question]
+            postsToPrint = [(p, [], aVote(utilisateur, p)) for p in posts]
+                
+            context = {
+                    'user':utilisateur,
+                    'posts': postsToPrint,
+                    'titre_page':'Posts signalés',
+                    'whatsUpId':question.id,
+                }
+            return render(request, 'modo/posts_signales.html', context)
+        else:
+            return HttpResponseRedirect(reverse('index'))
+        
+               

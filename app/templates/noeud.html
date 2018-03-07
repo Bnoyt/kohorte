@@ -6,9 +6,6 @@
 
 {% block content %}
 
-
-
-
 <div style = "position: fixed;bottom: 50px;right: 70px;z-index: 99;"><button class="btn btn-rounded btn-fill btn-primary" data-toggle="modal" data-target="#nouveau_post"><i class="ti-pencil"></i> Écrire un nouveau post</button></div>
 
 <div style = "position: fixed;bottom: 100px;right: 70px;z-index: 99;"  id="btn-epingle-s" {% if suivi %} hidden {% endif %}><button class="btn btn-rounded btn-fill btn-success"><i class="ti-pin-alt"></i> Suivre</button></div>
@@ -69,7 +66,7 @@
 	  {% if noeudsFils %}
 	  <div class="alert alert-warning">
 	    <!-- <button type="button" aria-hidden="true" class="close">×</button> -->
-	    <span><b> Nœud split - </b> Ce nœud a maintenant des enfants : {% for n in noeudsFils %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> {% endfor %} </span>
+	    <span><b> Nœud split - </b> Ce nœud a maintenant des enfants : {% for n in noeudsFils %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> - {% endfor %} </span>
 	  </div>
 	  {% endif %}
 	  

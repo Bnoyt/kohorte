@@ -8,6 +8,8 @@ from markdownx.models import MarkdownxField
 
 from django.contrib.auth.models import User
 
+from django.shortcuts import get_object_or_404
+
 #from app.com.api import GraphModifier as GraphModifier
 
 
@@ -30,6 +32,7 @@ class Utilisateur(models.Model):
         ('1', 'questionneur'),
         ('2', 'contributeur'),
     )
+    projetModo = models.ManyToManyField('Question', related_name='projetModo')
     profil = models.CharField(max_length=1, choices=DROITS, default='2')
 
     def __str__(self):
@@ -123,7 +126,7 @@ class Tag(models.Model):
         """renvoie un querySet (quelque soit son
         implementation) de posts tagués par un tag 
         particulier."""
-        return self.posts_lies.all()
+        return self.post_set.all()
     
     def save(self, *args, **kwargs):
         super(Tag, self).save(*args, **kwargs)
@@ -195,6 +198,9 @@ class Post(models.Model):
     
     def save(self, *args, **kwargs):
         super(Post, self).save(*args, **kwargs)
+        typeSuivi = get_object_or_404(TypeSuivi, label="auto apres post")
+        s = RelationUserSuivi(noeud=self.noeud, type_suivi=typeSuivi, user=self.auteur)
+        s.save()
         #GraphModifier.func(question.id)
         #GraphModifier.create_post(self.id, noeud.id, [t.id for t in self.tags], auteur.id, self.size(), pere.id)
 
@@ -219,7 +225,7 @@ class TypeVote(models.Model):
     impact = models.IntegerField()
 
     def __str__(self):
-        return self.label + ' - ' + str(self.impact)
+        return self.label + ' - ' + str(self.impact) + ' - ' + str(self.actif)
 
 class Vote(models.Model):
     """Un vote est donné par un utilisateur à
@@ -248,6 +254,19 @@ class Reputation(models.Model):
     def __str__(self):
         return str(self.user.user) + ' : ' + str(self.puissance)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Suggestion(models.Model):
     """La suggestion est un outil très orienté utilisateur
     Il s'agit de relier un user et un noeud du graphe de 
@@ -264,6 +283,7 @@ class Suggestion(models.Model):
 
 class TypeSuivi(models.Model):
     label = models.CharField(max_length=100)
+    actif=models.BooleanField()
 
     def __str__(self):
         return self.label

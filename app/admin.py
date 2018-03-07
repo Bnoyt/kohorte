@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib import admin
+from markdownx.admin import MarkdownxModelAdmin
 from .models import *
 from django.contrib.auth.models import User
 from django.apps import apps

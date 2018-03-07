@@ -3,17 +3,18 @@
 <div class="col-md-11 col-xs-11 pull-right">
 	<div class="card card-post">
 
+		{% if p.0.auteur == utilisateur %}<div class="close title btn-edit" style="padding:10px"><p class=""><a href="javascript:show_edit('{{r.0.id}}')"><i class="ti-pencil"></i> Éditer</a></p></div>{% endif %}
 		<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Répondre</p></div>
 
 
 		<div class="content">
 
-			<div class="contenu" name="{{r.0.id}}">
+			<div class="contenu" id="msg_{{r.0.id}}" name="{{r.0.id}}">
 				<div class="row">
 						<div class="col-xs-12">
 							<p>
 
-								{{r.0.contenu|rendusafe|safe}}
+								{{r.0.contenu|rendusafe:r.0.question.id|safe}}
 
 							</p>
 						</div>
@@ -23,6 +24,25 @@
 					
 			</div>
 			
+			{# formulaire d'édition #}
+			<div class="contenu" name="edit-{{r.0.id}}" id="edit_{{r.0.id}}" hidden>
+				<div class="row">
+					<div class="col-xs-12">
+						<p>							
+							<form method="post" class="form-edit" id="contenuForm_{{r.0.id}}">
+								{% csrf_token %}
+								<textarea class="form-control message border-input" type="text" rows="1" id="champEdit_{{r.0.id}}" value={{r.0.contenu|markdownify|safe}}></textarea>
+								<p><b>Idées de tag :</b> {% for t in ideesTag %} #{{ t.label }} {% endfor %}</p>
+								<div style="padding-top:10px;padding-bottom:50px">
+									<button type="submit" class="btn btn-primary btn-fill pull-right">Éditer</button>
+									<div onclick="javascript:show_edit('{{r.0.id}}');" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
+								</div>
+							</form>
+							
+						</p>
+					</div>
+				</div>
+			</div>		
 
 
 			<div class="footer">
@@ -46,7 +66,7 @@
 				{% csrf_token %}
 
 				<textarea class="form-control reponse border-input" type="text" rows="1" id="champ_{{r.0.id}}" placeholder="Répondre"></textarea>
-				<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
+				<p><b>Idées de tag :</b> {% for t in ideesTag %} #{{ t.label }} {% endfor %}</p>
 				<div style="padding-top:10px;padding-bottom:50px">
 					<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
 					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>

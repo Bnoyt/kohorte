@@ -110,7 +110,7 @@
 
 											{% for p in posts %}
 	
-												<a href =" {% url 'noeud' p.noeud.id %}">
+												<a href = "{% url 'noeud' p.0.noeud.id %}">
 													{% include "post-seul.html" with c=p %}
 												</a>
 
