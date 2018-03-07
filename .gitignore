@@ -12,4 +12,3 @@ __pycache__/
 #ignore database
 *.sqlite3
 app/clustering/memory
-

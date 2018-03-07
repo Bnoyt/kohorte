@@ -7,6 +7,11 @@ class ForbidenModificationRequest(Exception):
         super().__init__(descriptor)
 
 
+class DatabaseError(Exception):
+    def __init__(self, descriptor):
+        super().__init__(descriptor)
+
+
 class LoadingError(Exception):
     def __init__(self, descriptor):
         super().__init__(descriptor)

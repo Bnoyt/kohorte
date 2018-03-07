@@ -89,6 +89,7 @@ class DatabaseAccess:
 
             question = models.Question.objects.get(id=self.project_id)
 
+
             iterables = {
                 "tag": GraphElementSet(models.Tag.objects.filter(question=question), TagNodeIterator),
 
@@ -140,6 +141,7 @@ class DatabaseAccess:
             raise err.LoadingError("Error while accessing database : innexistant access attempt")
 
         return iterables
+
 
 class BranchInstruction:
     def __init__(self, start_noeud, moving_posts, going_users, leaving_users, temp_title_post):

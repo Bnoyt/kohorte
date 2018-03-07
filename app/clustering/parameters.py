@@ -14,6 +14,7 @@ memory_path = "./app/clustering/memory/"
 # Project controler decision parameters
 
 idle_execution_period = dtt.timedelta(seconds=3)
+time_dilation = 1.0
 
 p_procedure1 = dtt.timedelta(seconds=2)
 p_procedure2 = dtt.timedelta(seconds=120)
