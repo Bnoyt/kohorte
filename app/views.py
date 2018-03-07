@@ -1,6 +1,7 @@
 from .models import *
 from bs4 import *
 from django.utils.safestring import mark_safe
+from django.utils.encoding import uri_to_iri
 from markdownx.utils import markdownify
 from notify.signals import notify
 
@@ -15,6 +16,7 @@ from django.template import loader
 from django.contrib.auth.models import User
 
 def trouver_hashtags(texte):
+    #utiliser regex
     n = len(texte)
     a = 0
     tags = []
@@ -244,7 +246,7 @@ def include_tags(postHTTP, post):
           tag_object.save()
       else:
           tag_object = tags_query[0]
-      if tag_object not in post.tags:
+      if tag_object not in post.tags.all():
           post.tags.add(tag_object)
   pass
 
@@ -479,6 +481,7 @@ def profil(request) :
     
     
 def hashtags(request,project_id,hashtag):
+    #hashtag = uri_to_iri(hashtag) #les caracteres speciaux etaient transformes
     if request.user.is_authenticated:
         utilisateur = get_object_or_404(Utilisateur, user=request.user)
         q = get_object_or_404(Question, id=project_id)
