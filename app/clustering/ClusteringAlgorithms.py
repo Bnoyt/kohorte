@@ -46,7 +46,8 @@ def graph_model_1(n, ideas, reduction):
         if len(res_graph[i]) == 0:
             res_graph.remove_node(i)
             del(colors[i])
-    return (res_graph, colors)
+    return res_graph, colors
+
 
 def full_graph_model_1():
     pass

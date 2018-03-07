@@ -1,6 +1,9 @@
 import datetime as dtt
 import time
 
+_assertions = {}
+_type_read = {}
+
 # port of the Main Backend Server
 SERVER_PORT = 65533
 
@@ -15,6 +18,7 @@ memory_path = "./app/clustering/memory/"
 
 idle_execution_period = dtt.timedelta(seconds=3)
 time_dilation = 1.0
+_type_read["time_dilation"] = float
 
 p_procedure1 = dtt.timedelta(seconds=2)
 p_procedure2 = dtt.timedelta(seconds=120)
@@ -92,6 +96,7 @@ upvote_vote_key = "upvote"
 
 forbidden_titles = ["test", "titre"]
 never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
+
 
 def now():
     return dtt.datetime.fromtimestamp(time.time())

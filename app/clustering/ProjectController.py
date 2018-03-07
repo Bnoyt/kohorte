@@ -62,7 +62,7 @@ class ProjectController(Thread):
 
         self.modification_queue = queue.Queue()
 
-        self.command_handler = CommandHandler(command_queue)
+        self.command_handler = CommandHandler(command_queue, self)
 
         self.procedure_table = None
         self.dummy_procedure = None
@@ -86,7 +86,7 @@ class ProjectController(Thread):
         self.theGraph = None
         self.procedure_table = None
 
-    def load_graph(self):
+    def load_graph(self, use_memory=False):
         if self.graphLoaded:
             self.unload_graph()
         self.theGraph = prg.ProjectGraph(self, self.projectLogger)
@@ -151,6 +151,34 @@ class ProjectController(Thread):
         while len(self.theGraph.branch_instructions) > 0:
             inst = self.theGraph.branch_instructions.get(0)
 
+    def rebind_memory(self, new_path_string):
+        new_path = Path(new_path_string)
+        if not new_path.exists():
+            print("Error : could not rebind path, " + str(new_path_string) + " does not exist")
+            return False
+        self.path = new_path
+        try:
+            with (self.path / "control.txt").open('r') as control_file:
+                self.name = control_file.readline()[0:-1]
+                database_id_in_file = int(control_file.readline()[:-1])
+                if database_id_in_file != self.database_id:
+                    raise err.LoadingError("Incompatible control file format : name not valid")
+                self.database_id = int(control_file.readline()[:-1])
+                # TODO : go check if this id is indeed in the database
+                self.clean_shutdown = bool(control_file.readline()[0:-1])
+                self.register_instructions = (control_file.readline()[0:-1]).split(";")
+
+                self.projectLogger = prl.ProjectLogger(self.path)
+
+                self.memory_free = False
+
+        except (IOError, err.LoadingError):
+                print("Rebind failed. Project continuing in no-saving mode")
+                self.memory_free = True
+                self.projectLogger = prl.ProjectLogger(self.path, active=False)
+                self.register_instructions = []
+                self.clean_shutdown = False
+
     def interuptible_sleep(self, duration):
         """sleeps for approximately duration seconds, but stops if a shutdown is required."""
         for i in range(int(duration//10 + 1)):
@@ -161,7 +189,7 @@ class ProjectController(Thread):
 
     def run(self):
 
-        self.load_graph()
+        self.load_graph(use_memory=self.clean_shutdown)
 
         print("Backend successfully initiated. Begining algorithmic analysis.")
 
@@ -237,10 +265,11 @@ class ProjectController(Thread):
 
 
 class CommandHandler:
-    def __init__(self, command_queue):
+    def __init__(self, command_queue, project_controler : ProjectController):
         self._command_queue = command_queue
         self._shutdown_requested = False
-        self.parameter_updates = []
+        self._end_of_cycle = []
+        self.project_controler = project_controler
 
     def read_commands(self):
         while not self._command_queue.empty():
@@ -272,18 +301,41 @@ class CommandHandler:
         # this is invoked by handle_commands
         # the handling is then schedule to a different time because it
         # cannot be handled now
-        self._command_category.append({'method_name': 'handling_method_name',
-                                       'args': args,
-                                       'kwargs': kwargs})
+        self._end_of_cycle.append({'method_name': 'handling_method_name',
+                                   'args': args,
+                                   'kwargs': kwargs})
 
     def _shutdown(self):
         self._shutdown_requested = True
 
-    def _change_algorithm_parameters(self, *args, **kwargs):
-        self.parameter_updates.append({'args': args, 'kwargs': kwargs})
+    def change_parameters(self, **kwargs):
+        self._end_of_cycle.append({'method_name': '_resolve_change_parameters',
+                                   'kwargs': kwargs})
+
+    def _resolve_change_parameters(self, **kwargs):
+        self.project_controler.projectParam.update_parameters(kwargs)
+
+    def rebind_memory(self, *args):
+        self._end_of_cycle.append({'method_name': '_resolve_rebind_memory',
+                                   'args': args})
+
+    def _resolve_rebind_memory(self, *args):
+        if len(args) == 0:
+            path = param.memory_path
+        else:
+            path = args[0]
+        self.project_controler.rebind_memory(path)
+
+    def reload_graph(self, **kwargs):
+        self._end_of_cycle.append({'method_name': '_resolve_reload_graph',
+                                   'kwargs': kwargs})
+
+    def _resolve_reload_graph(self, use_memory=False):
+        self.project_controler.unload_graph()
+        self.project_controler.load_graph(use_memory)
 
     def _handle_category(self):
-        for command in self._command_category:
+        for command in self._end_of_cycle:
             MessageHandler.handle_decoded(command, self)
 
     def _handling_method_name(self, *args, **kwargs):
@@ -318,28 +370,32 @@ class CommandHandler:
 class ProjectParameters:
 
     def __init__(self):
-        self.dictionnary = {}
-        self.assertions = {}
+        from app.clustering.parameters import *
+        self.modified = set()
 
     def write_to_file(self, csv_file):
 
-        csv_file.writerow(["time_dilation", self.time_dilation])
+        for key in self.modified:
+            csv_file.writerow([key, self.__dict__[key]])
 
     def read_from_file(self, csv_file):
 
-        self.time_dilation = csv_file.readrow()[1]
-
-    def verify_value(self, key, value):
-        if key not in self.dictionnary:
-            print(key + " is not a valid parameter")
-            return False
-        if key in self.assertions:
-            if not self.assertions[key](value):
-                print(str(value) + " is not a valid value for parameter " + key)
-                return False
-        return True
+        key, value = csv_file.readrow()
+        self.update_parameters({key: value})
 
     def update_parameters(self, kwargs):
-        for key in kwargs:
-            if self.verify_value(key, kwargs[key]):
-                self.dictionnary[key] = kwargs[key]
+        for key, value in kwargs.items():
+            if key not in self.__dict__:
+                print(key + " is not a valid parameter")
+                return False
+
+            if key not in self._type_read():
+                return False
+
+            if key in self._assertions:
+                if not self._assertions[key](value):
+                    print(str(value) + " is not a valid value for parameter " + key)
+                    return False
+
+            self.__dict__[key] = self._type_read[key](kwargs[key])
+            self.modified.add(key)
