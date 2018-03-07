@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from app.clustering.ProjectController import ProjectController
+from django.core.management.base import BaseCommand
 
 # Reference :
 # https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
@@ -8,6 +7,4 @@ from app.clustering.ProjectController import ProjectController
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        p = ProjectController.get('Startup Controller')
-        p.sleep(360)
-
+        self.stdout.write('Command successfully registered')
