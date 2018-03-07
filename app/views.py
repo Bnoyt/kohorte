@@ -164,7 +164,7 @@ def noeud(request,noeud_id):
             'noeudsFils':noeudsFils,
             'noeudsAncetres': noeudsAncetres,
             'whatsUpId': noeud.question.id,
-            
+            'nouveau_nom':True,
         }
         return render(request,'noeud.html',context)
     else:
