@@ -169,6 +169,8 @@ def noeud(request,noeud_id):
             'noeudsAncetres': noeudsAncetres,
             'whatsUpId': noeud.question.id,
             'nouveau_nom':True,
+            'utilisateur':user,
+            'ideesTag':ideesTag,
         }
         return render(request,'noeud.html',context)
     else:

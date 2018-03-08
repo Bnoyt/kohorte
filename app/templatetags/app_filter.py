@@ -51,7 +51,6 @@ def remplacer_hashtag(texte, question):
 	hashtags = re.findall(r"\\#\w+",new_texte,re.S)
 	for h in hashtags:
 		t = "<a href = '/{question}/hashtags/{hashtag}/'> {display} </a>".format(question = str(q), hashtag = urlquote_plus(h[2:]), display = h)
-		#t = """<a href = '/"""+str(q)+ """/hashtags/""" + h[2:] + """/'> """ + h + """ </a> """
 		new_texte = new_texte.replace(h,t)
 	return new_texte
 
