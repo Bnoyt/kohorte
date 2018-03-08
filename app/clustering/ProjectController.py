@@ -366,11 +366,11 @@ class CommandHandler:
             self._command_queue.put(command)
     # END OF SECOND IDEA -------------------------------------------------------
 
+from app.clustering.parameters import *
 
 class ProjectParameters:
 
     def __init__(self):
-        from app.clustering.parameters import *
         self.modified = set()
 
     def write_to_file(self, csv_file):
