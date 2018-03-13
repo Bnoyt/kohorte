@@ -19,6 +19,19 @@ import app.clustering.ClusteringAlgorithms as ClusterAlg
 import app.clustering.DatabaseAccess as DbAccess
 from app.backend.network import MessageHandler
 
+## TEMPORARY CODE FOR ERROR HANDLING ##
+## WILL BE SUPRESSED AS SOON AS LOG  ##
+## IS PROPERLY CONFIGURED            ##
+## by Q                              ##
+def log_exception(exception, pre_message='', printf=None):
+    if not printf:
+        printf = print
+    printf(pre_message)
+    printf('The traceback is as follows:')
+    printf(*traceback.format_list(traceback.extract_tb(exception.__traceback__)))
+    printf(str(exception))
+## END OF TEMPORARY CODE             ##
+
 
 class ProjectController(Thread):
     """Chaque projet qui tourne sera géré par une unique instance de cette classe"""
@@ -188,80 +201,91 @@ class ProjectController(Thread):
                 lib_time.sleep(10)
 
     def run(self):
+        try:
 
-        self.load_graph(use_memory=self.clean_shutdown)
+            self.load_graph(use_memory=self.clean_shutdown)
 
-        print("Backend successfully initiated. Begining algorithmic analysis.")
+            print("Backend successfully initiated. Begining algorithmic analysis.")
 
-        while not self.command_handler.shutdown_req():
+            while not self.command_handler.shutdown_req():
 
-            if not self.graphLoaded:
-                self.interuptible_sleep(param.idle_execution_period.total_seconds())
-                if self.command_handler.shutdown_req():
-                    break
-                self.load_graph()
-            else:
-
-                try:
-
-                    run_time = param.now()
-
-                    chosen_procedure = self.dummy_procedure
-
-                    for proc in self.procedure_table:
-                        if proc.next_run() < chosen_procedure.next_run():
-                            chosen_procedure = proc
-
-                    nr = chosen_procedure.next_run()
-
-                    if nr > run_time:
-                        if nr < param.never:
-                            self.interuptible_sleep((nr - run_time).total_seconds())
-                        else:
-                            self.interuptible_sleep(param.idle_execution_period.total_seconds())
-
+                if not self.graphLoaded:
+                    self.interuptible_sleep(param.idle_execution_period.total_seconds())
                     if self.command_handler.shutdown_req():
                         break
-
-                    self.apply_modifications()
-
-                    if self.command_handler.shutdown_req():
-                        break
-
-                    if len(self.register_instructions) > 0 and self.register_instructions[-1] == chosen_procedure.name:
-                        self.register_instructions.pop()
-                        self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
-
-                    chosen_procedure.run(self.open_algo_log_file, self.command_handler)
-
-                    self.open_algo_log_file.close() # probably not necessary, but I put it here just in case
-                    self.open_algo_log_file = self.projectLogger.log_nothing()
-
-                    if self.command_handler.shutdown_req():
-                        break
-
-                    self.branch()
-
-                    self.update_priority()
-
-                    self.update_suggestions()
-
-
-                except (err.GraphError, nx.NetworkXError):
-                    # There are two possibilities for how a GraphError can be caught here
-                    # possibility 1 : a procedure below decided that things were out of control and the graph needed
-                    # to be reloaded so it raised a CatastrophicGraphFailure
-                    # possibility 1 : another GraphError subclass wasn't caught below. This shouldn't happen,
-                    # and if it does this implies a fault in my code
-                    # Similarily, all NetworkXError should be caught below
-                    # In any case, generic GraphError are only caught in ProjectControler.py
-                    self.unload_graph()
                     self.load_graph()
-                finally:
-                    self.open_algo_log_file.close()
+                else:
 
-        # TODO : clean shutdown code
-        print("shutting down")
+                    try:
+
+                        run_time = param.now()
+
+                        chosen_procedure = self.dummy_procedure
+
+                        for proc in self.procedure_table:
+                            if proc.next_run() < chosen_procedure.next_run():
+                                chosen_procedure = proc
+
+                        nr = chosen_procedure.next_run()
+
+                        if nr > run_time:
+                            if nr < param.never:
+                                self.interuptible_sleep((nr - run_time).total_seconds())
+                            else:
+                                self.interuptible_sleep(param.idle_execution_period.total_seconds())
+
+                        if self.command_handler.shutdown_req():
+                            break
+
+                        self.apply_modifications()
+
+                        if self.command_handler.shutdown_req():
+                            break
+
+                        if len(self.register_instructions) > 0 and self.register_instructions[-1] == chosen_procedure.name:
+                            self.register_instructions.pop()
+                            self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
+
+                        chosen_procedure.run(self.open_algo_log_file, self.command_handler)
+
+                        self.open_algo_log_file.close() # probably not necessary, but I put it here just in case
+                        self.open_algo_log_file = self.projectLogger.log_nothing()
+
+                        if self.command_handler.shutdown_req():
+                            break
+
+                        self.branch()
+
+                        self.update_priority()
+
+                        self.update_suggestions()
+
+
+                    except (err.GraphError, nx.NetworkXError):
+                        # There are two possibilities for how a GraphError can be caught here
+                        # possibility 1 : a procedure below decided that things were out of control and the graph needed
+                        # to be reloaded so it raised a CatastrophicGraphFailure
+                        # possibility 1 : another GraphError subclass wasn't caught below. This shouldn't happen,
+                        # and if it does this implies a fault in my code
+                        # Similarily, all NetworkXError should be caught below
+                        # In any case, generic GraphError are only caught in ProjectControler.py
+                        self.unload_graph()
+                        self.load_graph()
+                    finally:
+                        self.open_algo_log_file.close()
+
+            # TODO : clean shutdown code
+            print("shutting down")
+        except Exception as err:
+            info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup"
+            log_exception(err, info, self.prefixed_print)
+            pass
+
+    def prefixed_print(self, *args, **kwargs):
+        prefix = '[CLUSTER][Thread %s] ' % self.name
+        args = (prefix + str(args[0]),) + args[1:]
+        print(*[str(arg).replace('\n', '\n' + prefix) for arg in args], **kwargs)
+    pass
 
 
 class CommandHandler:
