@@ -25,7 +25,7 @@ SECRET_KEY = '1oqd)wf)w7gd$$u)dy^plhqy!ap(q@!^f=2h=u3oy91j2q84!v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["agorado.binets.fr","agorado.fr","127.0.0.1"]
 
 
 # Application definition

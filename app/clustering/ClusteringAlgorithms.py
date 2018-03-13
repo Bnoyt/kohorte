@@ -7,6 +7,11 @@ Created on Wed Nov 22 19:06:27 2017
 
 #import packages
 import random
+
+import matplotlib as mpl
+
+mpl.use('Agg')
+
 import matplotlib.pyplot as plt
 import queue
 import datetime as dtt

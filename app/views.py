@@ -565,3 +565,8 @@ def posts_signales(request, project_id):
         else:
             return HttpResponseRedirect(reverse('index'))
 
+def inconstruct(request):
+    #call database
+    context = {'page_propos':True}
+
+    return render(request, 'inconstruct.html', context)
