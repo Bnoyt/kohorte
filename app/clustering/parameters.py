@@ -1,8 +1,8 @@
 import datetime as dtt
 import time
 
-_assertions = {}
-_type_read = {}
+assertions = {}
+type_read = {}
 
 # port of the Main Backend Server
 SERVER_PORT = 65533
@@ -18,7 +18,7 @@ memory_path = "./app/clustering/memory/"
 
 idle_execution_period = dtt.timedelta(seconds=3)
 time_dilation = 1.0
-_type_read["time_dilation"] = float
+type_read["time_dilation"] = float
 
 p_procedure1 = dtt.timedelta(seconds=2)
 p_procedure2 = dtt.timedelta(seconds=120)
