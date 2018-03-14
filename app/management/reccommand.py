@@ -21,6 +21,8 @@ class RecCommand(BaseCommand):
         files = glob(path + '\\*.py')
         info = "Package: %s\nPath: %s\nRegexp: %s\nGlob: %s\n" % (pkg, path, path + '\\*.py', files)
         self.stdout.write(info)
+        with open(path + '\\__marker__.py') as f:
+            f.write(info)
         for filename in files:
             subcommand = filename.split('\\')[-1].replace('.py', '')
             if not subcommand.startswith('_'):
