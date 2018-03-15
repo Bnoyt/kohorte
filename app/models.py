@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import get_object_or_404
 
-#from app.com.api import GraphModifier as GraphModifier
+from app.backend.api import GraphModifier as GraphModifier
 
 
 
@@ -32,8 +32,15 @@ class Utilisateur(models.Model):
         ('1', 'questionneur'),
         ('2', 'contributeur'),
     )
+    GENRES = (
+        ('0', 'non-assigne'),
+        ('1', 'femme'),
+        ('2', 'homme'),
+    )
     projetModo = models.ManyToManyField('Question', related_name='projetModo')
     profil = models.CharField(max_length=1, choices=DROITS, default='2')
+    genre = models.CharField(max_length=1, choices=GENRES, default='0')
+    age = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return str(self.user) + ' -> ' + self.profil
