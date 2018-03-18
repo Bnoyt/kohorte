@@ -1,4 +1,5 @@
 from .models import *
+from .forms import *
 from bs4 import *
 from django.utils.safestring import mark_safe
 from django.utils.encoding import uri_to_iri
@@ -139,10 +140,41 @@ def aVote(user, p):
 
 def noeud(request,noeud_id):
     if request.user.is_authenticated:
+        #elements de contexte
         noeud = get_object_or_404(Noeud,pk=noeud_id)
         postPeres = Post.objects.filter(noeud=noeud,pere=None)
         user = get_object_or_404(Utilisateur,user=request.user)
         
+        context = {}
+        
+        #ajouter_post
+        form = PostForm(request.POST or None)
+        if form.is_valid():
+            texte = "succes"
+            p = form.save(commit = False)
+            p.question = noeud.question
+            p.noeud = noeud
+            p.auteur = get_object_or_404(Utilisateur,user=request.user)
+            p.save()
+            form = PostForm(None)
+            
+            include_tags(request.POST, p)
+
+            context['notif'] = "Votre message a été publié"
+            context['notifType'] = "success"
+            
+            #on passe à l'affichage
+            request.POST = {}
+            #template = loader.get_template('post.html')
+            #contextPost={'p':[p,[]]}
+            #publication = template.render(contextPost,request)
+        
+        else:
+            texte = 'pasdecontenu'
+        context['form'] = form
+        #fin ajouter_post
+        
+        #calcul de l'affichage
         posts = [(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres] #les descendants des postsPere encore dans le noeud.
 
         #pour la navigation entre les noeuds dans l'alpha
@@ -156,8 +188,8 @@ def noeud(request,noeud_id):
         suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi__in=suivi).exists()
         
         ideesTag = Tag.objects.filter(question=noeud.question)[:5]
-
-        context = {
+        
+        context.update({
             'suivi':suivi,
             'dashboard':True,
             'posts': posts,    
@@ -173,7 +205,11 @@ def noeud(request,noeud_id):
             'nouveau_nom':True,
             'utilisateur':user,
             'ideesTag':ideesTag,
-        }
+        })
+        
+               
+        #ajouter_post(request)
+        
         return render(request,'noeud.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
@@ -260,7 +296,28 @@ def ajouter_post(request):
         post = request.POST
 
         publication="rien"
+        
+        form = PostForm(post)
+        if form.is_valid():
+            texte = "succes"
+            p = form.save(commit = False)
+            p.question = get_object_or_404(Question,pk=int(post['id_question']))
+            p.noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+            p.auteur = get_object_or_404(Utilisateur,user=request.user)
+            p.save()
+            
+            include_tags(post, p)
 
+            #on passe à l'affichage
+            template = loader.get_template('post.html')
+            context={'p':[p,[]]
+            }
+            publication = template.render(context,request)
+        
+        else:
+            texte = 'pasdecontenu'
+
+        '''
         if post['titre'] != '' and post['contenu'] != '':
             texte = "succes"
             question = get_object_or_404(Question,pk=int(post['id_question']))
@@ -284,6 +341,7 @@ def ajouter_post(request):
             texte ='titre'
         else:
             texte = 'pasdecontenu'
+            '''
 
 
         return JsonResponse({'texte':texte,'post':publication})

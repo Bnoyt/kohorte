@@ -81,7 +81,7 @@
                                     </div>
                                 </fieldset>
                                 
-                                phrase explicative
+                                {{ phraseExplicative }}
                                 
                                 <fieldset>
                                     <div class="form-group">
@@ -90,7 +90,7 @@
 				                                <div class="col-md-4 col-md-offset-1">
 								                            {% for c in GENRES %}
 								                            	<div class = "radio">
-																								<input name="radio_genre" id="radio{{ c.0 }}" value="option{{ c.0 }}" type="radio">
+																								<input name="genre{{ c.0 }}" id="radio{{ c.0 }}" value="option{{ c.0 }}" type="radio">
 																								<label for="radio{{ c.0 }}">
 																										 {{ c.1 }}
 																								</label>

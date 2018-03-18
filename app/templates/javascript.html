@@ -446,9 +446,11 @@ inpouts.attr("class",inpouts.attr("class") + "form form-control border-input");
     {% endif %}
 
     {% if notif %}
-
-    notifier("{{notif}}","danger");
-
+				{% if notifType %}
+    				notifier("{{notif}}", "{{notifType}}");
+				{% else %}
+						notifier("{{notif}}","danger");
+				{% endif %}
     {% endif %}
 
 
