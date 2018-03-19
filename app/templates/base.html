@@ -2,6 +2,9 @@
 {% load notification_tags %}
 {% include "header.html" %}
 
+{% load staticfiles %}
+
+
 <body>
 
 {% include "panneau_citations.html" %}
@@ -49,3 +52,4 @@
 </body>
 
 {% include "javascript.html" %}
+<script src="{% static "notify/notifyX.js" %}"></script>
