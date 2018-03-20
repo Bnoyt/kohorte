@@ -1,13 +1,15 @@
 # récupérer l'objet GraphModifier
 
 **Uniquement dans l'application app**
+Pour importer l'API de GraphModifier:
 
 from app.backend.api import GraphModifier as GraphModifier
 
+Pour appeler une fonction "func" de GraphModifier dont la liste d'arguments est args et le dictionnaire des arguments nommés kwargs:
+
 GraphModifier.func(project_id, *args, **kwargs)
 
-
-project_id est l'identifiant sql du projet.
+On notera qu'il faut toujours préciser l'identifiant sql du projet en premier argument.
 
 # Liste des mofifications
 
