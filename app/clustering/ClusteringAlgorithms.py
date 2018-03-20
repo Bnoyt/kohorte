@@ -61,16 +61,17 @@ def full_graph_model_1():
 
 
 class GenericProcedure:
-    def __init__(self, the_graph):
-        self.the_graph = the_graph
+    def __init__(self, project_controller):
+        self.project_controller = project_controller
+        self.p_param = project_controller.projectParam
         self.name = "generic-procedure"
         self.period = dtt.timedelta(days=1)
         self.last_run_time = param.now()
 
     def next_run(self):
-        return self.last_run_time + (self.period * self.the_graph.time_dilation)
+        return self.last_run_time + (self.period * self.p_param.time_dilation)
 
-    def run(self, log_channel, command_handler):
+    def run(self, log_channel):
         pass
 
 
@@ -81,8 +82,8 @@ def get_procedure_table(the_graph):
 
 
 class DoNothing(GenericProcedure):
-    def __init__(self):
-        super().__init__(None)
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
 
     def next_run(self):
         return param.never
@@ -94,7 +95,7 @@ class Procedure1(GenericProcedure):
         self.name = "procedure1"
         self.period = param.p_procedure1
 
-    def run(self, log_channel, command_handler):
+    def run(self, log_channel):
         self.last_run_time = param.now()
         lib_time.sleep(20)
 
@@ -104,12 +105,69 @@ class Procedure2(GenericProcedure):
         super().__init__(the_graph)
         self.period = param.p_procedure2
 
-    def run(self, log_channel, command_handler):
+    def run(self, log_channel):
         self.last_run_time = param.now()
         lib_time.sleep(3)
 
 
+class GlobalAnalysis(GenericProcedure):
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
+        self.period = param.p_full_analysis
+
+    def run(self, log_channel):
+        self.last_run_time = param.now()
+
+
+class AttemptSplit(GenericProcedure):
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
+        self.period = param.p_full_analysis
+
+    def run(self, log_channel):
+        self.last_run_time = param.now()
+
+        node = 1
+        base_node_subgraph = node_members(self.project_controller.theGraph.baseGraph, node)
+
+        simplified_graph = roots_and_leaves(base_node_subgraph)
+        carry_over_important_edges(base_node_subgraph, simplified_graph)
+        basic_filter(simplified_graph)
+
+        num_wanted = 5
+        seeds = get_central_tags_eigenvectors(simplified_graph, num_wanted)
+
+        components = ec_balanced(simplified_graph, seeds)
+
+        improved_components = ei_uphill_general_conductance(g=simplified_graph, comp_list=components,
+                                                            weight="default_weight")
+
+        decision = judge_split(simplified_graph, improved_components)
+
+        for new_comp in decision:
+            register_split_decision(new_comp)
+
+
 '''filtering and preparation'''
+
+
+# TODO
+def node_members(mdg, node):
+    """ returns a subgraph with all the objects within a given node """
+    posts = []
+    for e in get_in_edges(mdg, node, base_key=param.belongs_to):
+        posts.append(e)
+    tags = set()
+    citations = set()
+    for p in posts:
+        for e in get_out_edges(mdg, p, param.tagged_with):
+            tags.add(e[1])
+        for e in get_in_edges(mdg, p, param.source_citation):
+            citations.add(e[0])
+        for e in get_out_edges(mdg, p, param.uses_citation):
+            citations.add(e[1])
+
+    return mdg.subgraph(posts + list(tags) + list(citations))
 
 
 def roots_and_leaves(mdg: nx.MultiDiGraph):
@@ -135,11 +193,18 @@ def roots_and_leaves(mdg: nx.MultiDiGraph):
             ilength = ng[rn][cn]["length"]
             idw = ng[rn][cn]["default_weight"]
             for gcn in grand_children:
-                ng.add_edge(gcn, rn, length=ilength+1, default_weight= (ilength*idw + ng[cn][gcn]["default_weight"])/(ilength+1))
+                ng.add_edge(gcn, rn, length=ilength+1,
+                            default_weight=(ilength*idw + ng[cn][gcn]["default_weight"])/(ilength+1))
                 child_pile.append(gcn)
             if len(grand_children) > 0:
                 ng.remove_node(cn)
     return ng
+
+
+# TODO
+def carry_over_important_edges(original_g, simplified_g):
+    """ add the following adges from the multiDiGraph original_g to the simple graph simplified_g """
+    pass
 
 
 def get_bridges(g):
@@ -151,6 +216,11 @@ def get_bridges(g):
             lc = list(c)
             bridges.add((lc[0],lc[1]))
     return bridges
+
+
+def basic_filter(g):
+    """ remove isolated nodes. Maybe some other simple filtering procedures, I'll think about it. """
+    pass
 
 
 # networkx shell
@@ -241,6 +311,10 @@ def get_central_tags_eigenvectors(g : nx.Graph, num_wanted):
     tag_edges.sort(key=diff_key)
 
     for e in tag_edges:
+
+        if len(tags) <= num_wanted:
+            break
+
         if e[0] in tags and e[1] in tags:
             if information(e[0]) < information(e[1]):
                 a = e[0]
@@ -257,9 +331,6 @@ def get_central_tags_eigenvectors(g : nx.Graph, num_wanted):
             # by another tag. As a result, the weight of that other tag is increased to represent the fact that it also
             # carries the information of that first tag. I am not sure on the formula for weight modifier
             # devising the right formula would take a bit more theoretical thinking
-
-            if len(tags) <= num_wanted:
-                break
 
     # This should be really resilient:
     # If there are too few tags, it just returns all the tags it has
@@ -393,7 +464,8 @@ def ec_ppr(g, core_list, divide_by_degree=False):
 
 
 def ec_balanced(g, core_list):
-    #expands by adding the most connected node to the corresponding component, while trying to keep the components balanced
+    """ expands by adding the most connected node to the corresponding component,
+    while trying to keep the components balanced """
     flow = dict()
     num_c = len(core_list)
     destination = dict()
@@ -416,10 +488,10 @@ def ec_balanced(g, core_list):
 
     def relocate(t, i, ic):
         x = t[i]
-        while(i > 0 and flow[x][ic] < flow[t[i-1]][ic]):
+        while i > 0 and flow[x][ic] < flow[t[i-1]][ic]:
             t[i] = t[i-1]
             i -= 1
-        while(i < len(t)-1 and flow[x][ic] > flow[t[i + 1]][ic]):
+        while i < len(t)-1 and flow[x][ic] > flow[t[i + 1]][ic]:
             t[i] = t[i + 1]
             i += 1
         t[i] = x
@@ -428,7 +500,7 @@ def ec_balanced(g, core_list):
         for ic in range(num_c):
             priorities[ic].append(node)
             relocate(priorities[ic], (len(priorities[ic]) - 1), ic)
-            #Ceci tourne en quadratique. Des optimisations sont possibles
+            # Ceci tourne en quadratique. Des optimisations sont possibles
 
     while len(flow) > 0:
         e = -1
@@ -699,6 +771,14 @@ def ei_uphill_general_conductance(g, comp_list, weight):
     return new_comps
 
 
+"""Decision making"""
+
+
+# TODO
+def judge_split(g, comps):
+    return []
+
+
 '''Global'''
 
 
@@ -727,6 +807,11 @@ def get_out_edges(g, node, base_key):
 
 
 '''Utility'''
+
+# TODO
+
+def register_split_decision(new_component):
+    pass
 
 
 def attr_list_gen(o, d):

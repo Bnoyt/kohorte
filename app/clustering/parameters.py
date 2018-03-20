@@ -22,6 +22,7 @@ type_read["time_dilation"] = float
 
 p_procedure1 = dtt.timedelta(seconds=2)
 p_procedure2 = dtt.timedelta(seconds=120)
+p_full_analysis = dtt.timedelta(hours=1)
 
 # Algorithms
 # personalised page rank : teleport probability
