@@ -1,0 +1,18 @@
+{% extends "notifications/includes/default.html" %}
+{# target et un objet de type postman.Message #}
+
+{% block notification %}
+
+  {% if notification.target %}
+  
+    {{ notification.actor }} vous a envoyé un message privé  <a href="{% url 'postman:view' notification.target.pk %}">{{ notification.target.subject }}</a>
+    
+  {% else %}{# ne devrait pas avoir lieu #}
+  
+    {{ notification.actor }} vous a envoyé un   <a href="{% url 'postman:inbox' %}">message privé</a>
+    
+  {% endif %}
+  
+  <span class="timesince"></span>
+  
+{% endblock notification %}

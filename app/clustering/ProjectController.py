@@ -75,13 +75,17 @@ class ProjectController(Thread):
 
         self.modification_queue = queue.Queue()
 
-        self.command_handler = CommandHandler(command_queue, self)
+        self._command_queue = command_queue
+        self._end_of_cycle = []
 
         self.procedure_table = None
         self.dummy_procedure = None
 
         self.open_algo_log_file = self.projectLogger.log_nothing()
         self.open_modif_log_file = self.projectLogger.log_nothing()
+
+        self.running_algorithm = False
+        self._shutdown_requested = False
 
         # NE PAS APPELER self.run : C'EST AU THREAD DEMARRANT CELUI-LA D'APPELER
         # self.strat() SUR UN OBJECT THREAD !!!!!!!
@@ -164,6 +168,13 @@ class ProjectController(Thread):
         while len(self.theGraph.branch_instructions) > 0:
             inst = self.theGraph.branch_instructions.get(0)
 
+    def abandon_memory(self):
+        print("Rebind failed. Project continuing in no-saving mode")
+        self.memory_free = True
+        self.projectLogger = prl.ProjectLogger(self.path, active=False)
+        self.register_instructions = []
+        self.clean_shutdown = False
+
     def rebind_memory(self, new_path_string):
         new_path = Path(new_path_string)
         if not new_path.exists():
@@ -186,16 +197,12 @@ class ProjectController(Thread):
                 self.memory_free = False
 
         except (IOError, err.LoadingError):
-                print("Rebind failed. Project continuing in no-saving mode")
-                self.memory_free = True
-                self.projectLogger = prl.ProjectLogger(self.path, active=False)
-                self.register_instructions = []
-                self.clean_shutdown = False
+                self.abandon_memory()
 
     def interuptible_sleep(self, duration):
         """sleeps for approximately duration seconds, but stops if a shutdown is required."""
         for i in range(int(duration//10 + 1)):
-            if self.command_handler.shutdown_req():
+            if self.shutdown_req():
                 return
             else:
                 lib_time.sleep(10)
@@ -207,16 +214,18 @@ class ProjectController(Thread):
 
             print("Backend successfully initiated. Begining algorithmic analysis.")
 
-            while not self.command_handler.shutdown_req():
+            while not self.shutdown_req():
 
                 if not self.graphLoaded:
                     self.interuptible_sleep(param.idle_execution_period.total_seconds())
-                    if self.command_handler.shutdown_req():
+                    if self.shutdown_req():
                         break
                     self.load_graph()
                 else:
 
                     try:
+
+                        self.running_algorithm = True
 
                         run_time = param.now()
 
@@ -234,24 +243,24 @@ class ProjectController(Thread):
                             else:
                                 self.interuptible_sleep(param.idle_execution_period.total_seconds())
 
-                        if self.command_handler.shutdown_req():
+                        if self.shutdown_req():
                             break
 
                         self.apply_modifications()
 
-                        if self.command_handler.shutdown_req():
+                        if self.shutdown_req():
                             break
 
                         if len(self.register_instructions) > 0 and self.register_instructions[-1] == chosen_procedure.name:
                             self.register_instructions.pop()
                             self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
 
-                        chosen_procedure.run(self.open_algo_log_file, self.command_handler)
+                        chosen_procedure.run(self.open_algo_log_file, self)
 
                         self.open_algo_log_file.close() # probably not necessary, but I put it here just in case
                         self.open_algo_log_file = self.projectLogger.log_nothing()
 
-                        if self.command_handler.shutdown_req():
+                        if self.shutdown_req():
                             break
 
                         self.branch()
@@ -260,6 +269,8 @@ class ProjectController(Thread):
 
                         self.update_suggestions()
 
+                        self.running_algorithm = True
+                        self.handle_commands()
 
                     except (err.GraphError, nx.NetworkXError):
                         # There are two possibilities for how a GraphError can be caught here
@@ -273,38 +284,20 @@ class ProjectController(Thread):
                         self.load_graph()
                     finally:
                         self.open_algo_log_file.close()
+                        self.running_algorithm = True
 
             # TODO : clean shutdown code
             print("shutting down")
-        except Exception as err:
-            info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup\n"
-            log_exception(err, info, self.prefixed_print)
+        except Exception as exe:
+            info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup"
+            log_exception(exe, info, self.prefixed_print)
             pass
 
     def prefixed_print(self, *args, **kwargs):
         prefix = '[CLUSTER][Thread %s] ' % self.name
         args = (prefix + str(args[0]),) + args[1:]
         print(*[str(arg).replace('\n', '\n' + prefix) for arg in args], **kwargs)
-    pass
-
-
-class CommandHandler:
-    def __init__(self, command_queue, project_controler : ProjectController):
-        self._command_queue = command_queue
-        self._shutdown_requested = False
-        self._end_of_cycle = []
-        self.project_controler = project_controler
-
-    def read_commands(self):
-        while not self._command_queue.empty():
-            instruction = self._command_queue.get()
-            if instruction == param.shutdown_command:
-                print("shutdown request aknowledged")
-                self._shutdown_requested = True
-
-    def shutdown_req(self):
-        self.read_commands()
-        return self._shutdown_requested
+        pass
 
     def _handle_command(self, msg):
         MessageHandler.handle_json(msg, self)
@@ -317,85 +310,61 @@ class CommandHandler:
                 self._handle_command(msg)
         except queue.Empty:
             pass
-        pass
+        if self.running_algorithm:
+            try:
+                while True:
+                    msg = self._end_of_cycle.pop()
+                    self._handle_command(msg)
+            except IndexError:
+                pass
 
-    # The following code is an example for making a difference between command
-    # type and handling them at separated time
-    def _command_name_here(self, *args, **kwargs):
-        # this is invoked by handle_commands
-        # the handling is then schedule to a different time because it
-        # cannot be handled now
-        self._end_of_cycle.append({'method_name': 'handling_method_name',
-                                   'args': args,
-                                   'kwargs': kwargs})
+    def shutdown_req(self):
+        self.handle_commands()
+        return self._shutdown_requested
 
-    def _shutdown(self):
+    def shutdown(self):
         self._shutdown_requested = True
 
     def change_parameters(self, **kwargs):
-        self._end_of_cycle.append({'method_name': '_resolve_change_parameters',
-                                   'kwargs': kwargs})
-
-    def _resolve_change_parameters(self, **kwargs):
-        self.project_controler.projectParam.update_parameters(kwargs)
-
-    def rebind_memory(self, *args):
-        self._end_of_cycle.append({'method_name': '_resolve_rebind_memory',
-                                   'args': args})
-
-    def _resolve_rebind_memory(self, *args):
-        if len(args) == 0:
-            path = param.memory_path
+        if self.running_algorithm:
+            self._end_of_cycle.append({'method_name': 'change_parameters', 'kwargs': kwargs})
         else:
-            path = args[0]
-        self.project_controler.rebind_memory(path)
+            self.projectParam.update_parameters(kwargs)
 
-    def reload_graph(self, **kwargs):
-        self._end_of_cycle.append({'method_name': '_resolve_reload_graph',
-                                   'kwargs': kwargs})
-
-    def _resolve_reload_graph(self, use_memory=False):
-        self.project_controler.unload_graph()
-        self.project_controler.load_graph(use_memory)
-
-    def _handle_category(self):
-        for command in self._end_of_cycle:
-            MessageHandler.handle_decoded(command, self)
-
-    def _handling_method_name(self, *args, **kwargs):
-        # Actually do something here
-        pass
-    # ------------------------------------------------------
-
-    # Another idea for handling methods
-    def _another_command_name_here(self, *args, **kwargs):
-        # self.CONFIG or another variable is used to determine if the command
-        # can be handled now
-        if self.CONFIG['UNIQUE_KEY_FOR_THIS_COMMAND']:
-            # now this command can be handled
-            # do something
-            pass
+    def change_memory_path(self, *args):
+        if self.running_algorithm:
+            self._end_of_cycle.append({'method_name': '_resolve_rebind_memory', 'args': args})
         else:
-            # command is delayed
-            self.delayed.put({'method_name':'_another_command_name_here',
-                              'args': args,
-                              'kwargs': kwargs})
+            if len(args) == 0 or args[0] == 'default':
+                new_path = param.memory_path
+            elif args[0] == 'current':
+                new_path = self.path
+            elif args[0] == 'none':
+                self.abandon_memory()
+                return
+            else:
+                new_path = args[0]
+            self.rebind_memory(new_path)
 
-    def schedule_delayed_commands(self):
-        # ONLY USE THIS WHEN handle_commands HAS TERMINATED
-        # OTHERISE, IT MIGHT CREATE AN INFINITE LOOP
-        # MOREOVER, queue.queue EXPLICITELY DOESN'T SUPPORT MULTIPLE ACCESS FROM
-        # THE SAME THREAD
-        for command in self.delayed:
-            self._command_queue.put(command)
-    # END OF SECOND IDEA -------------------------------------------------------
+    def reload_graph(self, use_memory=False, **kwargs):
+        if self.running_algorithm:
+            self._end_of_cycle.append({'method_name': '_resolve_reload_graph', 'kwargs': kwargs})
+        else:
+            self.unload_graph()
+            self.load_graph(use_memory)
 
-from app.clustering.parameters import *
 
 class ProjectParameters:
 
     def __init__(self):
-        self.modified = set()
+
+        self._assertions = param.assertions
+        self._type_read = param.type_read
+
+        self.modified = []
+
+        self.ppr_tp_prob = param.ppr_tp_prob
+        self.ppr_precision = param.ppr_precision
 
     def write_to_file(self, csv_file):
 
@@ -409,11 +378,8 @@ class ProjectParameters:
 
     def update_parameters(self, kwargs):
         for key, value in kwargs.items():
-            if key not in self.__dict__:
-                print(key + " is not a valid parameter")
-                return False
-
             if key not in self._type_read():
+                print(key + " is not a valid parameter")
                 return False
 
             if key in self._assertions:
@@ -422,4 +388,4 @@ class ProjectParameters:
                     return False
 
             self.__dict__[key] = self._type_read[key](kwargs[key])
-            self.modified.add(key)
+            self.modified.append(key)

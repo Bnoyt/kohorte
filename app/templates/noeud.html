@@ -22,6 +22,18 @@
         <h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
       </div>
       <div class="modal-body">
+      
+      <form action="{% url 'noeud' noeud.id %}" method="post" id="#formajouterpost">
+
+					{% csrf_token %}
+
+					{{ form.as_p }}
+
+					<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
+					<input type="submit" value="Poster" />
+
+			</form>
+      {% comment %}
        		<form method="post" class="card-body" id="#formajouterpost">
 				{% csrf_token %}
 				
@@ -37,6 +49,7 @@
 				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
 		 
 			</form>
+			{% endcomment %}
       </div>
     </div>
   </div>

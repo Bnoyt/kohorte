@@ -1,4 +1,5 @@
 from .models import *
+from .forms import *
 from bs4 import *
 from django.utils.safestring import mark_safe
 from django.utils.encoding import uri_to_iri
@@ -10,10 +11,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
 from django.core.urlresolvers import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.template import loader
 
 from django.contrib.auth.models import User
+
+from app.backend.api import GraphModifier as GraphModifier
 
 def trouver_hashtags(texte):
     #utiliser regex
@@ -137,10 +141,41 @@ def aVote(user, p):
 
 def noeud(request,noeud_id):
     if request.user.is_authenticated:
+        #elements de contexte
         noeud = get_object_or_404(Noeud,pk=noeud_id)
         postPeres = Post.objects.filter(noeud=noeud,pere=None)
         user = get_object_or_404(Utilisateur,user=request.user)
         
+        context = {}
+        
+        #ajouter_post
+        form = PostForm(request.POST or None)
+        if form.is_valid():
+            texte = "succes"
+            p = form.save(commit = False)
+            p.question = noeud.question
+            p.noeud = noeud
+            p.auteur = get_object_or_404(Utilisateur,user=request.user)
+            p.save()
+            form = PostForm(None)
+            
+            include_tags(request.POST, p)
+
+            context['notif'] = "Votre message a été publié"
+            context['notifType'] = "success"
+            
+            #on passe à l'affichage
+            request.POST = {}
+            #template = loader.get_template('post.html')
+            #contextPost={'p':[p,[]]}
+            #publication = template.render(contextPost,request)
+        
+        else:
+            texte = 'pasdecontenu'
+        context['form'] = form
+        #fin ajouter_post
+        
+        #calcul de l'affichage
         posts = [(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres] #les descendants des postsPere encore dans le noeud.
 
         #pour la navigation entre les noeuds dans l'alpha
@@ -154,8 +189,8 @@ def noeud(request,noeud_id):
         suivi=RelationUserSuivi.objects.filter(noeud_id=noeud_id,user = user,type_suivi__in=suivi).exists()
         
         ideesTag = Tag.objects.filter(question=noeud.question)[:5]
-
-        context = {
+        
+        context.update({
             'suivi':suivi,
             'dashboard':True,
             'posts': posts,    
@@ -171,7 +206,11 @@ def noeud(request,noeud_id):
             'nouveau_nom':True,
             'utilisateur':user,
             'ideesTag':ideesTag,
-        }
+        })
+        
+               
+        #ajouter_post(request)
+        
         return render(request,'noeud.html',context)
     else:
         return HttpResponseRedirect(reverse('index'))
@@ -258,7 +297,28 @@ def ajouter_post(request):
         post = request.POST
 
         publication="rien"
+        
+        form = PostForm(post)
+        if form.is_valid():
+            texte = "succes"
+            p = form.save(commit = False)
+            p.question = get_object_or_404(Question,pk=int(post['id_question']))
+            p.noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+            p.auteur = get_object_or_404(Utilisateur,user=request.user)
+            p.save()
+            
+            include_tags(post, p)
 
+            #on passe à l'affichage
+            template = loader.get_template('post.html')
+            context={'p':[p,[]]
+            }
+            publication = template.render(context,request)
+        
+        else:
+            texte = 'pasdecontenu'
+
+        '''
         if post['titre'] != '' and post['contenu'] != '':
             texte = "succes"
             question = get_object_or_404(Question,pk=int(post['id_question']))
@@ -282,6 +342,7 @@ def ajouter_post(request):
             texte ='titre'
         else:
             texte = 'pasdecontenu'
+            '''
 
 
         return JsonResponse({'texte':texte,'post':publication})
@@ -314,6 +375,10 @@ def edit_message(request):
             postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
             postToEdit.contenu = post['contenu']
             postToEdit.save()
+            
+            if request.user != postToEdit.auteur.user:
+              #dans ce cas c'est un modérateur qui a effectué la modification
+              notify.send(request.user, recipient=postToEdit.auteur.user, actor=request.user, verb='édité', target=postToEdit, nf_type='modo')
             
             include_tags(post, postToEdit)
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
@@ -350,7 +415,7 @@ def ajouter_commentaire(request):
             template = loader.get_template('commentaire.html')
             context={'c':(c,[], {})}
             publication = template.render(context,request)
-            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', nf_type='answer')
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, target=pere, nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
@@ -381,6 +446,7 @@ def ajouter_reponse(request):
             context={'r':[r,[]]
             }
             publication = template.render(context,request)
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, target=pere, nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
@@ -444,8 +510,8 @@ def profil(request) :
                 'posts':posts,
                 'noeudsSuivis':noeudsSuivis,
                 'titre_page':'Profil',
-                'whatsUpId':whatsUpId
-    
+                'whatsUpId':whatsUpId,
+                'GENRES':Utilisateur.GENRES,
             }
             
         post = request.POST
@@ -478,8 +544,7 @@ def profil(request) :
 
         return render(request,'profil.html',context)
     else:
-        return HttpResponseRedirect(reverse('index'))
-    
+        return HttpResponseRedirect(reverse('index'))    
     
     
 def hashtags(request,project_id,hashtag):

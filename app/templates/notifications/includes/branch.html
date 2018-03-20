@@ -1,0 +1,12 @@
+{% extends "notifications/includes/default.html" %}
+
+{# target et un objet de type Noeud #}
+
+   {% block notification %}
+      {% if notification.target %}
+	    Le noeud <a href="{% url 'noeud' notification.target.id %}">{{ notification.target.label }}</a> a été séparé en plusieurs noeuds fils
+      {% else %}{# ne devrait pas avoir lieu #}
+	    ERREUR
+      {% endif %}
+      <span class="timesince"></span>
+   {% endblock notification %}

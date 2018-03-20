@@ -2,37 +2,40 @@
 {% load i18n %}
 {% load notification_tags %}
 
-	<li class="card card-post notification list-group-item {{ notification.read|yesno:'read,unread' }}" data-nf-id="{{ notification.id }}" id="nf-{{ notification.id }}">
+	<li class="card notification list-group-item {{ notification.read|yesno:'read,unread' }}" data-nf-id="{{ notification.id }}" id="nf-{{ notification.id }}">
 	   
 		<div class="content">
 
-			<div class="contenu" name="{{c.0.id}}">
+			<div class="contenu" name="{{notification.id}}">
+			  <div class="row">
 				<div class="col-md-6 col-sm-6 pull-left">
 				 {% block notification %}
-				    {% if notification.target %}
-				       {% blocktrans with actor_url=notification.actor_url actor=notification.actor verb=notification.verb target=notification.target target_url=notification.target_url%}
+				  {% if notification.target %}
+				      {% blocktrans with actor_url=notification.actor_url actor=notification.actor verb=notification.verb target=notification.target target_url=notification.target_url%}
 					  <a href="{{ actor_url }}">{{ actor }}</a> {{ verb }} on <a href="{{ target_url }}">{{ target }}</a>
-				       {% endblocktrans %}
-				    {% else %}
-				       {% blocktrans with actor_url=notification.actor_url actor=notification.actor verb=notification.verb%}
+				      {% endblocktrans %}
+				  {% else %}
+				      {% blocktrans with actor_url=notification.actor_url actor=notification.actor verb=notification.verb%}
 					  <a href="{{ actor_url }}">{{ actor }}</a> {{ verb }}
-				       {% endblocktrans %}
-				    {% endif %}
-				    <span class="timesince"></span>
-				 {% endblock notification %}
+				      {% endblocktrans %}
+				  {% endif %}
+				  <span class="timesince">{% blocktrans with created=notification.created|timesince %}{{created}} ago{% endblocktrans %}</span>
+			      {% endblock notification %}
+			      
 				</div>
 				<div class="col-md-6 col-sm-6 pull-right">
 				 <div class="btn-group">
-				     <button data-id="{{ notification.id }}" class="mark-notification btn-xs btn btn-primary btn-fill btn-wd"             data-mark-action="{{ notification.read|yesno:'unread,read' }}" 
+				     <button data-id="{{ notification.id }}" class="mark-notification btn-s btn btn-primary btn-fill btn-wd"             data-mark-action="{{ notification.read|yesno:'unread,read' }}" 
 				     data-toggle-text="{% blocktrans with read=notification.read|yesno:_('read,unread') %}Mark as {{ read }}{% endblocktrans %}">
 				       {% blocktrans with read=notification.read|yesno:_('unread,read') %}Mark as {{ read }}{% endblocktrans %}
 				    </button>
 
-				    <button class="delete-notification btn btn-primary btn-fill btn-wd btn-xs" data-id="{{ notification.id }}">
+				    <button class="delete-notification btn btn-primary btn-fill btn-wd btn-s" data-id="{{ notification.id }}">
 				       X
 				    </button>
 				 </div>
 			      </div>
+			  </div>
 			</div>
 
 
@@ -43,7 +46,7 @@
 			<div class="footer">
 			<hr />
 				<div class="stats">
-					<i class="ti-calendar"></i> {% blocktrans with created=notification.created|timesince %}{{created}} ago{% endblocktrans %}
+					<i class="ti-calendar"></i> il y a {{notification.created|timesince}}
 				</div>
 				
 

@@ -1,6 +1,12 @@
 {% load static %}
-{% load notification_tags %}
+
+
 {% include "header.html" %}
+
+{% load staticfiles %}
+
+
+
 
 <body>
 
@@ -47,5 +53,8 @@
 
 
 </body>
-
 {% include "javascript.html" %}
+{% load notification_tags %}
+{% include_notify_js_variables %}
+<script src="{% static "notify/notifyX.js" %}"></script>
+

@@ -2,7 +2,7 @@
 
 **Uniquement dans l'application app**
 
-from app.com.api import GraphModifier as GraphModifier
+from app.backend.api import GraphModifier as GraphModifier
 
 GraphModifier.func(project_id, *args, **kwargs)
 

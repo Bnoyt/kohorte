@@ -1,0 +1,18 @@
+{% extends "notifications/includes/default_box.html" %}
+
+{# target et un objet de type Post #}
+
+{% block notification %}
+    {% if notification.target %}
+	
+            <a href="{% url 'noeud' notification.target.noeud.id %}">
+	       Le modérateur {{ notification.actor }} a {{ notification.verb }} votre post dans {{ notification.target.noeud.label }}
+	    </a>
+        
+    {% else %} {# ne devrait pas arriver #}
+        
+            Le modérateur {{ notification.actor }} a {{ notification.verb }} votre post
+        
+    {% endif %}
+    
+{% endblock notification %}

@@ -1,0 +1,247 @@
+.card-post {
+  border-radius: 12px;
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  background-color: #FFFFFF;
+  color: #333333;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  border: 0 none;
+  -webkit-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -moz-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -o-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -ms-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+}
+.card-post:not(.post-plain):hover {
+  box-shadow: 0px 12px 19px -7px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+  -webkit-transform: translateY(-10px);
+  -ms-transform: translateY(-10px);
+  -moz-transform: translateY(-10px);
+}
+.card-post.post-plain {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+.btn-repondre{
+  padding:10px;
+
+}
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 400000;
+    top: 0;
+    right: 0;
+    background-color: #f3f4f1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    border-left-style: solid;
+    border-width: 1px;
+    border-color: #abaf9d; 
+}
+
+
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 7px;
+    left: 15px;
+    font-size: 36px;
+    margin-right: 50px;
+}
+
+#main {
+    transition: margin-right .5s;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+/************ MONOKAI THEME FOR GOOGLE PRETTIFY ************/
+
+pre.prettyprint { 
+  display: block; 
+  background-color: #272822; 
+  padding:1em;
+  overflow:scroll;
+}
+
+/* Orange Highlight */
+pre *::selection{
+   background: #9d550f;   /* orange */
+    color: #F8F8F0;       /* whitish */
+}
+pre *::-moz-selection{
+    background: #9d550f;  /* orange */
+    color: #F8F8F0;       /* whitish */
+}
+
+
+
+/******************** PRETTIFY COLORS ***********************/
+pre .nocode { background-color: none; color: #000 }
+pre .str { color: #E6DB74 } /* string          - yellow     */
+pre .kwd { color: #66D9EF;} /* keyword         - blue       */
+pre .com { color: #75715E } /* comment         - grey/green */
+pre .typ { color: #66D9EF } /* type            - blue       */
+pre .lit { color: #AE81FF } /* literal         - purple     */
+pre .pun { color: #F8F8F0 } /* punctuation     - whitish    */
+pre .pln { color: #F8F8F0 } /* plaintext       - whitish    */
+pre .tag { color: #F92672;} /* html/xml tag    - pink/red   */
+pre .atn { color: #a0e22a;} /* attribute name  - green      */
+pre .atv { color: #E6DB74 } /* attribute value - yellow     */
+pre .dec { color: #F8F8F0 } /* decimal         - whitish    */
+
+
+@media screen {
+    /* CSS STYLES - specify class=lang-css on pre */
+    pre.lang-css .pln{ color:#a0e22a; }  /* plaintext - green    */
+    pre.lang-css .lit{ color:#F92672; }  /* literal   - pink/red */
+
+    /* JS STYLES - specify class=lang-js on pre */
+    pre.lang-js .kwd{ color:#AE81FF; }  /* keyword  - purple */
+
+    /* SQL STYLES - specify class=lang-sql on pre */
+    pre.lang-sql .kwd{ color:#F92672; }  /* keyword  - pink/red */
+}
+
+
+/******************** LINE NUMBERS ***********************/
+/* Specify class=linenums on a pre to get line numbering */
+
+pre.prettyprint ol.linenums { 
+  margin-top: 0; 
+  margin-bottom: 0; 
+  color: #8f908a;
+}
+
+/* Remove the trailing . from ol li */
+pre.prettyprint ol.linenums { 
+  counter-reset: item;
+  padding-left: 0em;
+  list-style-type: none;
+}
+pre.prettyprint ol.linenums li{
+  display: block;
+}
+pre.prettyprint ol.linenums li:before { 
+    content: counter(item) "  "; 
+    counter-increment: item 
+}
+
+pre.prettyprint ol.linenums li span:first-child {
+    margin-left: 0.5em;
+}
+
+
+
+/**************** SPECIAL LINE NUMBERS ****************/
+/*  Add styles for alternating rows or count by 5/10  */
+
+/* Highlight Line Numbers, but not 5 and 10 */
+li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8 { 
+  /* list-style-type: none */
+}
+/* Highlight Line Numbers 5 & 10 */
+li.L4,li.L9{
+ 
+}
+/* Highlight alternate shading for lines */
+li.L1,li.L3,li.L5,li.L7,li.L9 { 
+   /* background-color:#2e2f29; */
+}
+
+
+
+/******************* PRINT STYLES *******************/
+@media print {
+  pre.prettyprint { background-color: none }
+  pre .str, code .str { color: #060 }
+  pre .kwd, code .kwd { color: #006; font-weight: bold }
+  pre .com, code .com { color: #600; font-style: italic }
+  pre .typ, code .typ { color: #404; font-weight: bold }
+  pre .lit, code .lit { color: #044 }
+  pre .pun, code .pun { color: #440 }
+  pre .pln, code .pln { color: #000 }
+  pre .tag, code .tag { color: #006; font-weight: bold }
+  pre .atn, code .atn { color: #404 }
+  pre .atv, code .atv { color: #060 }
+}
+#save_citation{
+  z-index:50000;
+  position:fixed;
+  right:70px;
+  top:100px;
+
+}
+
+
+.modal-header {
+  border-bottom: 1px solid #DDDDDD;
+  padding: 20px;
+  text-align: center;
+}
+
+.modal-content {
+  border: 0 none;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15), 0 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.modal-dialog {
+  padding-top: 60px;
+}
+
+.modal-body {
+  padding: 20px 50px;
+}
+
+.modal-footer {
+  border-top: 1px solid #DDDDDD;
+  padding: 0px;
+}
+
+.modal-footer .left-side, .modal-footer .right-side {
+  display: inline-block;
+  text-align: center;
+  width: 49%;
+}
+
+.modal-footer .btn-simple {
+  padding: 20px;
+  width: 100%;
+}
+
+.modal-footer .divider {
+  background-color: #DDDDDD;
+  display: inline-block;
+  float: inherit;
+  height: 63px;
+  margin: 0px -3px;
+  position: absolute;
+  width: 1px;
+}
+
+.modal.fade .modal-dialog {
+  transform: none;
+  -webkit-transform: none;
+  -moz-transform: none;
+}
+
+.modal.in .modal-dialog {
+  transform: none;
+  -webkit-transform: none;
+  -moz-transform: none;
+}
+
+.modal-backdrop.in {
+  opacity: 0.25;
+}
+
