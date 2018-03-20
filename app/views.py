@@ -11,6 +11,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
 from django.core.urlresolvers import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.template import loader
 
@@ -410,7 +411,7 @@ def ajouter_commentaire(request):
             template = loader.get_template('commentaire.html')
             context={'c':(c,[], {})}
             publication = template.render(context,request)
-            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', nf_type='answer')
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', target=pere, nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
@@ -538,8 +539,7 @@ def profil(request) :
 
         return render(request,'profil.html',context)
     else:
-        return HttpResponseRedirect(reverse('index'))
-    
+        return HttpResponseRedirect(reverse('index'))    
     
     
 def hashtags(request,project_id,hashtag):
