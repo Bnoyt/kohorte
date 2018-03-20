@@ -140,8 +140,8 @@
 							<div class="content">
 
 								<div class="container-fluid">
-									<div class="row">
-										<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+									<div class="row" id="fildepost">
+										<div class="col-md-6 col-md-offset-3">
 
 
 											{% for p in posts %}
@@ -169,7 +169,7 @@
 
 								<div class="container-fluid">
 									<div class="row">
-										<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+										<div class="col-md-6 col-md-offset-3">
 
 												{% for noeud, nbPosts, nbNewPosts, fils in printRecap %}
 													{% include "noeud-seul.html" with n=noeud nbPosts=nbPosts nbNewPosts=nbNewPosts noeudsFils=fils %}

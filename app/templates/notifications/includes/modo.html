@@ -2,11 +2,12 @@
 
 {# target et un objet de type Post #}
 
+
 {% block notification %}
   {% if notification.target %}
-    {{ notification.actor }} a répondu à votre post dans  <a href="{% url 'noeud' notification.target.noeud.id %}">{{ notification.target.noeud.label }}</a>
+    Le modérateur {{ notification.actor }} a {{ notification.verb }} votre post dans <a href="{% url 'noeud' notification.target.noeud.id %}">{{ notification.target.noeud.label }}</a>
   {% else %}{# ne devrait pas avoir lieu #}
-    {{ notification.actor }} a répondu à votre post
+    Le modérateur {{ notification.actor }} a {{ notification.verb }} votre post
   {% endif %}
   <span class="timesince"></span>
 {% endblock notification %}

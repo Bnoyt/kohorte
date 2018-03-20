@@ -6,12 +6,12 @@
     {% if notification.target %}
 	
             <a href="{% url 'noeud' notification.target.noeud.id %}">
-	       {{ notification.actor }} a répondu à votre post dans {{ notification.target.noeud.label }}
+	       Le modérateur {{ notification.actor }} a {{ notification.verb }} votre post dans {{ notification.target.noeud.label }}
 	    </a>
         
     {% else %} {# ne devrait pas arriver #}
         
-            {{ notification.actor }} a répondu à votre post
+            Le modérateur {{ notification.actor }} a {{ notification.verb }} votre post
         
     {% endif %}
     

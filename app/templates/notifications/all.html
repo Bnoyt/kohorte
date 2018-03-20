@@ -3,12 +3,27 @@
 {% load notification_tags %}
 {% block title %}{% trans "Notifications" %}{% endblock %}
 {% block content %}
-    <hr>
-    <button class="mark-all-notifications" data-mark-action="read">{% trans "Mark all as read" %}</button>
-    <button class="mark-all-notifications" data-mark-action="unread">{% trans "Mark all as unread" %}</button>
-    <ul class="notifications list-group">
-    {% if notifications %}
-    {% render_notifications using notifications %}
-    {% endif %}
-    </ul>
+    <div class="content">
+      
+      <div class="btn-group">
+				     <button data-id="{{ notification.id }}" class="mark-all-notifications btn-s btn btn-primary btn-fill btn-wd" data-mark-action="read" data-toggle-text="Marquer tous comme lus">
+				       Marquer tous comme lus
+				    </button>
+
+				    <button data-id="{{ notification.id }}" class="mark-all-notifications btn-s btn btn-primary btn-fill btn-wd" data-mark-action="unread" data-toggle-text="Marquer tous comme non lus">
+				       Marquer tous comme non lus
+				    </button>
+				 </div>
+										
+    <div class="container-fluid">
+      <ul class="notifications list-grouprow">
+        <div class="row">
+          {% if notifications %}
+          <div class="col-md-6 col-md-offset-3">
+          {% render_notifications using notifications %}
+          </div>
+          {% endif %}
+        </div>
+      </ul>
+    </div>
 {% endblock %}
