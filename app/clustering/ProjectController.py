@@ -8,9 +8,10 @@ import time as lib_time
 import queue
 from threading import Thread
 import traceback
+import logging
 
 # import dependances
-import app.clustering.errors as err
+import app.clustering.errors as errors
 import app.clustering.ProjectGraph as prg
 import app.clustering.ProjectLogger as prl
 from app.clustering.GraphModifier import GraphModifier
@@ -19,18 +20,7 @@ import app.clustering.ClusteringAlgorithms as ClusterAlg
 import app.clustering.DatabaseAccess as DbAccess
 from app.backend.network import MessageHandler
 
-## TEMPORARY CODE FOR ERROR HANDLING ##
-## WILL BE SUPRESSED AS SOON AS LOG  ##
-## IS PROPERLY CONFIGURED            ##
-## by Q                              ##
-def log_exception(exception, pre_message='', printf=None):
-    if not printf:
-        printf = print
-    printf(pre_message)
-    printf('The traceback is as follows:')
-    printf(*traceback.format_list(traceback.extract_tb(exception.__traceback__)))
-    printf(str(exception))
-## END OF TEMPORARY CODE             ##
+LOGGER = logging.getLogger('agorado.backend.ProjectController')
 
 
 class ProjectController(Thread):
@@ -41,6 +31,7 @@ class ProjectController(Thread):
 
     def __init__(self, database_id, command_queue):
         super().__init__()
+        self.name = 'BACKEND_project#%s' % database_id
         self.database_id = database_id
 
         self.projectParam = ProjectParameters()
@@ -51,7 +42,7 @@ class ProjectController(Thread):
                 self.name = control_file.readline()[0:-1]
                 database_id_in_file = int(control_file.readline()[:-1])
                 if database_id_in_file != self.database_id:
-                    raise err.LoadingError("Incompatible control file format : name not valid")
+                    raise errors.LoadingError("Incompatible control file format : name not valid")
                 self.database_id = int(control_file.readline()[:-1])
                 # TODO : go check if this id is indeed in the database
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
@@ -61,8 +52,8 @@ class ProjectController(Thread):
 
                 self.memory_free = False
 
-        except (IOError, err.LoadingError):
-                print("Could not access project memory tree. Launching project in no-saving mode.")
+        except (IOError, errors.LoadingError):
+                LOGGER.warning("Could not access project memory tree. Launching project in no-saving mode.")
                 self.memory_free = True
                 self.projectLogger = prl.ProjectLogger(self.path, active=False)
                 self.register_instructions = []
@@ -119,12 +110,11 @@ class ProjectController(Thread):
 
             self.apply_modifications(expect_errors=True)
 
-        except (err.DatabaseError, err.GraphError, nx.NetworkXError) as error:
+        except (errors.DatabaseError, errors.GraphError, nx.NetworkXError) as err:
             self.graphIsLoading = False
             self.theGraph = None
-            print("Error while loeading graph from database : ")
-            traceback.print_tb(error.__traceback__)
-            print(err)
+            info = "Error while loading graph from database for project %s: " % self.database_id
+            LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
             return
 
         self.procedure_table = ClusterAlg.get_procedure_table(self.theGraph)
@@ -169,7 +159,7 @@ class ProjectController(Thread):
             inst = self.theGraph.branch_instructions.get(0)
 
     def abandon_memory(self):
-        print("Rebind failed. Project continuing in no-saving mode")
+        LOGGER.warning("Rebind failed. Project %s continuing in no-saving mode" % self.database_id)
         self.memory_free = True
         self.projectLogger = prl.ProjectLogger(self.path, active=False)
         self.register_instructions = []
@@ -178,7 +168,7 @@ class ProjectController(Thread):
     def rebind_memory(self, new_path_string):
         new_path = Path(new_path_string)
         if not new_path.exists():
-            print("Error : could not rebind path, " + str(new_path_string) + " does not exist")
+            LOGGER.error("Error : could not rebind path, " + str(new_path_string) + " does not exist")
             return False
         self.path = new_path
         try:
@@ -186,7 +176,7 @@ class ProjectController(Thread):
                 self.name = control_file.readline()[0:-1]
                 database_id_in_file = int(control_file.readline()[:-1])
                 if database_id_in_file != self.database_id:
-                    raise err.LoadingError("Incompatible control file format : name not valid")
+                    raise errors.LoadingError("Incompatible control file format : name not valid")
                 self.database_id = int(control_file.readline()[:-1])
                 # TODO : go check if this id is indeed in the database
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
@@ -196,7 +186,7 @@ class ProjectController(Thread):
 
                 self.memory_free = False
 
-        except (IOError, err.LoadingError):
+        except (IOError, errors.LoadingError):
                 self.abandon_memory()
 
     def interuptible_sleep(self, duration):
@@ -212,7 +202,7 @@ class ProjectController(Thread):
 
             self.load_graph(use_memory=self.clean_shutdown)
 
-            print("Backend successfully initiated. Begining algorithmic analysis.")
+            LOGGER.info("Backend %s successfully initiated. Begining algorithmic analysis." % self.database_id)
 
             while not self.shutdown_req():
 
@@ -272,7 +262,7 @@ class ProjectController(Thread):
                         self.running_algorithm = True
                         self.handle_commands()
 
-                    except (err.GraphError, nx.NetworkXError):
+                    except (errors.GraphError, nx.NetworkXError):
                         # There are two possibilities for how a GraphError can be caught here
                         # possibility 1 : a procedure below decided that things were out of control and the graph needed
                         # to be reloaded so it raised a CatastrophicGraphFailure
@@ -287,17 +277,11 @@ class ProjectController(Thread):
                         self.running_algorithm = True
 
             # TODO : clean shutdown code
-            print("shutting down")
-        except Exception as exe:
+            LOGGER.info("shutting down")
+        except Exception as err:
             info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup"
-            log_exception(exe, info, self.prefixed_print)
+            LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
             pass
-
-    def prefixed_print(self, *args, **kwargs):
-        prefix = '[CLUSTER][Thread %s] ' % self.name
-        args = (prefix + str(args[0]),) + args[1:]
-        print(*[str(arg).replace('\n', '\n' + prefix) for arg in args], **kwargs)
-        pass
 
     def _handle_command(self, msg):
         MessageHandler.handle_json(msg, self)
@@ -379,12 +363,12 @@ class ProjectParameters:
     def update_parameters(self, kwargs):
         for key, value in kwargs.items():
             if key not in self._type_read():
-                print(key + " is not a valid parameter")
+                LOGGER.warning(key + " is not a valid parameter")
                 return False
 
             if key in self._assertions:
                 if not self._assertions[key](value):
-                    print(str(value) + " is not a valid value for parameter " + key)
+                    LOGGER.warning(str(value) + " is not a valid value for parameter " + key)
                     return False
 
             self.__dict__[key] = self._type_read[key](kwargs[key])

@@ -6,6 +6,7 @@ import select
 from collections import Mapping
 from timeit import default_timer as timer
 import traceback
+import logging
 
 from app.backend.config import (SERVER_PORT, ERROR_HANDLING, LOG_THREAD,
                             HEADER_SIZE, PACKET_SIZE)
@@ -13,13 +14,13 @@ from app.backend.config import (SERVER_PORT, ERROR_HANDLING, LOG_THREAD,
 class HeaderOverflowError(ConnectionError):
     pass
 
-def log_exception(exception, pre_message='', printf=None):
+def format_exception(exception, pre_message='', printf=None):
     if not printf:
         printf = print
-    printf(pre_message)
-    printf('The traceback is as follows:')
-    printf(*traceback.format_list(traceback.extract_tb(exception.__traceback__)))
-    printf(str(exception))
+    msg = pre_message + '\nThe traceback is as follows:\n'
+    msg += '\n'.join(*traceback.format_list(traceback.extract_tb(exception.__traceback__)))
+    msg += str(exception)
+    printf(msg)
 
 
 class DistantFunc(Thread):
@@ -70,7 +71,7 @@ class MessageHandler:
 
     #-- Higher level sending methods. Use those.
     @staticmethod
-    def send_json(msg, printf=None):
+    def send_json(msg, logger=None):
         connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexion.connect(('localhost', SERVER_PORT))
         try:
@@ -80,13 +81,13 @@ class MessageHandler:
                 raise
             else:
                 info = 'An error occured while sending the following message:\n%s' % msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
         finally:
             connexion.close()
         pass
 
     @staticmethod
-    def send_python(msg, printf=None):
+    def send_python(msg, logger=None):
         try:
             json_msg = json.dumps(msg, separators=(',', ':'))
         except Exception as err:
@@ -94,13 +95,13 @@ class MessageHandler:
                 raise
             else:
                 info = 'An error occured while sending the following message:\n%s' % msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
         else:
             MessageHandler.send_json(json_msg)
         pass
 
     @staticmethod
-    def send_recv_json(msg, printf=None):
+    def send_recv_json(msg, logger=None):
         connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexion.connect(('localhost', SERVER_PORT))
         try:
@@ -111,12 +112,12 @@ class MessageHandler:
                 raise
             else:
                 info = 'An error occured while sending the following message and waiting for a reply:\n%s' % msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
         finally:
             connexion.close()
         pass
 
-    def send_recv_python(msg, printf=None):
+    def send_recv_python(msg, logger=None):
         try:
             msg = json.dumps(msg, separators=(',', ':'))
             return json.loads(MessageHandler.send_recv_json(msg))
@@ -125,12 +126,12 @@ class MessageHandler:
                 raise
             else:
                 info = 'An error occured while sending the following message and waiting for a reply:\n%s' % msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
         pass
 
     #-- Handling methods for automatic function calls
     @staticmethod
-    def handle_decoded(action, klass, printf=None):
+    def handle_decoded(action, klass, logger=None):
         try:
             method = action['method_name']
         except AttributeError as err:
@@ -138,7 +139,7 @@ class MessageHandler:
                 raise
             else:
                 info = "The following action doesn't have a method_name attribute, aborting:\n%s" % action
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
                 return
         try:
             args = action['args']
@@ -159,7 +160,7 @@ class MessageHandler:
             return func()
 
     @staticmethod
-    def encode_python(python_msg, printf=None):
+    def encode_python(python_msg, logger=None):
         try:
             return json.dumps(python_msg, separators=(',', ':'))
         except Exception as err:
@@ -167,11 +168,11 @@ class MessageHandler:
                 raise
             else:
                 info = 'Could not encode the following python:\n%s' % python_msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
                 return
 
     @staticmethod
-    def decode_json(json_msg, printf=None):
+    def decode_json(json_msg, logger=None):
         try:
             action = json.loads(json_msg)
         except json.JSONDecodeError as err:
@@ -179,7 +180,7 @@ class MessageHandler:
                 raise
             else:
                 info = 'Could not decode the following json:\n%s' % json_msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
                 return
         try:
             if not isinstance(action, Mapping):
@@ -189,7 +190,7 @@ class MessageHandler:
                 raise
             else:
                 info = 'The following json is not a mapping:\n%s' % json_msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
                 return {}
         return action
 
@@ -199,7 +200,7 @@ class MessageHandler:
         return MessageHandler.handle_decoded(action, klass)
 
     @staticmethod
-    def route_json(json_msg, destinations, printf=None):
+    def route_json(json_msg, destinations, logger=None):
         action = MessageHandler.decode_json(json_msg)
         try:
             destination = destinations[action['type']]
@@ -208,7 +209,7 @@ class MessageHandler:
                 raise
             else:
                 info = "Could not route the following json for it doesn't have a 'type' field:\n%s" % json_msg
-                log_exception(err, info, printf)
+                logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
                 return
         return MessageHandler.handle_decoded(action, destination)
 
@@ -221,6 +222,7 @@ class Server(Thread):
         self.socks = []
         self.clients = []
         self.infos = {}
+        self.LOGGER = logging.getLogger('agorado.backend.network')
         if LOG_THREAD:
             self.time = timer()
 
@@ -238,7 +240,7 @@ class Server(Thread):
                 self.clients.append(client)
                 self.infos[client] = infos
             else:
-                self.print('refused connexion from %s' % infos)
+                self.LOGGER.info('refused connexion from %s' % infos)
                 client.close()
 
     def _listen_clients(self, timeout):
@@ -258,7 +260,7 @@ class Server(Thread):
                             raise
                         else:
                             info = """An exception occured while handling a message:\nclient: %s\nclient infos: %s\nmessage: %s""" % (client, self.infos[client], msg)
-                            log_exception(err, info, self.print)
+                            format_exception(err, info, self.LOGGER.warning)
                         pass
             finally:
                 for client in to_read:
@@ -268,8 +270,7 @@ class Server(Thread):
         if LOG_THREAD:
             if timer() - self.time > 5:
                 self.time = timer()
-                self.print('Thread %s is still alive' % self.name)
-                self.print(self.socks)
+                self.LOGGER.info('Thread %s is still alive' % self.name)
 
     def _handle_message(self, msg, client, info):
         try:
@@ -279,7 +280,7 @@ class Server(Thread):
                 raise
             else:
                 info = """The following byte message could not be decoded into str:\nclient: %s\nclient infos: %s\nmessage: %s""" % (client, info, msg)
-                log_exception(err, info, self.print)
+                format_exception(err, info, self.LOGGER.warning)
         else:
             self.handle_message(msg, client, info)
 
@@ -294,7 +295,7 @@ class Server(Thread):
                 raise
             else:
                 info = 'The following exception occured in thread %s:\n' % self.name
-                log_exception(err, info, self.print)
+                self.LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
         finally:
             self.print('Closing ports used by backend ...')
             for sock in self.socks:
@@ -312,8 +313,8 @@ Used for initializing the thread"""
 For handling the message before byte decoding, see _handle_message"""
         pass
 
-    def print(self, *args, **kwargs):
-        prefix = '[BACKEND][Thread %s] ' % self.name
-        args = (prefix + str(args[0]),) + args[1:]
-        print(*[str(arg).replace('\n', '\n' + prefix) for arg in args], **kwargs)
-    pass
+#    def print(self, *args, **kwargs):
+#        prefix = '[BACKEND][Thread %s] ' % self.name
+#        args = (prefix + str(args[0]),) + args[1:]
+#        print(*[str(arg).replace('\n', '\n' + prefix) for arg in args], **kwargs)
+#    pass

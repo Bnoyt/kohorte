@@ -5,10 +5,13 @@ DOWN.bat
 .idea/
 
 #__pycache__ ignore
-__pycache__/
+*/__pycache__/
 *.pyc
 *.py.orig
 
 #ignore database
 *.sqlite3
 app/clustering/memory
+
+#ignore log files
+*.log
