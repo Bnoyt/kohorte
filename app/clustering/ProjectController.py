@@ -277,7 +277,7 @@ class ProjectController(Thread):
             # TODO : clean shutdown code
             print("shutting down")
         except Exception as err:
-            info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup"
+            info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup\n"
             log_exception(err, info, self.prefixed_print)
             pass
 
