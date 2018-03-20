@@ -12,6 +12,7 @@ object est le noeud qui se fait créer
 
 *nf_type
 branch d'un noeud : "branch"
+réponse à un post : "answer"
 
 ## labels django
 
