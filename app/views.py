@@ -376,6 +376,10 @@ def edit_message(request):
             postToEdit.contenu = post['contenu']
             postToEdit.save()
             
+            if request.user != postToEdit.auteur.user:
+              #dans ce cas c'est un modérateur qui a effectué la modification
+              notify.send(request.user, recipient=postToEdit.auteur.user, actor=request.user, verb='édité', target=postToEdit, nf_type='modo')
+            
             include_tags(post, postToEdit)
             #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('commentaire.html')
@@ -411,7 +415,7 @@ def ajouter_commentaire(request):
             template = loader.get_template('commentaire.html')
             context={'c':(c,[], {})}
             publication = template.render(context,request)
-            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', target=pere, nf_type='answer')
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, target=pere, nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
@@ -442,6 +446,7 @@ def ajouter_reponse(request):
             context={'r':[r,[]]
             }
             publication = template.render(context,request)
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, target=pere, nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
