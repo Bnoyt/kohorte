@@ -14,6 +14,9 @@ from app.backend.config import (SERVER_PORT, ERROR_HANDLING, LOG_THREAD,
 class HeaderOverflowError(ConnectionError):
     pass
 
+class RoutingError(Exception):
+    pass
+
 def format_exception(exception, pre_message='', printf=None):
     if not printf:
         printf = print
@@ -211,6 +214,8 @@ class MessageHandler:
                 info = "Could not route the following json for it doesn't have a 'type' field:\n%s" % json_msg
                 logger.exception(info, exc_info=(err.__class__, err, err.__traceback__))
                 return
+        except KeyError as err:
+            raise RoutingError('Cannot route the message, unknown destination')
         return MessageHandler.handle_decoded(action, destination)
 
 class Server(Thread):
@@ -282,7 +287,11 @@ class Server(Thread):
                 info = """The following byte message could not be decoded into str:\nclient: %s\nclient infos: %s\nmessage: %s""" % (client, info, msg)
                 format_exception(err, info, self.LOGGER.warning)
         else:
-            self.handle_message(msg, client, info)
+            try:
+                self.handle_message(msg, client, info)
+            except Exception as err:
+                info = "The following message from %s(%s) could not be handled:\nmsg:%s" % (client, info, msg)
+                format_exception(err, info, self.LOGGER.warning)
 
     def run(self):
         try:

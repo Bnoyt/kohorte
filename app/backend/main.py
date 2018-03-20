@@ -4,7 +4,7 @@ import logging
 
 
 from app.backend.config import SERVER_PORT, CONTROLLERS_AS_DAEMON, ERROR_HANDLING
-from app.backend.network import MessageHandler, Server
+from app.backend.network import MessageHandler, Server, RoutingError
 from app.clustering.ProjectController import ProjectController
 
 
@@ -37,7 +37,11 @@ class Main(Server):
         pass
 
     def handle_message(self, msg, client, info):
-        output = MessageHandler.route_json(msg, self.destinations, self.print)
+        try:
+            output = MessageHandler.route_json(msg, self.destinations, self.print)
+        except RoutingError as err:
+            info = "The specified project or command target doesn't exist"
+            raise NameError(info) from err
         if output:
             json = MessageHandler.encode_python(output, self.print)
             MessageHandler.send_over(json.encode(), client)
