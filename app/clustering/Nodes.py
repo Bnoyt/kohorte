@@ -143,7 +143,7 @@ class TagNode(BaseNode):
         return "(" + str(self.database_id) + ") tag node : " + self.slug
 
 
-class QuoteNode(BaseNode):
+class CitationNode(BaseNode):
     def __init__(self, database_id):
         super().__init__(database_id)
 

@@ -130,8 +130,7 @@ class AttemptSplit(GenericProcedure):
         node = 1
         base_node_subgraph = node_members(self.project_controller.theGraph.baseGraph, node)
 
-        simplified_graph = roots_and_leaves(base_node_subgraph)
-        carry_over_important_edges(base_node_subgraph, simplified_graph)
+        simplified_graph = simple_graph(base_node_subgraph)
         basic_filter(simplified_graph)
 
         num_wanted = 5
@@ -151,7 +150,6 @@ class AttemptSplit(GenericProcedure):
 '''filtering and preparation'''
 
 
-# TODO
 def node_members(mdg, node):
     """ returns a subgraph with all the objects within a given node """
     posts = []
@@ -170,6 +168,38 @@ def node_members(mdg, node):
     return mdg.subgraph(posts + list(tags) + list(citations))
 
 
+def simple_graph(mdg: nx.MultiDiGraph):
+    ng = nx.Graph()
+
+    for n in mdg.nodes:
+        if isinstance(n, Nodes.NoeudNode):
+            ng.add_node(n)
+
+    def add_edge_sum(n1, n2, default_weight):
+        try:
+            dw = ng[n1][n2]["default_weight"] + default_weight
+        except KeyError:
+            dw = default_weight
+        ng.add_edge(n1, n2, default_weight=dw)
+
+    for pn in ng.nodes:
+        for e in get_out_edges(mdg, pn, param.parent_post):
+            add_edge_sum(e[0], e[1], e[2]["default_weight"])
+        for e in get_out_edges(mdg, pn, param.tagged_with):
+            ng.add_node(e[1])
+            add_edge_sum(e[0], e[1], e[2]["default_weight"])
+        for e in get_out_edges(mdg, pn, param.group_recommended):
+            if e[1] in ng.nodes:
+                add_edge_sum(e[0], e[1], e[2]["default_weight"])
+        for e in get_in_edges(mdg, pn, param.source_citation):
+            cit = e[0]
+            for e2 in get_in_edges(mdg, cit, param.uses_citation):
+                if e2[0] in ng.nodes:
+                    add_edge_sum(e[1], e2[0], e[2]["default_weight"])
+
+    return ng
+
+
 def roots_and_leaves(mdg: nx.MultiDiGraph):
     """ A terme, renverra un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
     Cree de nouveaux edges de cle param.head_and_leaf_reduce
@@ -184,6 +214,7 @@ def roots_and_leaves(mdg: nx.MultiDiGraph):
     for e in mdg.edges(ng.nodes, keys=True, data=True):
         if e[2][0] == param.parent_post:
             ng.add_edge(e[0], e[1], length=1, default_weight=e[3]["default_weight"])
+
     for rn in roots:
         child_pile = list(ng[rn].keys())
         while len(child_pile) > 0:
@@ -198,13 +229,8 @@ def roots_and_leaves(mdg: nx.MultiDiGraph):
                 child_pile.append(gcn)
             if len(grand_children) > 0:
                 ng.remove_node(cn)
+
     return ng
-
-
-# TODO
-def carry_over_important_edges(original_g, simplified_g):
-    """ add the following adges from the multiDiGraph original_g to the simple graph simplified_g """
-    pass
 
 
 def get_bridges(g):
@@ -774,9 +800,44 @@ def ei_uphill_general_conductance(g, comp_list, weight):
 """Decision making"""
 
 
+def eval_indicators(mdg: nx.MultiDiGraph):
+
+    values = dict()
+
+    values[param.num_of_posts] = len(list(filter(lambda n: type(n) == Nodes.PostNode, mdg.nodes)))
+    values[param.num_of_tags] = len(list(filter(lambda n: type(n) == Nodes.TagNode, mdg.nodes)))
+    values[param.num_of_users] = len(list(filter(lambda n: type(n) == Nodes.UserNode, mdg.nodes)))
+    values[param.num_of_citations] = len(list(filter(lambda n: type(n) == Nodes.CitationNode, mdg.nodes)))
+
+    values[param.num_of_tag_use] = len(list(filter(lambda e: e[2][0] == param.tagged_with, mdg.edges(keys=True))))
+    values[param.num_of_cit_use] = len(list(filter(lambda e: e[2][0] == param.uses_citation, mdg.edges(keys=True))))
+    values[param.num_of_cit_use] = len(list(filter(lambda e: e[2][0] == param.group_recommended, mdg.edges(keys=True))))
+
+    values[param.num_of_characters] = sum(filter(lambda n: n.size if type(n) == Nodes.PostNode else 0, mdg.nodes))
+
+    values[param.depth_value] = 0
+
+    def sum_depth_values(n, depth):
+        res = depth
+        for e in get_in_edges(mdg, n, param.parent_post):
+            res += sum_depth_values(e[0], depth+1)
+        return res
+
+    for n in mdg.nodes:
+        if type(n) == Nodes.PostNode and len(get_out_edges(mdg, n, param.parent_post)) == 0:
+            values[param.depth_value] += sum_depth_values(n, 1)
+
+    return values
+
+
 # TODO
-def judge_split(g, comps):
-    return []
+def judge_split(g, comps, p_param, cut_necessity=1.0):
+
+    cut_size = []
+    conductance = []
+    global_conductance = 0
+
+
 
 
 '''Global'''

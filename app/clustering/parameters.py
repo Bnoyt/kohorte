@@ -24,6 +24,63 @@ p_procedure1 = dtt.timedelta(seconds=2)
 p_procedure2 = dtt.timedelta(seconds=120)
 p_full_analysis = dtt.timedelta(hours=1)
 
+# Indicator_keys
+
+# activity indicators
+num_of_posts = "num_of_posts"
+num_of_tags = "num_of_tags"
+num_of_tag_use = "num_of_tag_use"
+num_of_users = "num_of_users"
+num_of_votes = "num_of_votes"
+num_of_citations = "num_of_citations"
+num_of_cit_use = "num_of_cit_use"
+num_of_characters = "num_of_characters"
+
+# advancement indicators
+depth_value = "depth_value"  # sum for all posts (depth of post)
+
+# encouragement to split
+
+num_of_group_recom = "num_of_group_recom"
+
+indic_oppose_split_below = {
+    num_of_posts: 3
+}
+
+indic_encourage_split_above = {
+    num_of_posts: 27
+}
+
+indic_value_reference = {
+    num_of_posts: 12,
+    num_of_tags: 5,
+    num_of_tag_use: 15,
+    num_of_users: 20,
+    num_of_citations: 6,
+    num_of_cit_use: 14,
+    num_of_characters: 500,
+
+    depth_value: 25,
+
+    num_of_group_recom: 8
+}
+
+indic_weight_osb = {
+    num_of_posts: 1.0
+}
+
+indic_weight_esa = {
+    num_of_posts: 1.0
+}
+
+indic_weight_ref = {
+    num_of_posts: 1.0
+}
+
+indic_weight_project_cmp = {
+    num_of_posts: 3.0
+}
+
 # Algorithms
 # personalised page rank : teleport probability
 ppr_tp_prob = 0.99
