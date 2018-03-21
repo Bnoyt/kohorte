@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'app',
     'postman',
     'notify',
+    'interfaceNotifyPostman'
 ]
 
 MIDDLEWARE = [
@@ -119,6 +120,7 @@ USE_TZ = True
 
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_DISALLOW_ANONYMOUS = True
+POSTMAN_NOTIFIER_APP = 'interfaceNotifyPostman'
 
 
 # Static files (CSS, JavaScript, Images)
