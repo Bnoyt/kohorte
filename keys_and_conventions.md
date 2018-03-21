@@ -13,6 +13,8 @@ object est le noeud qui se fait créer
 *nf_type
 branch d'un noeud : "branch"
 réponse à un post : "answer"
+action de modération (édition, suppression) : "modo"
+message privé : "mp"
 
 ## labels django
 

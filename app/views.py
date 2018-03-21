@@ -369,15 +369,18 @@ def edit_message(request):
         if post['contenu'] != '':
             texte = "succes"
             question = get_object_or_404(Question,pk=int(post['id_question']))
-            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
             noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
             auteur = get_object_or_404(Utilisateur,user=request.user)
             postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
             postToEdit.contenu = post['contenu']
             postToEdit.save()
             
+            if request.user != postToEdit.auteur.user:
+              #dans ce cas c'est un modérateur qui a effectué la modification
+              notify.send(request.user, recipient=postToEdit.auteur.user, actor=request.user, verb='édité', target=postToEdit, nf_type='modo')
+            
             include_tags(post, postToEdit)
-            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
+            #gm : modifier post
             template = loader.get_template('commentaire.html')
             context={'c':(postToEdit,[], {})}
             publication = template.render(context,request)
@@ -399,7 +402,6 @@ def ajouter_commentaire(request):
         if post['contenu'] != '':
             texte = "succes"
             question = get_object_or_404(Question,pk=int(post['id_question']))
-            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
             noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
             auteur = get_object_or_404(Utilisateur,user=request.user)
             pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
@@ -407,11 +409,10 @@ def ajouter_commentaire(request):
             c.save()
             
             include_tags(post, c)
-            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('commentaire.html')
             context={'c':(c,[], {})}
             publication = template.render(context,request)
-            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb='a commenté votre message.', target=pere, nf_type='answer')
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, target=pere, verb="répondu", nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
@@ -429,7 +430,6 @@ def ajouter_reponse(request):
         if post['contenu'] != '':
             texte = "succes"
             question = get_object_or_404(Question,pk=int(post['id_question']))
-            #gm = GraphModifier.GraphModifier.get(question.id) #TODO gm
             noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
             auteur = get_object_or_404(Utilisateur,user=request.user)
             pere= get_object_or_404(Post,pk=post['pere'].split('_')[1])
@@ -437,11 +437,11 @@ def ajouter_reponse(request):
             r.save()
             
             include_tags(post, r)
-            #gm.create_post(p.id, noeud.id, [t.id for t in p.tags], author.id, p.contenu.len(), p.pere.id)
             template = loader.get_template('reponse.html')
             context={'r':[r,[]]
             }
             publication = template.render(context,request)
+            notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb="répondu", target=pere, nf_type='answer')
         else:
             texte = 'pasdecontenu'
 
@@ -456,10 +456,8 @@ def sauvegarder_citation(request):
 
         contenu = post['contenu']
         publication = get_object_or_404(Post,pk = int(post['id_post']))
-        #gm = GraphModifier.get(publication.question.id) TODO gm
         rapporteur = get_object_or_404(Utilisateur,user=request.user)
         c = Citation(auteur=publication.auteur,post=publication,contenu=contenu,rapporteur=rapporteur)
-        #create_quote(publication.id, rapporteur.id) TODO gm
         c.save()
         question=publication.question
         template = loader.get_template('citation.html')
@@ -630,3 +628,12 @@ def inconstruct(request):
     context = {'page_propos':True}
 
     return render(request, 'inconstruct.html', context)
+
+def signaler_bug(request):
+    form = BugForm(request.POST or None)
+    if form.is_valid():
+        sujet = form.cleaned_data['sujet']
+        message = form.cleaned_data['message']
+        #TODO envoyer mail aux dev
+        return HttpResponseRedirect(reverse('index'))
+    return render(request, 'signaler_bug.html', locals())

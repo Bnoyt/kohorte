@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'app',
     'postman',
     'notify',
+    'interfaceNotifyPostman'
 ]
 
 MIDDLEWARE = [
@@ -119,6 +120,7 @@ USE_TZ = True
 
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_DISALLOW_ANONYMOUS = True
+POSTMAN_NOTIFIER_APP = 'interfaceNotifyPostman'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -127,3 +129,67 @@ POSTMAN_DISALLOW_ANONYMOUS = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT= os.path.join(PROJECT_DIR,'static_media/')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s][p%(process)d:t%(thread)d %(processName)s:%(threadName)s][%(name)s][%(levelname)s] %(message)s'
+        },
+        'detailed': {
+            'format': '[%(threadName)s][%(name)s][%(levelname)s] %(message)s'
+        },
+        'simple': {
+            'format': '[%(name)s][%(levelname)s] %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
+    'handlers': {
+        'simple_console': {
+            'level': 'INFO',
+            'filters': ['require_debug_false'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'detailed_console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': './debug_level.log',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['simple_console'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'agorado': {
+            'handlers': ['simple_console', 'detailed_console', 'mail_admins', 'file'],
+            'level': 'INFO'
+        }
+    }
+}

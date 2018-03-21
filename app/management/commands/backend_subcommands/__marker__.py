@@ -1,0 +1,4 @@
+Package: app.management.commands.backend
+Path: D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands
+Regexp: D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands/*.py
+Glob: ['D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\config.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\except.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\list.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\print.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\start.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\stop.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\test.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\__init__.py', 'D:/Ecole/PSC/B_Site Web/app/management/commands/backend_subcommands\\__marker__.py']
