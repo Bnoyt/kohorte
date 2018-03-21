@@ -137,7 +137,7 @@ class Tag(models.Model):
     
     def save(self, *args, **kwargs):
         super(Tag, self).save(*args, **kwargs)
-        GraphModifier.create_tag(self.id, self.label)
+        GraphModifier.create_tag(self.question.self.id, self.label)
 
     def __str__(self):
         return self.label
@@ -158,7 +158,7 @@ class Citation(models.Model):
     
     def save(self, *args, **kwargs):
         super(Citation, self).save(*args, **kwargs)
-        GraphModifier.create_quote(self.post.id, self.rapporteur.id)
+        GraphModifier.create_quote(self.post.question.id, self.post.id, self.rapporteur.id)
 
     def __str__(self):
         return str(self.rapporteur.user) + ' cite ' + str(self.auteur.user) + ' dans ' + self.contenu
@@ -207,7 +207,7 @@ class Post(models.Model):
         s = RelationUserSuivi(noeud=self.noeud, type_suivi=typeSuivi, user=self.auteur)
         s.save()
         idPere = self.pere.id if self.pere else -1
-        GraphModifier.create_post(self.id, self.noeud.id, [t.id for t in self.tags.all()], self.auteur.id, self.size(), idPere)
+        GraphModifier.create_post(self.question.id, self.id, self.noeud.id, [t.id for t in self.tags.all()], self.auteur.id, self.size(), idPere)
 
     def __str__(self):
         if self.pere == None:

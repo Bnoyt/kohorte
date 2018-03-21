@@ -628,3 +628,12 @@ def inconstruct(request):
     context = {'page_propos':True}
 
     return render(request, 'inconstruct.html', context)
+
+def signaler_bug(request):
+    form = BugForm(request.POST or None)
+    if form.is_valid():
+        sujet = form.cleaned_data['sujet']
+        message = form.cleaned_data['message']
+        #TODO envoyer mail aux dev
+        return HttpResponseRedirect(reverse('index'))
+    return render(request, 'signaler_bug.html', locals())
