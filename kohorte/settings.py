@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 import os
+import django
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'app',
     'postman',
     'notify',
@@ -59,7 +61,9 @@ ROOT_URLCONF = 'kohorte.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates',
+        		'app/templates',
+            django.__path__[0] + '/forms/templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,6 +125,8 @@ USE_TZ = True
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_DISALLOW_ANONYMOUS = True
 POSTMAN_NOTIFIER_APP = 'interfaceNotifyPostman'
+MARKDOWNX_EDITOR_RESIZABLE = False
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 
 # Static files (CSS, JavaScript, Images)
