@@ -30,13 +30,15 @@
 					{{ form.as_p }}
 
 					<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
-					<input type="submit" value="Poster" />
+					<input type="submit" id="form_button" class="btn btn-default" data-dismiss="modal" value="Poster" />
+				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
 
 			</form>
-      {% comment %}
+			
+      
        		<form method="post" class="card-body" id="#formajouterpost">
 				{% csrf_token %}
-				
+				{% comment %}
 				<div style="margin-bottom:10px;">
 					<input class="form-control border-input" id="id_titre" name="titre" placeholder="Titre" type="text"> 
 				</div>
@@ -44,6 +46,7 @@
 				<div style="margin-bottom:10px;">
 					<textarea class="form-control border-input" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
 				</div>
+				
 				<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
 				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
 				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
