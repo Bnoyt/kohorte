@@ -17,6 +17,7 @@ import queue
 import datetime as dtt
 import networkx as nx
 import time as lib_time
+from math import log
 
 #import perso
 import app.clustering.Nodes as Nodes
@@ -831,11 +832,58 @@ def eval_indicators(mdg: nx.MultiDiGraph):
 
 
 # TODO
-def judge_split(g, comps, p_param, cut_necessity=1.0):
+def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
 
-    cut_size = []
-    conductance = []
-    global_conductance = 0
+    num_c = len(comps)
+
+    noeud_indicators = eval_indicators(mdg)
+    comp_indicators = [{}]*num_c
+
+    for i in range(num_c):
+        comp_indicators[i] = eval_indicators(mdg.subgraph(comps[i]))
+
+    def get_count_index(comp, kind, indic):
+        if comp == -1:
+            if kind == "ref":
+                return noeud_indicators[indic] / p_param.indic_value_reference
+            if kind == "osb":
+                return noeud_indicators[indic] / p_param.indic_oppose_split_below[indic]
+            if kind == "esa":
+                return noeud_indicators[indic] / p_param.indic_encourage_split_above[indic]
+            if kind == "project_cmp":
+                return noeud_indicators[indic] / global_means[indic]
+        else:
+            tcn = typical_comp_number
+            if kind == "ref":
+                return comp_indicators[comp][indic] * tcn / p_param.indic_value_reference
+            if kind == "osb":
+                return comp_indicators[comp][indic] * tcn / p_param.indic_oppose_split_below[indic]
+            if kind == "esa":
+                return comp_indicators[comp][indic] * tcn / p_param.indic_encourage_split_above[indic]
+            if kind == "project_cmp":
+                return comp_indicators[comp][indic] * tcn / global_means[indic]
+
+    def get_index_weight(comp, kind, indic):
+        if kind == "ref":
+            return p_param.indic_weight_ref[indic]
+        if kind == "osb":
+            return p_param.indic_weight_osb[indic]
+        if kind == "esa":
+            return p_param.indic_weight_esa[indic]
+        if kind == "project_cmp":
+            return p_param.indic_weight_project_cmp[indic]
+
+    def get_coeff(comp, kind, indic):
+        return log(get_count_index(comp, kind, indic)) * get_index_weight(comp, kind, indic)
+
+    node_activity = 0
+
+    for indic in [param.num_of_posts, param.num_of_tags, param.num_of_tag_use,
+                  param.num_of_citations, param.num_of_cit_use, param.num_of_users,
+                  param.num_of_characters]:
+        node_activity += get_coeff(-1, "ref", indic)
+        node_activity += get_coeff(-1, "project_cmp", indic)
+
 
 
 

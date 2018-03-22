@@ -20,7 +20,6 @@ import app.clustering.ClusteringAlgorithms as ClusterAlg
 import app.clustering.DatabaseAccess as DbAccess
 from app.backend.network import MessageHandler
 
-LOGGER = logging.getLogger('agorado.backend.ProjectController')
 
 
 class ProjectController(Thread):
@@ -34,6 +33,8 @@ class ProjectController(Thread):
         self.name = 'BACKEND_project#%s' % database_id
         self.database_id = database_id
 
+        self.LOGGER = logging.getLogger('agorado.machinerie.' + str(database_id))
+
         self.projectParam = ProjectParameters()
 
         self.path = Path(param.memory_path) / str(database_id)
@@ -42,7 +43,7 @@ class ProjectController(Thread):
                 self.name = control_file.readline()[0:-1]
                 database_id_in_file = int(control_file.readline()[:-1])
                 if database_id_in_file != self.database_id:
-                    raise errors.LoadingError("Incompatible control file format : name not valid")
+                    raise errors.LoadingError("Incompatible control file format : id not valid")
                 self.database_id = int(control_file.readline()[:-1])
                 # TODO : go check if this id is indeed in the database
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
@@ -53,7 +54,8 @@ class ProjectController(Thread):
                 self.memory_free = False
 
         except (IOError, errors.LoadingError):
-                LOGGER.warning("Could not access project memory tree. Launching project in no-saving mode.")
+                self.LOGGER.exception("error while accessing memory : ", exc_info=True)
+                self.LOGGER.warning("Could not access project memory tree. Launching project in no-saving mode.")
                 self.memory_free = True
                 self.projectLogger = prl.ProjectLogger(self.path, active=False)
                 self.register_instructions = []
@@ -97,7 +99,7 @@ class ProjectController(Thread):
     def load_graph(self, use_memory=False):
         if self.graphLoaded:
             self.unload_graph()
-        self.theGraph = prg.ProjectGraph(self, self.projectLogger)
+        self.theGraph = prg.ProjectGraph(self, self.projectLogger, self.projectParam)
         self.graphIsLoading = True
         self.clear_all_modifications()
 
@@ -114,11 +116,11 @@ class ProjectController(Thread):
             self.graphIsLoading = False
             self.theGraph = None
             info = "Error while loading graph from database for project %s: " % self.database_id
-            LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
+            self.LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
             return
 
         self.procedure_table = ClusterAlg.get_procedure_table(self.theGraph)
-        self.dummy_procedure = ClusterAlg.DoNothing()
+        self.dummy_procedure = ClusterAlg.DoNothing(self)
 
         dl = self.projectLogger.log_nothing()
         try:
@@ -126,6 +128,9 @@ class ProjectController(Thread):
             dl = (log_location / "initial_graph.pkl").open('wb')
             pickle.dump(self.theGraph.get_pickle_graph(), dl)
         except IOError:
+            self.LOGGER.exception(msg="error while initiating project logger : ", exc_info=False)
+            self.LOGGER.warning("Could not initialize the logger for this graph. " +
+                                "Modifications and algorithms will not be saved")
             self.projectLogger.active = False
         finally:
             dl.close()
@@ -159,7 +164,6 @@ class ProjectController(Thread):
             inst = self.theGraph.branch_instructions.get(0)
 
     def abandon_memory(self):
-        LOGGER.warning("Rebind failed. Project %s continuing in no-saving mode" % self.database_id)
         self.memory_free = True
         self.projectLogger = prl.ProjectLogger(self.path, active=False)
         self.register_instructions = []
@@ -168,7 +172,7 @@ class ProjectController(Thread):
     def rebind_memory(self, new_path_string):
         new_path = Path(new_path_string)
         if not new_path.exists():
-            LOGGER.error("Error : could not rebind path, " + str(new_path_string) + " does not exist")
+            self.LOGGER.error("Error : could not rebind path, " + str(new_path_string) + " does not exist")
             return False
         self.path = new_path
         try:
@@ -187,7 +191,10 @@ class ProjectController(Thread):
                 self.memory_free = False
 
         except (IOError, errors.LoadingError):
-                self.abandon_memory()
+            self.LOGGER.exception(self, exc_info=False)
+            info = "Memory rebind failed. Project %s continuing in no-saving mode." % self.database_id
+            self.LOGGER.warning(info)
+            self.abandon_memory()
 
     def interuptible_sleep(self, duration):
         """sleeps for approximately duration seconds, but stops if a shutdown is required."""
@@ -202,7 +209,7 @@ class ProjectController(Thread):
 
             self.load_graph(use_memory=self.clean_shutdown)
 
-            LOGGER.info("Backend %s successfully initiated. Begining algorithmic analysis." % self.database_id)
+            self.LOGGER.info("Backend %s successfully initiated. Begining algorithmic analysis." % self.database_id)
 
             while not self.shutdown_req():
 
@@ -277,10 +284,10 @@ class ProjectController(Thread):
                         self.running_algorithm = True
 
             # TODO : clean shutdown code
-            LOGGER.info("shutting down")
+            self.LOGGER.info("shutting down")
         except Exception as err:
             info = "An error occured while running. THREAD STOPPED !\nCould not execute proper cleanup"
-            LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
+            self.LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
             pass
 
     def _handle_command(self, msg):

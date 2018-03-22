@@ -2,7 +2,7 @@
 
 #imports lib
 import networkx as nx
-import queue
+import logging
 
 # import dependencies
 import app.clustering.GraphModifications as mods
@@ -18,6 +18,8 @@ class ProjectGraph:
         self.projectParam = projectParam
 
         self.branch_instructions = []
+
+        self.LOGGER = logging.getLogger('agorado.machinerie.' + str(projectController.database_id) + '.ProjectGraph')
 
         if pg is None:
 
@@ -184,8 +186,8 @@ class ProjectGraph:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
 
-        print("Graph loaded. No critical issue encountered. " + str(incoherences)
-              + " incoherences encounered and silenced.")
+        self.LOGGER.info("Graph loaded. No critical issue encountered. " + str(incoherences)
+                         + " incoherences encounered and silenced.")
 
     def apply_modification(self, modif: mods.GenericModification):
         try:

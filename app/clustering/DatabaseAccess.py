@@ -194,7 +194,7 @@ class NoeudNodeIterator(GraphElementIterator):
 
 class CitationNodeIterator(GraphElementIterator):
     def next(self):
-        return Nodes.QuoteNode(next(self.qs_iterator).id)
+        return Nodes.CitationNode(next(self.qs_iterator).id)
 
 
 class UserNodeIterator(GraphElementIterator):
