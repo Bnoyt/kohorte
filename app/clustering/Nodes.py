@@ -70,7 +70,7 @@ class PostNode(BaseNode):
         if "value" in kwargs:
             self.value = kwargs["value"]
         else:
-            self.value = param.post_node_default_value
+            self.value = param.default.post_node_default_value
         self.deleted = False
 
     @staticmethod

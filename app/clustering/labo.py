@@ -24,5 +24,4 @@ class A:
 
 def run():
     param = Parameter()
-    print(param.time_dilation)
-    print(param.p_attempt_split)
+    print(param.default_edge_weight)

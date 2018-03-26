@@ -2,6 +2,21 @@
 import datetime as dtt
 import time
 
+# edge keys
+
+parent_noeud = "parent_noeud"  # parend -> enfant (représente la dépendance)
+belongs_to = "belongs_to"  # post -> noeud
+tagged_with = "tagged_with"  # post -> tag
+parent_post = "parent_post"  # post enfant -> post parent
+auteur_of_post = "auteur_of_post"  # post -> user
+group_recommended = "group_recommended"  # post -> post (orientation not sepcified)
+user_vote = "user_vote"  # user -> vote
+uses_citation = "uses_citation"  # post -> citation
+source_citation = "source citation"  # citation -> post
+raporteur_citation = "raporteur_citation"  # citation -> utilisateur
+
+head_and_leaf_reduce = "hnl_reduce"
+
 # Indicator_keys
 
 # activity indicators

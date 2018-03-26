@@ -94,7 +94,7 @@ class Procedure1(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
         self.name = "procedure1"
-        self.period = param.p_procedure1
+        self.period = self.p_param.p_procedure1
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -104,7 +104,7 @@ class Procedure1(GenericProcedure):
 class Procedure2(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_procedure2
+        self.period = self.p_param.p_procedure2
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -114,7 +114,7 @@ class Procedure2(GenericProcedure):
 class GlobalAnalysis(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_full_analysis
+        self.period = self.p_param.p_full_analysis
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -123,7 +123,7 @@ class GlobalAnalysis(GenericProcedure):
 class AttemptSplit(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_full_analysis
+        self.period = self.p_param.p_full_analysis
 
     def run(self, log_channel):
         self.last_run_time = param.now()
