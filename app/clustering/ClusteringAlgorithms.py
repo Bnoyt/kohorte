@@ -76,9 +76,9 @@ class GenericProcedure:
         pass
 
 
-def get_procedure_table(the_graph):
-    return [Procedure1(the_graph),
-            Procedure2(the_graph)
+def get_procedure_table(project_controller):
+    return [Procedure1(project_controller),
+            Procedure2(project_controller)
             ]
 
 
@@ -91,10 +91,10 @@ class DoNothing(GenericProcedure):
 
 
 class Procedure1(GenericProcedure):
-    def __init__(self, the_graph):
-        super().__init__(the_graph)
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
         self.name = "procedure1"
-        self.period = param.p_procedure1
+        self.period = self.p_param.p_procedure1
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -102,9 +102,9 @@ class Procedure1(GenericProcedure):
 
 
 class Procedure2(GenericProcedure):
-    def __init__(self, the_graph):
-        super().__init__(the_graph)
-        self.period = param.p_procedure2
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
+        self.period = self.p_param.p_procedure2
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -114,7 +114,7 @@ class Procedure2(GenericProcedure):
 class GlobalAnalysis(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_full_analysis
+        self.period = self.p_param.p_full_analysis
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -123,7 +123,7 @@ class GlobalAnalysis(GenericProcedure):
 class AttemptSplit(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_full_analysis
+        self.period = self.p_param.p_full_analysis
 
     def run(self, log_channel):
         self.last_run_time = param.now()

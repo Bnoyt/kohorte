@@ -85,7 +85,8 @@ class ProjectGraph:
                 edge_key = self.param.tagged_with
                 while n1 in self.baseGraph[n0] and (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -94,7 +95,8 @@ class ProjectGraph:
             try:
                 n0 = self.databasePostIDMap[edge[0]]
                 n1 = self.databaseNoeudIDMap[edge[1]]
-                self.baseGraph.add_edge(n0, n1, key=(param.belongs_to, 0), default_weight=param.def_w[param.belongs_to])
+                self.baseGraph.add_edge(n0, n1, key=(param.belongs_to, 0), 
+                                        default_weight=self.projectParam.default_edge_weight[param.belongs_to])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -107,7 +109,8 @@ class ProjectGraph:
                 edge_key = param.belongs_to
                 while (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -120,7 +123,8 @@ class ProjectGraph:
                 edge_key = param.source_citation
                 while (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -133,7 +137,8 @@ class ProjectGraph:
                 edge_key = param.raporteur_citation
                 while (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -146,7 +151,8 @@ class ProjectGraph:
                 edge_key = param.parent_noeud
                 while (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -160,7 +166,8 @@ class ProjectGraph:
                 edge_key = param.user_vote
                 while (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key],
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key],
                                         vote_type=d["vote_type"])
             except KeyError as error:
                 incoherences += 1
@@ -171,7 +178,8 @@ class ProjectGraph:
                 n0 = self.databasePostIDMap[edge[0]]
                 n1 = self.databaseUserIDMap[edge[1]]
                 edge_key = param.auteur_of_post
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))
@@ -181,7 +189,8 @@ class ProjectGraph:
                 n0 = self.databaseUserIDMap[edge[0]]
                 n1 = self.databaseNoeudIDMap[edge[1]]
                 edge_key = param.parent_noeud
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
                 incoherences += 1
                 # print("KeyError while loading graph : " + str(error))

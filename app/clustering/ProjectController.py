@@ -21,7 +21,6 @@ import app.clustering.DatabaseAccess as DbAccess
 from app.backend.network import MessageHandler
 
 
-
 class ProjectController(Thread):
     """Chaque projet qui tourne sera géré par une unique instance de cette classe"""
 
@@ -35,7 +34,7 @@ class ProjectController(Thread):
 
         self.LOGGER = logging.getLogger('agorado.machinerie.' + str(database_id))
 
-        self.projectParam = ProjectParameters()
+        self.projectParam = param.Parameter()
 
         self.path = Path(param.memory_path) / str(database_id)
         try:
@@ -119,7 +118,7 @@ class ProjectController(Thread):
             self.LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
             return
 
-        self.procedure_table = ClusterAlg.get_procedure_table(self.theGraph)
+        self.procedure_table = ClusterAlg.get_procedure_table(self)
         self.dummy_procedure = ClusterAlg.DoNothing(self)
 
         dl = self.projectLogger.log_nothing()
@@ -252,7 +251,7 @@ class ProjectController(Thread):
                             self.register_instructions.pop()
                             self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
 
-                        chosen_procedure.run(self.open_algo_log_file, self)
+                        chosen_procedure.run(self.open_algo_log_file)
 
                         self.open_algo_log_file.close() # probably not necessary, but I put it here just in case
                         self.open_algo_log_file = self.projectLogger.log_nothing()
@@ -316,11 +315,26 @@ class ProjectController(Thread):
     def shutdown(self):
         self._shutdown_requested = True
 
-    def change_parameters(self, **kwargs):
-        if self.running_algorithm:
-            self._end_of_cycle.append({'method_name': 'change_parameters', 'kwargs': kwargs})
+    def change_parameter(self, *args, **kwargs):
+        if "dict" in kwargs:
+            pass
         else:
-            self.projectParam.update_parameters(kwargs)
+            try:
+                var_name = kwargs["name"]
+            except KeyError:
+                self.LOGGER.warning("Could not change parameter : you must specify a parameter name")
+                return
+            try:
+                value = kwargs["value"]
+            except KeyError:
+                self.LOGGER.warning("Could not change parameter : you must specify a parameter value")
+                return
+
+            try:
+                vars(self.projectParam)[var_name] = value
+            except ValueError:
+                info = "could not change parameter " + str(var_name) + " to value " + str(value)
+                self.LOGGER.exception(msg= info, exc_info=True)
 
     def change_memory_path(self, *args):
         if self.running_algorithm:
@@ -343,40 +357,3 @@ class ProjectController(Thread):
         else:
             self.unload_graph()
             self.load_graph(use_memory)
-
-
-class ProjectParameters:
-
-    def __init__(self):
-
-        self._assertions = param.assertions
-        self._type_read = param.type_read
-
-        self.modified = []
-
-        self.ppr_tp_prob = param.ppr_tp_prob
-        self.ppr_precision = param.ppr_precision
-
-    def write_to_file(self, csv_file):
-
-        for key in self.modified:
-            csv_file.writerow([key, self.__dict__[key]])
-
-    def read_from_file(self, csv_file):
-
-        key, value = csv_file.readrow()
-        self.update_parameters({key: value})
-
-    def update_parameters(self, kwargs):
-        for key, value in kwargs.items():
-            if key not in self._type_read():
-                LOGGER.warning(key + " is not a valid parameter")
-                return False
-
-            if key in self._assertions:
-                if not self._assertions[key](value):
-                    LOGGER.warning(str(value) + " is not a valid value for parameter " + key)
-                    return False
-
-            self.__dict__[key] = self._type_read[key](kwargs[key])
-            self.modified.append(key)
