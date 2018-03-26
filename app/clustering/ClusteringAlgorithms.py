@@ -76,9 +76,9 @@ class GenericProcedure:
         pass
 
 
-def get_procedure_table(the_graph):
-    return [Procedure1(the_graph),
-            Procedure2(the_graph)
+def get_procedure_table(project_controller):
+    return [Procedure1(project_controller),
+            Procedure2(project_controller)
             ]
 
 
@@ -91,8 +91,8 @@ class DoNothing(GenericProcedure):
 
 
 class Procedure1(GenericProcedure):
-    def __init__(self, the_graph):
-        super().__init__(the_graph)
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
         self.name = "procedure1"
         self.period = param.p_procedure1
 
@@ -102,8 +102,8 @@ class Procedure1(GenericProcedure):
 
 
 class Procedure2(GenericProcedure):
-    def __init__(self, the_graph):
-        super().__init__(the_graph)
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
         self.period = param.p_procedure2
 
     def run(self, log_channel):

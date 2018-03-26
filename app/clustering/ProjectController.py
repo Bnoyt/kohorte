@@ -119,7 +119,7 @@ class ProjectController(Thread):
             self.LOGGER.exception(info, exc_info=(err.__class__, err, err.__traceback__))
             return
 
-        self.procedure_table = ClusterAlg.get_procedure_table(self.theGraph)
+        self.procedure_table = ClusterAlg.get_procedure_table(self)
         self.dummy_procedure = ClusterAlg.DoNothing(self)
 
         dl = self.projectLogger.log_nothing()
@@ -252,7 +252,7 @@ class ProjectController(Thread):
                             self.register_instructions.pop()
                             self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
 
-                        chosen_procedure.run(self.open_algo_log_file, self)
+                        chosen_procedure.run(self.open_algo_log_file)
 
                         self.open_algo_log_file.close() # probably not necessary, but I put it here just in case
                         self.open_algo_log_file = self.projectLogger.log_nothing()
@@ -349,6 +349,8 @@ class ProjectParameters:
 
     def __init__(self):
 
+        self.LOGGER = logging.getLogger('agorado.machinerie.ProjectParameters')
+
         self._assertions = param.assertions
         self._type_read = param.type_read
 
@@ -356,6 +358,7 @@ class ProjectParameters:
 
         self.ppr_tp_prob = param.ppr_tp_prob
         self.ppr_precision = param.ppr_precision
+        self.time_dilation = param.time_dilation
 
     def write_to_file(self, csv_file):
 

@@ -1,163 +1,181 @@
 import datetime as dtt
-import time
+from app.clustering.Keys import *
 
-assertions = {}
-type_read = {}
+def getter_factory(var_name):
+    def getter(self):
+        return vars(self)[var_name]
 
-# port of the Main Backend Server
-SERVER_PORT = 65533
+    return getter
 
-# Command keys
 
-shutdown_command = "shutdown"
+def nn_integer_pf(var_name):
+    def setter(self, value):
+        v = int(value)
+        if v >= 0:
+            vars(self)[var_name] = v
+        else:
+            raise ValueError('the value for ' + var_name + ' must be non-negative')
 
-# path to the clustering memory
-memory_path = "./app/clustering/memory/"
+    return property(getter_factory(var_name), setter)
 
-# Project controler decision parameters
 
-idle_execution_period = dtt.timedelta(seconds=3)
-time_dilation = 1.0
-type_read["time_dilation"] = float
+def zero_to_one_pf(var_name):
+    def setter(self, value):
+        v = float(value)
+        if 0.0 <= v <= 1.0:
+            vars(self)[var_name] = v
+        else:
+            raise ValueError('the value for ' + var_name + ' must be between 0 and 1')
 
-p_procedure1 = dtt.timedelta(seconds=2)
-p_procedure2 = dtt.timedelta(seconds=120)
-p_full_analysis = dtt.timedelta(hours=1)
+    return property(getter_factory(var_name), setter)
 
-# Indicator_keys
 
-# activity indicators
-num_of_posts = "num_of_posts"
-num_of_tags = "num_of_tags"
-num_of_tag_use = "num_of_tag_use"
-num_of_users = "num_of_users"
-num_of_votes = "num_of_votes"
-num_of_citations = "num_of_citations"
-num_of_cit_use = "num_of_cit_use"
-num_of_characters = "num_of_characters"
+def duration_pf(var_name):
+    def setter(self, value):
+        if type(value) == dtt.timedelta:
+            vars(self)[var_name] = value
+        else:
+            v = int(value)
+            if 0 < v:
+                vars(self)[var_name] = dtt.timedelta(seconds=v)
+            else:
+                raise ValueError('the value for ' + var_name + ' must be a positive number of seconds')
 
-# advancement indicators
-depth_value = "depth_value"  # sum for all posts (depth of post)
+    return property(getter_factory(var_name), setter)
 
-# encouragement to split
 
-num_of_group_recom = "num_of_group_recom"
+def float_pf(var_name):
+    def setter(self, value):
+        vars(self)[var_name] = float(value)
 
-indic_oppose_split_below = {
-    num_of_posts: 3
-}
+    return property(getter_factory(var_name), setter)
 
-indic_encourage_split_above = {
-    num_of_posts: 27
-}
 
-indic_value_reference = {
-    num_of_posts: 12,
-    num_of_tags: 5,
-    num_of_tag_use: 15,
-    num_of_users: 20,
-    num_of_citations: 6,
-    num_of_cit_use: 14,
-    num_of_characters: 500,
+class Parameter:
 
-    depth_value: 25,
+    time_dilation = float_pf('__time_dilation')
 
-    num_of_group_recom: 8
-}
+    p_global_analysis = duration_pf('__p_global_analysis')
+    p_attempt_split = duration_pf('__p_attempt_split')
 
-indic_weight_osb = {
-    num_of_posts: 1.0
-}
+    def __init__(self):
+        assertions = {}
+        type_read = {}
 
-indic_weight_esa = {
-    num_of_posts: 1.0
-}
 
-indic_weight_ref = {
-    num_of_posts: 1.0
-}
+        # Project controler decision parameters
 
-indic_weight_project_cmp = {
-    num_of_posts: 3.0
-}
+        idle_execution_period = dtt.timedelta(seconds=3)
+        self.time_dilation = 1.0
 
-# Algorithms
-# personalised page rank : teleport probability
-ppr_tp_prob = 0.99
-ppr_precision = 0.00000000001
+        self.p_global_analysis = dtt.timedelta(minutes=2)
+        self.p_attempt_split = dtt.timedelta(minutes=2)
 
-# heuristic algorithm parameters
-max_number_of_iterations = 1000000
+        p_procedure1 = dtt.timedelta(seconds=2)
+        p_procedure2 = dtt.timedelta(seconds=120)
+        p_full_analysis = dtt.timedelta(hours=1)
 
-# Eigenvector centrality
 
-# number of iterations for calculation
-eigen_num_iter = 100
+        indic_oppose_split_below = {
+            num_of_posts: 3
+        }
 
-# adjustment of how much other tags are taken into account for the weight of a given tag.
-# Advised between 0 and 1, but could theoretically be any nonnegative number
-tag_weight_transmition = 0.5
+        indic_encourage_split_above = {
+            num_of_posts: 27
+        }
 
-# uphill conductance maximisation
+        indic_value_reference = {
+            num_of_posts: 12,
+            num_of_tags: 5,
+            num_of_tag_use: 15,
+            num_of_users: 20,
+            num_of_citations: 6,
+            num_of_cit_use: 14,
+            num_of_characters: 500,
 
-# a small, nonnegative number to reduce the importance of balance in the conductance edge_improvement algorithm
-# if it is 0, there is no balance dampening
-conductance_balance_dampener = 0
+            depth_value: 25,
 
-# Default node caracteristics
-post_node_default_value = 10.0
+            num_of_group_recom: 8
+        }
 
-# edge keys
+        indic_weight_osb = {
+            num_of_posts: 1.0
+        }
 
-parent_noeud = "parent_noeud"  # parend -> enfant (représente la dépendance)
-belongs_to = "belongs_to"  # post -> noeud
-tagged_with = "tagged_with"  # post -> tag
-parent_post = "parent_post"  # post enfant -> post parent
-auteur_of_post = "auteur_of_post"  # post -> user
-group_recommended = "group_recommended"  # post -> post (orientation not sepcified)
-user_vote = "user_vote"  # user -> vote
-uses_citation = "uses_citation"  # post -> citation
-source_citation = "source citation"  # citation -> post
-raporteur_citation = "raporteur_citation"  # citation -> utilisateur
+        indic_weight_esa = {
+            num_of_posts: 1.0
+        }
 
-head_and_leaf_reduce = "hnl_reduce"
+        indic_weight_ref = {
+            num_of_posts: 1.0
+        }
 
-# Default edge weights
+        indic_weight_project_cmp = {
+            num_of_posts: 3.0
+        }
 
-def_w = {
-    belongs_to:         1.0,
-    tagged_with:        1.5,
-    parent_post:        3.0,
-    group_recommended:  2.0,
-    user_vote:          0.3,
-    uses_citation:      2.2,
-    raporteur_citation: 3.0,
-}
+        # Algorithms
+        # personalised page rank : teleport probability
+        ppr_tp_prob = 0.99
+        ppr_precision = 0.00000000001
 
-default_edge_weight_parent = 3.0
-default_edge_weight_tag = 1.5
-default_edge_weight_recommendation = 2.0
-default_edge_weight_vote = 0.3
-default_node_belonging_weight = 1.0
+        # heuristic algorithm parameters
+        max_number_of_iterations = 1000000
+
+        # Eigenvector centrality
+
+        # number of iterations for calculation
+        eigen_num_iter = 100
+
+        # adjustment of how much other tags are taken into account for the weight of a given tag.
+        # Advised between 0 and 1, but could theoretically be any nonnegative number
+        tag_weight_transmition = 0.5
+
+        # uphill conductance maximisation
+
+        # a small, nonnegative number to reduce the importance of balance in the conductance edge_improvement algorithm
+        # if it is 0, there is no balance dampening
+        conductance_balance_dampener = 0
+
+        # Default node caracteristics
+        post_node_default_value = 10.0
+
+        # edge keys
+
+        parent_noeud = "parent_noeud"  # parend -> enfant (représente la dépendance)
+        belongs_to = "belongs_to"  # post -> noeud
+        tagged_with = "tagged_with"  # post -> tag
+        parent_post = "parent_post"  # post enfant -> post parent
+        auteur_of_post = "auteur_of_post"  # post -> user
+        group_recommended = "group_recommended"  # post -> post (orientation not sepcified)
+        user_vote = "user_vote"  # user -> vote
+        uses_citation = "uses_citation"  # post -> citation
+        source_citation = "source citation"  # citation -> post
+        raporteur_citation = "raporteur_citation"  # citation -> utilisateur
+
+        head_and_leaf_reduce = "hnl_reduce"
+
+        # Default edge weights
+
+        def_w = {
+            belongs_to:         1.0,
+            tagged_with:        1.5,
+            parent_post:        3.0,
+            group_recommended:  2.0,
+            user_vote:          0.3,
+            uses_citation:      2.2,
+            raporteur_citation: 3.0,
+        }
+
+        default_edge_weight_parent = 3.0
+        default_edge_weight_tag = 1.5
+        default_edge_weight_recommendation = 2.0
+        default_edge_weight_vote = 0.3
+        default_node_belonging_weight = 1.0
 
 
 # branching
 
-type_arete_label = "dependance"
-type_suivi_branch_label = "auto pendant branch"
-
-ghost_user_id = 8
-branch_notification_text = " a été créé à partir de "
-nf_type_branch_key = "branch"
-
-upvote_vote_key = "upvote"
-
-forbidden_titles = ["test", "titre"]
-never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
-
-
-def now():
-    return dtt.datetime.fromtimestamp(time.time())
 
 
 #print("Parameters successfully imported")
