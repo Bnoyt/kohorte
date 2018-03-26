@@ -128,6 +128,17 @@ POSTMAN_NOTIFIER_APP = 'interfaceNotifyPostman'
 MARKDOWNX_EDITOR_RESIZABLE = False
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
+#EMAIL_USE_TLS = True
+#EMAIL_HOST = 'ssl.polytechnique.org'
+#EMAIL_PORT = 587
+#EMAIL_HOST_USER = 'prenom.nom.promo'
+#EMAIL_HOST_PASSWORD = 'PassWord'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+DEFAULT_FROM_EMAIL = "agordo@binets.polytechnique.fr"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+ADMINS = [("Webmaster", DEFAULT_FROM_EMAIL)]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/

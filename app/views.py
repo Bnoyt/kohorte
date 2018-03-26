@@ -12,12 +12,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
-
 from django.template import loader
-
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 
 from app.backend.api import GraphModifier as GraphModifier
+
+MAIL_DEV = ['alice.andres+django@polytechnique.edu']
 
 def trouver_hashtags(texte):
     #utiliser regex
@@ -635,5 +636,11 @@ def signaler_bug(request):
         sujet = form.cleaned_data['sujet']
         message = form.cleaned_data['message']
         #TODO envoyer mail aux dev
+        send_mail(
+          '[BUG_REPORT]' + sujet,
+          message,
+          'alice.andres@m4x.org',
+          MAIL_DEV,
+          fail_silently=False)
         return HttpResponseRedirect(reverse('index'))
     return render(request, 'signaler_bug.html', locals())
