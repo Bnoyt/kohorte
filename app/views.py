@@ -364,18 +364,46 @@ def epingler(request):
     else:
         return JsonResponse({"texte":"vafanculo",'post':'arrete gros'})
 
+def delete_message(request):
+    if request.user.is_authenticated:
+        post = request.POST
+
+        publication="rien"
+
+        texte = "succes"
+        postToDelete = get_object_or_404(Post,pk=post['idPostToDelete'])
+        question = postToDelete.question
+        noeud = postToDelete.noeud
+        auteur = postToDelete.auteur
+        if request.user == auteur.user or question in request.user.all():
+            postToDelete.disabled = True
+            postToDelete.save()
+					
+            if request.user != postToDelete.auteur.user:
+                #dans ce cas c'est un modérateur qui a effectué la modification
+                notify.send(request.user, recipient=postToEdit.auteur.user, actor=request.user, verb='supprimé', target=postToEdit, nf_type='modo')
+
+            #gm : modifier post
+            template = loader.get_template('commentaire.html')
+            context={'c':(postToDelete,[], {})}
+            publication = template.render(context,request)
+
+
+        return JsonResponse({'texte':texte,'post':publication,'id_postDeleted':postToDelete.id})
+    else:
+        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+        
 def edit_message(request):
     if request.user.is_authenticated:
         post = request.POST
 
         publication="rien"
 
-        if post['contenu'] != '':
-            texte = "succes"
-            question = get_object_or_404(Question,pk=int(post['id_question']))
-            noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
-            auteur = get_object_or_404(Utilisateur,user=request.user)
-            if request.user == auteur.user or question in request.user.all():
+        texte = "succes"
+        question = get_object_or_404(Question,pk=int(post['id_question']))
+        noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+        auteur = get_object_or_404(Utilisateur,user=request.user)
+        if request.user == auteur.user or question in request.user.all():
                 postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
                 postToEdit.contenu = post['contenu']
                 postToEdit.save()
@@ -393,35 +421,7 @@ def edit_message(request):
             texte = 'pasdecontenu'
 
 
-        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
-    else:
-        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
-        
-def delete_message(request):
-    if request.user.is_authenticated:
-        post = request.POST
-
-        publication="rien"
-
-        texte = "succes"
-        question = get_object_or_404(Question,pk=int(post['id_question']))
-        noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
-        auteur = get_object_or_404(Utilisateur,user=request.user)
-        postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
-        postToEdit.disabled = True
-        postToEdit.save()
-        
-        if request.user != postToEdit.auteur.user:
-          #dans ce cas c'est un modérateur qui a effectué la modification
-          notify.send(request.user, recipient=postToEdit.auteur.user, actor=request.user, verb='supprimé', target=postToEdit, nf_type='modo')
-        
-        #gm : modifier post
-        template = loader.get_template('commentaire.html')
-        context={'c':(postToEdit,[], {})}
-        publication = template.render(context,request)
-
-
-        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
+        return JsonResponse({'texte':texte,'post':publication})
     else:
         return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
 
@@ -471,8 +471,7 @@ def ajouter_reponse(request):
             
             include_tags(post, r)
             template = loader.get_template('reponse.html')
-            context={'r':[r,[]]
-            }
+            context={'r':[r,[]] }
             publication = template.render(context,request)
             notify.send(request.user, recipient=pere.auteur.user, actor=request.user, verb="répondu", target=pere, nf_type='answer')
         else:

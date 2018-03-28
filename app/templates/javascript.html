@@ -200,8 +200,6 @@ function retour_edit(reponse){
       type = 'success';
       notifier(message,type);
       ajout_post(commentaire,id_postToEdit);
-      
-
 
   } else {
       type = "danger";
@@ -211,6 +209,42 @@ function retour_edit(reponse){
   }  
 
 }
+
+function retour_delete(reponse){
+  var message;
+  var type;
+
+
+  if (text=="succes"){
+      message = "Message supprimé avec succès";
+      type = 'success';
+      notifier(message,type);
+      ajout_post(commentaire,"");
+
+  } else {
+      type = "danger";
+      message = "La suppression n'a pas fonctionné";
+      notifier(message,type);
+  
+  }  
+
+}
+
+function retour_delete(reponse){
+  var message;
+  var type;
+  var text = reponse['texte'];
+
+
+  if (text=="succes"){
+      message = "Message supprimé avec succès";
+      type = 'success';
+      notifier(message,type);
+      ajout_post(commentaire,"");
+  }
+
+}
+
 
 function retour_sauvegarder_citation(reponse){
     var id_citation = reponse['id_citation'];
@@ -240,6 +274,13 @@ function ajouter_citation(citation){
     var a = $("#" + id_champ_en_cours);
     a.val(a.val() + citation);
     closeNav();
+
+}
+
+function delete_message(id_post){
+	$.post('{% url "delete_message" %}',{csrfmiddlewaretoken:crsftoken, idPostToDelete:id_post},retour_delete,'json');
+	ajout_post("","");
+    
 
 }
 
@@ -408,10 +449,6 @@ $(".form-reponse").submit(function(event){
     pere = formulaire.attr('id');
 
      $.post('{% url "ajouter_reponse" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,pere:pere,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_ajout_commentaire,'json');
-
-
-
-
     });
 
 $(".form-edit").submit(function(event){
@@ -423,9 +460,6 @@ $(".form-edit").submit(function(event){
     postToEdit = formulaire.attr('id');
 
      $.post('{% url "edit_message" %}',{csrfmiddlewaretoken:crsftoken,noeud:1,postToEdit:postToEdit,contenu:contenu,id_noeud:id_noeud,id_question:id_question},retour_edit,'json');
-
-
-
 
     });
 
