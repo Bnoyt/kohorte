@@ -191,6 +191,8 @@ def noeud(request,noeud_id):
         
         ideesTag = Tag.objects.filter(question=noeud.question)[:5]
         
+        estModo = noeud.question in user.projetModo.all()
+        
         context.update({
             'suivi':suivi,
             'dashboard':True,
@@ -207,6 +209,7 @@ def noeud(request,noeud_id):
             'nouveau_nom':True,
             'utilisateur':user,
             'ideesTag':ideesTag,
+            'estModo':estModo,
         })
         
                
@@ -387,6 +390,34 @@ def edit_message(request):
             publication = template.render(context,request)
         else:
             texte = 'pasdecontenu'
+
+
+        return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
+    else:
+        return JsonResponse({"texte":"vafanculo",'post':'arrete gros','id_pere':'consternant'})
+        
+def delete_message(request):
+    if request.user.is_authenticated:
+        post = request.POST
+
+        publication="rien"
+
+        texte = "succes"
+        question = get_object_or_404(Question,pk=int(post['id_question']))
+        noeud = get_object_or_404(Noeud,pk=int(post['id_noeud']))
+        auteur = get_object_or_404(Utilisateur,user=request.user)
+        postToEdit = get_object_or_404(Post,pk=post['postToEdit'].split('_')[1])
+        postToEdit.disabled = True
+        postToEdit.save()
+        
+        if request.user != postToEdit.auteur.user:
+          #dans ce cas c'est un modérateur qui a effectué la modification
+          notify.send(request.user, recipient=postToEdit.auteur.user, actor=request.user, verb='supprimé', target=postToEdit, nf_type='modo')
+        
+        #gm : modifier post
+        template = loader.get_template('commentaire.html')
+        context={'c':(postToEdit,[], {})}
+        publication = template.render(context,request)
 
 
         return JsonResponse({'texte':texte,'post':publication,'id_postToEdit':post['postToEdit']})
