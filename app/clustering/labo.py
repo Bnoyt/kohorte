@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from app.clustering.parameters import Parameter
+import app.clustering.parameters as param
+import matplotlib.pyplot as plt
+from pathlib import Path
+import pickle
+import networkx as nx
 
 class A:
 
@@ -23,5 +27,15 @@ class A:
 
 
 def run():
-    param = Parameter()
-    print(param.default_edge_weight)
+    path = Path("./app/clustering/memory/3/logs/2018-03-29/17.29.54.690802/initial_graph.pkl")
+    with path.open('rb') as pickle_file:
+        pickle_graph = pickle.load(pickle_file)
+
+    g = pickle_graph.base_graph
+
+    node_colors = [param.node_colors[node.class_rep()] for node in g.nodes]
+
+    lyt = nx.spring_layout(g, k=0.5)
+
+    nx.draw_networkx(g, lyt, with_labels=False, node_color=node_colors)
+    plt.show()

@@ -101,9 +101,6 @@ class Parameter:
     default_edge_weight = non_mutable_pf('_default_edge_weight')
 
     def __init__(self):
-        assertions = {}
-        type_read = {}
-
 
         # Project controler decision parameters
 
@@ -188,7 +185,10 @@ class Parameter:
             group_recommended:  2.0,
             user_vote:          0.3,
             uses_citation:      2.2,
+            source_citation:    4.0,
             raporteur_citation: 3.0,
+            parent_noeud:       2.5,
+            auteur_of_post:     3.0
         }
 
     def read_from_file(self, file_path):

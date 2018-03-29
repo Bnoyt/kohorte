@@ -43,7 +43,6 @@ class ProjectController(Thread):
                 database_id_in_file = int(control_file.readline()[:-1])
                 if database_id_in_file != self.database_id:
                     raise errors.LoadingError("Incompatible control file format : id not valid")
-                self.database_id = int(control_file.readline()[:-1])
                 # TODO : go check if this id is indeed in the database
                 self.clean_shutdown = bool(control_file.readline()[0:-1])
                 self.register_instructions = (control_file.readline()[0:-1]).split(";")
@@ -103,7 +102,6 @@ class ProjectController(Thread):
         self.clear_all_modifications()
 
         try:
-
             self.theGraph.load_from_database(self.database_access)
 
             self.graphIsLoading = False
@@ -112,6 +110,7 @@ class ProjectController(Thread):
             self.apply_modifications(expect_errors=True)
 
         except (errors.DatabaseError, errors.GraphError, nx.NetworkXError) as err:
+
             self.graphIsLoading = False
             self.theGraph = None
             info = "Error while loading graph from database for project %s: " % self.database_id
@@ -204,6 +203,7 @@ class ProjectController(Thread):
                 lib_time.sleep(10)
 
     def run(self):
+
         try:
 
             self.load_graph(use_memory=self.clean_shutdown)
@@ -213,7 +213,7 @@ class ProjectController(Thread):
             while not self.shutdown_req():
 
                 if not self.graphLoaded:
-                    self.interuptible_sleep(param.idle_execution_period.total_seconds())
+                    self.interuptible_sleep(param.default.idle_execution_period.total_seconds())
                     if self.shutdown_req():
                         break
                     self.load_graph()

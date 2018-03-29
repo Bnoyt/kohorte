@@ -149,8 +149,8 @@ class CitationNode(BaseNode):
 
     @staticmethod
     def class_rep():
-        return "qn"
+        return "cn"
 
     def __str__(self):
-        return "(" + str(self.database_id) + ") tag node"
+        return "(" + str(self.database_id) + ") citation node"
 

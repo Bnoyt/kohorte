@@ -51,6 +51,16 @@ upvote_vote_key = "upvote"
 forbidden_titles = ["test", "titre"]
 never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
 
+node_colors = {
+    "bn": "black",
+    "pn": "blue",
+    "nn": "red",
+    "un": "purple",
+    "sn": "white",
+    "tn": "green",
+    "cn": "pink"
+}
+
 
 def now():
     return dtt.datetime.fromtimestamp(time.time())

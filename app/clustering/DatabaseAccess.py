@@ -114,7 +114,7 @@ class DatabaseAccess:
                 "post_uses_citation": GraphElementSet(models.Post.objects.filter(question=question),
                                                               PostUsesCitationIterator),
 
-                "post_source_citation": GraphElementSet(models.Citation.objects.filter(
+                "citation_source_post": GraphElementSet(models.Citation.objects.filter(
                                                                     post__in=models.Post.objects.filter(question=question)),
                                                         CitationSourceIterator),
 
@@ -219,7 +219,7 @@ class TagPostIterator(GraphElementIterator):
             except StopIteration:
                 self.current_post = next(self.qs_iterator)
                 self.tag_qs_iterator = iter(self.current_post.tags.all())
-        return self.current_post.id, next_tag.id
+        return next_tag.id, self.current_post.id
 
 
 class PostNoeudIterator(GraphElementIterator):
@@ -231,7 +231,7 @@ class PostNoeudIterator(GraphElementIterator):
 class VoteIterator(GraphElementIterator):
     def next(self):
         next_vote = next(self.qs_iterator)
-        return next_vote.voteur, next_vote.post, {"vote_type": next_vote.typeVote.label}
+        return next_vote.voteur.id, next_vote.post.id, {"vote_type": next_vote.typeVote.label}
 
 
 class PostUsesCitationIterator(GraphElementIterator):
@@ -269,7 +269,7 @@ class CitationRapporteurIterator(GraphElementIterator):
 class AreteReflexionIterator(GraphElementIterator):
     def next(self):
         next_arete = next(self.qs_iterator)
-        return next_arete.ideeSource, next_arete.ideeDest
+        return next_arete.ideeSource.id, next_arete.ideeDest.id
 
 
 class AuteurPostIterator(GraphElementIterator):
@@ -281,7 +281,7 @@ class AuteurPostIterator(GraphElementIterator):
 class SuiviNoeudIterator(GraphElementIterator):
     def next(self):
         next_suivi = next(self.qs_iterator)
-        return next_suivi.user, next_suivi.noeud
+        return next_suivi.user.id, next_suivi.noeud.id
 
 
 

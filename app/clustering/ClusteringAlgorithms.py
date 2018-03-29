@@ -265,7 +265,7 @@ def get_biconnection_components(g, bridges):
 '''seed and core identification'''
 
 
-def get_central_tags_eigenvectors(g : nx.Graph, num_wanted):
+def get_central_tags_eigenvectors(g: nx.Graph, num_wanted):
     """ returns a set of tags to be used as seeds for a clustering algorithms.
     The tags are chosen to convey a lot of information, and eigenvector clustering is used to quantify how interesting
     a post node is. The argument g can be a graph of a single noeud, or a graph of the whole graph,
@@ -928,14 +928,14 @@ def attr_list_gen(o, d):
     sample = d.popitem()
     d[sample[0]] = sample[1]
     is_edge_list = type(sample[0]) == tuple
-    if(type(o) == nx.Graph or type(o) == nx.graphviews.SubGraph):
-        if(is_edge_list):
+    if type(o) == nx.Graph or type(o) == nx.graphviews.SubGraph:
+        if is_edge_list:
             lo = list(o.edges)
         else:
             lo = list(o.nodes)
-    if(type(o) == set):
+    if type(o) == set:
         lo = list(o)
-    if(type(o) == list):
+    if type(o) == list:
         lo = o
     lr = ['white']*len(lo)
 
@@ -950,7 +950,7 @@ def attr_list_gen(o, d):
                     lr[i] = 'black'
             else:
                 lr[i] = 'black'
-    return(lr)
+    return lr
 
 
 def gen_and_compare(gen_algo, g_param, split_algo, s_param):

@@ -4,6 +4,7 @@
 import csv
 import datetime
 from pathlib import Path
+import logging
 
 # import dependencies
 import app.clustering.parameters as param
@@ -12,11 +13,13 @@ import app.clustering.errors as err
 
 class ProjectLogger:
     def __init__(self, project_path: Path, active=True):
+        self.LOGGER = logging.getLogger('agorado.machinerie.memory')
+        self.LOGGER.info("Project logger is being succesfully initiated")
         if active:
             self.active = True
             self.path = project_path / "logs"
             if not self.path.exists():
-                print("Could not find project log directory for project. De-activating")
+                self.LOGGER.warning("Could not find project log directory for project. De-activating")
                 self.active = False
             self.graph_is_loaded = False
             self.loaded_graph_path = Path()
@@ -55,13 +58,25 @@ class ProjectLogger:
     def log_algorithm(self, algo_name):
         if not self.active:
             return DummyLogChannel()
-        file_path = self.loaded_graph_path / (current_time_string() + "-" + algo_name)
+        file_path = self.loaded_graph_path / (current_time_string() + "-" + algo_name + ".csv")
         try:
             log_file = file_path.open('w')
             return AlgorithmLogChannel(log_file)
         except OSError:
             self.active = False
             return DummyLogChannel()
+
+    def log_text(self, name):
+        if not self.active:
+            return DummyLogChannel()
+        file_path = self.loaded_graph_path / ("x" + current_time_string() + "-" + name + ".txt")
+        try:
+            log_file = file_path.open('w')
+            return TextLogChannel(log_file)
+        except OSError:
+            self.active = False
+            return DummyLogChannel()
+
 
     def log_nothing(self):
         return DummyLogChannel()
@@ -87,6 +102,11 @@ class ModifLogChannel(LogChannel):
 class AlgorithmLogChannel(LogChannel):
     def register(self, node_unique_id, new_group_id):
         self.writer.writerow([node_unique_id, new_group_id])
+
+
+class TextLogChannel(LogChannel):
+    def register(self, line):
+        self.log_file.write(line + "\n")
 
 
 class DummyLogChannel:
