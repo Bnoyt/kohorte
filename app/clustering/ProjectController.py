@@ -186,7 +186,7 @@ class ProjectController(Thread):
 
                 self.memory_free = False
 
-        except (IOError, errors.LoadingError):
+        except (IOError, errors.LoadingError) as err:
                 self.abandon_memory()
 
     def interuptible_sleep(self, duration):
