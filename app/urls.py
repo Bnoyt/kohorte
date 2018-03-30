@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^ajouter_commentaire/$',views.ajouter_commentaire,name='ajouter_commentaire'),
     url(r'^ajouter_reponse/$',views.ajouter_reponse,name='ajouter_reponse'),
     url(r'^edit_message/$',views.edit_message,name='edit_message'),
+    url(r'^delete_message/$',views.delete_message,name='delete_message'),
     url(r'^sauvegarder_citation/$',views.sauvegarder_citation,name='sauvegarder_citation'),
     url(r'^faq/$',views.faq,name='faq'),
     url(r'^profil/$',views.profil,name='profil'),
@@ -20,4 +21,5 @@ urlpatterns = [
     url(r'^suivi_noeud/$',views.suivi_noeud,name='suivi_noeud'),
     url(r'^vote/$',views.vote,name='vote'),
     url(r'^(?P<project_id>[0-9]+)/modo/signal$', views.posts_signales, name='posts_signales'),
+    url(r'^signaler_bug/$', views.signaler_bug, name="signaler_bug"),
 ]

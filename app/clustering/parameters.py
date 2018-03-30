@@ -1,106 +1,201 @@
 import datetime as dtt
-import time
-
-assertions = {}
-type_read = {}
-
-# port of the Main Backend Server
-SERVER_PORT = 65533
-
-# Command keys
-
-shutdown_command = "shutdown"
-
-# path to the clustering memory
-memory_path = "./app/clustering/memory/"
-
-# Project controler decision parameters
-
-idle_execution_period = dtt.timedelta(seconds=3)
-time_dilation = 1.0
-type_read["time_dilation"] = float
-
-p_procedure1 = dtt.timedelta(seconds=2)
-p_procedure2 = dtt.timedelta(seconds=120)
-p_full_analysis = dtt.timedelta(hours=1)
-
-# Algorithms
-# personalised page rank : teleport probability
-ppr_tp_prob = 0.99
-ppr_precision = 0.00000000001
-
-# heuristic algorithm parameters
-max_number_of_iterations = 1000000
-
-# Eigenvector centrality
-
-# number of iterations for calculation
-eigen_num_iter = 100
-
-# adjustment of how much other tags are taken into account for the weight of a given tag.
-# Advised between 0 and 1, but could theoretically be any nonnegative number
-tag_weight_transmition = 0.5
-
-# uphill conductance maximisation
-
-# a small, nonnegative number to reduce the importance of balance in the conductance edge_improvement algorithm
-# if it is 0, there is no balance dampening
-conductance_balance_dampener = 0
-
-# Default node caracteristics
-post_node_default_value = 10.0
-
-# edge keys
-
-parent_noeud = "parent_noeud"  # parend -> enfant (représente la dépendance)
-belongs_to = "belongs_to"  # post -> noeud
-tagged_with = "tagged_with"  # post -> tag
-parent_post = "parent_post"  # post enfant -> post parent
-auteur_of_post = "auteur_of_post"  # post -> user
-group_recommended = "group_recommended"  # post -> post (orientation not sepcified)
-user_vote = "user_vote"  # user -> vote
-uses_citation = "uses_citation"  # post -> citation
-source_citation = "source citation"  # citation -> post
-raporteur_citation = "raporteur_citation"  # citation -> utilisateur
-
-head_and_leaf_reduce = "hnl_reduce"
-
-# Default edge weights
-
-def_w = {
-    belongs_to:         1.0,
-    tagged_with:        1.5,
-    parent_post:        3.0,
-    group_recommended:  2.0,
-    user_vote:          0.3,
-    uses_citation:      2.2,
-    raporteur_citation: 3.0,
-}
-
-default_edge_weight_parent = 3.0
-default_edge_weight_tag = 1.5
-default_edge_weight_recommendation = 2.0
-default_edge_weight_vote = 0.3
-default_node_belonging_weight = 1.0
+from app.clustering.Keys import *
 
 
-# branching
+def getter_factory(var_name):
+    def getter(self):
+        return vars(self)[var_name]
 
-type_arete_label = "dependance"
-type_suivi_branch_label = "auto pendant branch"
-
-ghost_user_id = 8
-branch_notification_text = " a été créé à partir de "
-nf_type_branch_key = "branch"
-
-upvote_vote_key = "upvote"
-
-forbidden_titles = ["test", "titre"]
-never = dtt.datetime(year=2078, month=1, day=1, hour=1, minute=1, second=1)
+    return getter
 
 
-def now():
-    return dtt.datetime.fromtimestamp(time.time())
+def nn_integer_pf(var_name):
+    def setter(self, value):
+        v = int(value)
+        if v >= 0:
+            vars(self)[var_name] = v
+        else:
+            raise ValueError('the value for ' + var_name + ' must be non-negative')
+
+    return property(getter_factory(var_name), setter)
 
 
-#print("Parameters successfully imported")
+def zero_to_one_pf(var_name):
+    def setter(self, value):
+        v = float(value)
+        if 0.0 <= v <= 1.0:
+            vars(self)[var_name] = v
+        else:
+            raise ValueError('the value for ' + var_name + ' must be between 0 and 1')
+
+    return property(getter_factory(var_name), setter)
+
+
+def duration_pf(var_name):
+    def setter(self, value):
+        if type(value) == dtt.timedelta:
+            vars(self)[var_name] = value
+        else:
+            v = int(value)
+            if 0 < v:
+                vars(self)[var_name] = dtt.timedelta(seconds=v)
+            else:
+                raise ValueError('the value for ' + var_name + ' must be a positive number of seconds')
+
+    return property(getter_factory(var_name), setter)
+
+
+def float_pf(var_name):
+    def setter(self, value):
+        vars(self)[var_name] = float(value)
+
+    return property(getter_factory(var_name), setter)
+
+
+def nn_float_pf(var_name):
+    def setter(self, value):
+        v = float(value)
+        if v >= 0:
+            vars(self)[var_name] = v
+        else:
+            raise ValueError('the value for ' + var_name + ' must be non-negative')
+
+    return property(getter_factory(var_name), setter)
+
+
+def non_mutable_pf(var_name):
+    def setter(self, value):
+        raise ValueError('You are not authorized to change the variable ' + var_name)
+
+    return property(getter_factory(var_name), setter)
+
+
+class Parameter:
+
+    time_dilation = float_pf('__time_dilation')
+    idle_execution_period = duration_pf('__idle_execution_period')
+
+    p_global_analysis = duration_pf('__p_global_analysis')
+    p_attempt_split = duration_pf('__p_attempt_split')
+    p_procedure_1 = duration_pf('__p_procedure_1')
+    p_procedure_2 = duration_pf('__p_procedure_2')
+
+    indic_encourage_split_above = non_mutable_pf('_indic_encourage_split_above')
+    indic_value_reference = non_mutable_pf('_indic_value_reference')
+    indic_weight_osb = non_mutable_pf('_indic_weight_osb')
+    indic_weight_esa = non_mutable_pf('_indic_weight_esa')
+    indic_weight_ref = non_mutable_pf('_indic_weight_ref')
+    indic_weight_project_cmp = non_mutable_pf('_indic_weight_project_cmp')
+
+    ppr_tp_prob = zero_to_one_pf('__ppr_tp_prob')
+    ppr_precision = zero_to_one_pf('__ppr_precision')
+
+    max_number_of_iterations = nn_integer_pf('__max_number_of_iterations')
+
+    eigen_num_iter = nn_integer_pf('__eigen_num_iter')
+    tag_weight_transmition = zero_to_one_pf('__tag_weight_transmition')
+
+    conductance_balance_dampener = nn_float_pf('__conductance_balance_dampener')
+    post_node_default_value = nn_float_pf('__post_node_default_value')
+
+    default_edge_weight = non_mutable_pf('_default_edge_weight')
+
+    def __init__(self):
+
+        # Project controler decision parameters
+
+        self.idle_execution_period = dtt.timedelta(seconds=3)
+        self.time_dilation = 1.0
+
+        self.p_global_analysis = dtt.timedelta(minutes=2)
+        self.p_attempt_split = dtt.timedelta(minutes=2)
+        self.p_procedure1 = dtt.timedelta(seconds=2)
+        self.p_procedure2 = dtt.timedelta(seconds=120)
+
+        self._indic_oppose_split_below = {
+            num_of_posts: 3
+        }
+
+        self._indic_encourage_split_above = {
+            num_of_posts: 27
+        }
+
+        self._indic_value_reference = {
+            num_of_posts: 12,
+            num_of_tags: 5,
+            num_of_tag_use: 15,
+            num_of_users: 20,
+            num_of_citations: 6,
+            num_of_cit_use: 14,
+            num_of_characters: 500,
+
+            depth_value: 25,
+
+            num_of_group_recom: 8
+        }
+
+        self._indic_weight_osb = {
+            num_of_posts: 1.0
+        }
+
+        self._indic_weight_esa = {
+            num_of_posts: 1.0
+        }
+
+        self._indic_weight_ref = {
+            num_of_posts: 1.0
+        }
+
+        self._indic_weight_project_cmp = {
+            num_of_posts: 3.0
+        }
+
+        # Algorithms
+        # personalised page rank : teleport probability
+        self.ppr_tp_prob = 0.99
+        self.ppr_precision = 0.00000000001
+
+        # heuristic algorithm parameters
+        self.max_number_of_iterations = 1000000
+
+        # Eigenvector centrality
+
+        # number of iterations for calculation
+        self.eigen_num_iter = 100
+
+        # adjustment of how much other tags are taken into account for the weight of a given tag.
+        # Advised between 0 and 1, but could theoretically be any nonnegative number
+        self.tag_weight_transmition = 0.5
+
+        # uphill conductance maximisation
+
+        # a small, nonnegative number to reduce the importance of balance in the conductance edge_improvement algorithm
+        # if it is 0, there is no balance dampening
+        self.conductance_balance_dampener = 0
+
+        # Default node caracteristics
+        self.post_node_default_value = 10.0
+
+        # Default edge weights
+
+        self._default_edge_weight = {
+            belongs_to:         1.0,
+            tagged_with:        1.5,
+            parent_post:        3.0,
+            group_recommended:  2.0,
+            user_vote:          0.3,
+            uses_citation:      2.2,
+            source_citation:    4.0,
+            raporteur_citation: 3.0,
+            parent_noeud:       2.5,
+            auteur_of_post:     3.0
+        }
+
+    def read_from_file(self, file_path):
+        pass
+
+    def write_to_file(self, file_path):
+        pass
+
+
+default = Parameter()

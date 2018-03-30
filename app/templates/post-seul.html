@@ -3,7 +3,8 @@
 
 	<div class="card card-post">
 
-		{% if p.0.auteur == user %}<div class="close title btn-edit" style="padding:10px"><p class=""><a href="javascript:show_edit('{{p.0.id}}')"><i class="ti-pencil"></i></a></p></div>{% endif %}
+		{% if p.0.auteur == user %}<div class="close title btn-edit" style="padding:10px"><p class=""><a href="javascript:show_edit('{{p.0.id}}')"><i class="ti-pencil"></i></a></p></div>
+		{% elif estModo %}<div class="close title btn-edit" style="padding:10px"><p class=""><a href="javascript:show_edit('{{p.0.id}}')"><i class="ti-shield"></i> Éditer</a></p></div>{% endif %}
 
 		<div class="header">
 		<h6><a href="{% url 'noeud' p.0.noeud.id %}"> {{p.0.noeud.label}} </a></h6>

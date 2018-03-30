@@ -2,11 +2,11 @@
 
 #imports lib
 import networkx as nx
-import queue
+import logging
 
 # import dependencies
 import app.clustering.GraphModifications as mods
-import app.clustering.errors as err
+import app.clustering.errors as errors
 import app.clustering.DatabaseAccess as dba
 import app.clustering.parameters as param
 
@@ -18,6 +18,8 @@ class ProjectGraph:
         self.projectParam = projectParam
 
         self.branch_instructions = []
+
+        self.LOGGER = logging.getLogger('agorado.machinerie.' + str(projectController.database_id) + '.ProjectGraph')
 
         if pg is None:
 
@@ -80,22 +82,24 @@ class ProjectGraph:
                 n0 = self.databaseTagIDMap[edge[0]]
                 n1 = self.databasePostIDMap[edge[1]]
                 k = 0
-                edge_key = self.param.tagged_with
+                edge_key = param.tagged_with
                 while n1 in self.baseGraph[n0] and (edge_key, k) in self.baseGraph[n0][n1]:
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (tag to post) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["post_noeud"]:
             try:
                 n0 = self.databasePostIDMap[edge[0]]
                 n1 = self.databaseNoeudIDMap[edge[1]]
-                self.baseGraph.add_edge(n0, n1, key=(param.belongs_to, 0), default_weight=param.def_w[param.belongs_to])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(param.belongs_to, 0), 
+                                        default_weight=self.projectParam.default_edge_weight[param.belongs_to])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (post tp noeud) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["post_uses_citation"]:
             try:
@@ -103,25 +107,27 @@ class ProjectGraph:
                 n1 = self.databaseCitationIDMap[edge[1]]
                 k = 0
                 edge_key = param.belongs_to
-                while (edge_key, k) in self.baseGraph[n0][n1]:
+                while self.baseGraph.has_edge(n0, n1, key=(edge_key, k)):
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
             except KeyError as error:
+                self.LOGGER.debug("failed while loading a (post uses citation) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
-        for edge in iterables["post_source_citation"]:
+        for edge in iterables["citation_source_post"]:
             try:
-                n0 = self.databasePostIDMap[edge[0]]
-                n1 = self.databaseCitationIDMap[edge[1]]
+                n0 = self.databaseCitationIDMap[edge[0]]
+                n1 = self.databasePostIDMap[edge[1]]
                 k = 0
                 edge_key = param.source_citation
-                while (edge_key, k) in self.baseGraph[n0][n1]:
+                while self.baseGraph.has_edge(n0, n1, key=(edge_key, k)):
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (citation source post) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["raporteur_citation"]:
             try:
@@ -129,12 +135,13 @@ class ProjectGraph:
                 n1 = self.databaseUserIDMap[edge[1]]
                 k = 0
                 edge_key = param.raporteur_citation
-                while (edge_key, k) in self.baseGraph[n0][n1]:
+                while self.baseGraph.has_edge(n0, n1, key=(edge_key, k)):
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (raporteur citation) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["aretes_reflexion"]:
             try:
@@ -142,55 +149,63 @@ class ProjectGraph:
                 n1 = self.databaseNoeudIDMap[edge[1]]
                 k = 0
                 edge_key = param.parent_noeud
-                while (edge_key, k) in self.baseGraph[n0][n1]:
+                while self.baseGraph.has_edge(n0, n1, key=(edge_key, k)):
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (arrete reflexion) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["vote"]:
             try:
                 n0 = self.databaseUserIDMap[edge[0]]
                 n1 = self.databasePostIDMap[edge[1]]
-                d = edge[3]
+                d = edge[2]
                 k = 0
                 edge_key = param.user_vote
-                while (edge_key, k) in self.baseGraph[n0][n1]:
+                while self.baseGraph.has_edge(n0, n1, key=(edge_key, k)):
                     k += 1
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, k), default_weight=param.def_w[edge_key],
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, k),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key],
                                         vote_type=d["vote_type"])
-            except KeyError as error:
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (tag to post) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["auteur_post"]:
             try:
                 n0 = self.databasePostIDMap[edge[0]]
                 n1 = self.databaseUserIDMap[edge[1]]
                 edge_key = param.auteur_of_post
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0), default_weight=param.def_w[edge_key])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (auteur of post) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
         for edge in iterables["suivi_noeud"]:
             try:
                 n0 = self.databaseUserIDMap[edge[0]]
                 n1 = self.databaseNoeudIDMap[edge[1]]
                 edge_key = param.parent_noeud
-                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0), default_weight=param.def_w[edge_key])
-            except KeyError as error:
+                self.baseGraph.add_edge(n0, n1, key=(edge_key, 0),
+                                        default_weight=self.projectParam.default_edge_weight[edge_key])
+            except KeyError:
+                self.LOGGER.debug("failed while loading a (suivi noeud) edge from "+str(edge[0])+" to "+str(edge[1]))
                 incoherences += 1
-                # print("KeyError while loading graph : " + str(error))
 
-        print("Graph loaded. No critical issue encountered. " + str(incoherences)
-              + " incoherences encounered and silenced.")
+        if incoherences:
+            info = str(incoherences) + " issues encountered and silenced while loading graph." + \
+                   " The graph is probably incorrect."
+            self.LOGGER.warning(info)
+
+        self.LOGGER.info("Graph successfully loaded")
 
     def apply_modification(self, modif: mods.GenericModification):
         try:
             modif.apply_to_graph(self)
-        except err.InconsistentGraph:
+        except errors.InconsistentGraph:
             pass
 
     def get_pickle_graph(self):

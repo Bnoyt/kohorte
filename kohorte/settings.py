@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 import os
+import django
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,9 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'app',
     'postman',
     'notify',
+    'interfaceNotifyPostman'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +61,9 @@ ROOT_URLCONF = 'kohorte.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates',
+        		'app/templates',
+            django.__path__[0] + '/forms/templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,7 +124,21 @@ USE_TZ = True
 
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_DISALLOW_ANONYMOUS = True
+POSTMAN_NOTIFIER_APP = 'interfaceNotifyPostman'
+MARKDOWNX_EDITOR_RESIZABLE = False
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
+#EMAIL_USE_TLS = True
+#EMAIL_HOST = 'ssl.polytechnique.org'
+#EMAIL_PORT = 587
+#EMAIL_HOST_USER = 'prenom.nom.promo'
+#EMAIL_HOST_PASSWORD = 'PassWord'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+DEFAULT_FROM_EMAIL = "agordo@binets.polytechnique.fr"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+ADMINS = [("Webmaster", DEFAULT_FROM_EMAIL)]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
@@ -151,6 +170,12 @@ LOGGING = {
         }
     },
     'handlers': {
+        'django_console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
         'simple_console': {
             'level': 'INFO',
             'filters': ['require_debug_false'],
@@ -177,7 +202,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['simple_console'],
+            'handlers': ['django_console'],
             'propagate': True,
         },
         'django.request': {

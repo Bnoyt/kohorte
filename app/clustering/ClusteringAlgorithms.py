@@ -17,6 +17,7 @@ import queue
 import datetime as dtt
 import networkx as nx
 import time as lib_time
+from math import log
 
 #import perso
 import app.clustering.Nodes as Nodes
@@ -75,9 +76,9 @@ class GenericProcedure:
         pass
 
 
-def get_procedure_table(the_graph):
-    return [Procedure1(the_graph),
-            Procedure2(the_graph)
+def get_procedure_table(project_controller):
+    return [Procedure1(project_controller),
+            Procedure2(project_controller)
             ]
 
 
@@ -90,10 +91,10 @@ class DoNothing(GenericProcedure):
 
 
 class Procedure1(GenericProcedure):
-    def __init__(self, the_graph):
-        super().__init__(the_graph)
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
         self.name = "procedure1"
-        self.period = param.p_procedure1
+        self.period = self.p_param.p_procedure1
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -101,9 +102,9 @@ class Procedure1(GenericProcedure):
 
 
 class Procedure2(GenericProcedure):
-    def __init__(self, the_graph):
-        super().__init__(the_graph)
-        self.period = param.p_procedure2
+    def __init__(self, project_controller):
+        super().__init__(project_controller)
+        self.period = self.p_param.p_procedure2
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -113,7 +114,7 @@ class Procedure2(GenericProcedure):
 class GlobalAnalysis(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_full_analysis
+        self.period = self.p_param.p_full_analysis
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -122,7 +123,7 @@ class GlobalAnalysis(GenericProcedure):
 class AttemptSplit(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = param.p_full_analysis
+        self.period = self.p_param.p_full_analysis
 
     def run(self, log_channel):
         self.last_run_time = param.now()
@@ -130,8 +131,7 @@ class AttemptSplit(GenericProcedure):
         node = 1
         base_node_subgraph = node_members(self.project_controller.theGraph.baseGraph, node)
 
-        simplified_graph = roots_and_leaves(base_node_subgraph)
-        carry_over_important_edges(base_node_subgraph, simplified_graph)
+        simplified_graph = simple_graph(base_node_subgraph)
         basic_filter(simplified_graph)
 
         num_wanted = 5
@@ -151,7 +151,6 @@ class AttemptSplit(GenericProcedure):
 '''filtering and preparation'''
 
 
-# TODO
 def node_members(mdg, node):
     """ returns a subgraph with all the objects within a given node """
     posts = []
@@ -170,6 +169,38 @@ def node_members(mdg, node):
     return mdg.subgraph(posts + list(tags) + list(citations))
 
 
+def simple_graph(mdg: nx.MultiDiGraph):
+    ng = nx.Graph()
+
+    for n in mdg.nodes:
+        if isinstance(n, Nodes.NoeudNode):
+            ng.add_node(n)
+
+    def add_edge_sum(n1, n2, default_weight):
+        try:
+            dw = ng[n1][n2]["default_weight"] + default_weight
+        except KeyError:
+            dw = default_weight
+        ng.add_edge(n1, n2, default_weight=dw)
+
+    for pn in ng.nodes:
+        for e in get_out_edges(mdg, pn, param.parent_post):
+            add_edge_sum(e[0], e[1], e[2]["default_weight"])
+        for e in get_out_edges(mdg, pn, param.tagged_with):
+            ng.add_node(e[1])
+            add_edge_sum(e[0], e[1], e[2]["default_weight"])
+        for e in get_out_edges(mdg, pn, param.group_recommended):
+            if e[1] in ng.nodes:
+                add_edge_sum(e[0], e[1], e[2]["default_weight"])
+        for e in get_in_edges(mdg, pn, param.source_citation):
+            cit = e[0]
+            for e2 in get_in_edges(mdg, cit, param.uses_citation):
+                if e2[0] in ng.nodes:
+                    add_edge_sum(e[1], e2[0], e[2]["default_weight"])
+
+    return ng
+
+
 def roots_and_leaves(mdg: nx.MultiDiGraph):
     """ A terme, renverra un subgraph (objet SubgraphView), constitué des racinnes et des feuilles.
     Cree de nouveaux edges de cle param.head_and_leaf_reduce
@@ -184,6 +215,7 @@ def roots_and_leaves(mdg: nx.MultiDiGraph):
     for e in mdg.edges(ng.nodes, keys=True, data=True):
         if e[2][0] == param.parent_post:
             ng.add_edge(e[0], e[1], length=1, default_weight=e[3]["default_weight"])
+
     for rn in roots:
         child_pile = list(ng[rn].keys())
         while len(child_pile) > 0:
@@ -198,13 +230,8 @@ def roots_and_leaves(mdg: nx.MultiDiGraph):
                 child_pile.append(gcn)
             if len(grand_children) > 0:
                 ng.remove_node(cn)
+
     return ng
-
-
-# TODO
-def carry_over_important_edges(original_g, simplified_g):
-    """ add the following adges from the multiDiGraph original_g to the simple graph simplified_g """
-    pass
 
 
 def get_bridges(g):
@@ -238,7 +265,7 @@ def get_biconnection_components(g, bridges):
 '''seed and core identification'''
 
 
-def get_central_tags_eigenvectors(g : nx.Graph, num_wanted):
+def get_central_tags_eigenvectors(g: nx.Graph, num_wanted):
     """ returns a set of tags to be used as seeds for a clustering algorithms.
     The tags are chosen to convey a lot of information, and eigenvector clustering is used to quantify how interesting
     a post node is. The argument g can be a graph of a single noeud, or a graph of the whole graph,
@@ -774,9 +801,91 @@ def ei_uphill_general_conductance(g, comp_list, weight):
 """Decision making"""
 
 
+def eval_indicators(mdg: nx.MultiDiGraph):
+
+    values = dict()
+
+    values[param.num_of_posts] = len(list(filter(lambda n: type(n) == Nodes.PostNode, mdg.nodes)))
+    values[param.num_of_tags] = len(list(filter(lambda n: type(n) == Nodes.TagNode, mdg.nodes)))
+    values[param.num_of_users] = len(list(filter(lambda n: type(n) == Nodes.UserNode, mdg.nodes)))
+    values[param.num_of_citations] = len(list(filter(lambda n: type(n) == Nodes.CitationNode, mdg.nodes)))
+
+    values[param.num_of_tag_use] = len(list(filter(lambda e: e[2][0] == param.tagged_with, mdg.edges(keys=True))))
+    values[param.num_of_cit_use] = len(list(filter(lambda e: e[2][0] == param.uses_citation, mdg.edges(keys=True))))
+    values[param.num_of_cit_use] = len(list(filter(lambda e: e[2][0] == param.group_recommended, mdg.edges(keys=True))))
+
+    values[param.num_of_characters] = sum(filter(lambda n: n.size if type(n) == Nodes.PostNode else 0, mdg.nodes))
+
+    values[param.depth_value] = 0
+
+    def sum_depth_values(n, depth):
+        res = depth
+        for e in get_in_edges(mdg, n, param.parent_post):
+            res += sum_depth_values(e[0], depth+1)
+        return res
+
+    for n in mdg.nodes:
+        if type(n) == Nodes.PostNode and len(get_out_edges(mdg, n, param.parent_post)) == 0:
+            values[param.depth_value] += sum_depth_values(n, 1)
+
+    return values
+
+
 # TODO
-def judge_split(g, comps):
-    return []
+def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
+
+    num_c = len(comps)
+
+    noeud_indicators = eval_indicators(mdg)
+    comp_indicators = [{}]*num_c
+
+    for i in range(num_c):
+        comp_indicators[i] = eval_indicators(mdg.subgraph(comps[i]))
+
+    def get_count_index(comp, kind, indic):
+        if comp == -1:
+            if kind == "ref":
+                return noeud_indicators[indic] / p_param.indic_value_reference
+            if kind == "osb":
+                return noeud_indicators[indic] / p_param.indic_oppose_split_below[indic]
+            if kind == "esa":
+                return noeud_indicators[indic] / p_param.indic_encourage_split_above[indic]
+            if kind == "project_cmp":
+                return noeud_indicators[indic] / global_means[indic]
+        else:
+            tcn = typical_comp_number
+            if kind == "ref":
+                return comp_indicators[comp][indic] * tcn / p_param.indic_value_reference
+            if kind == "osb":
+                return comp_indicators[comp][indic] * tcn / p_param.indic_oppose_split_below[indic]
+            if kind == "esa":
+                return comp_indicators[comp][indic] * tcn / p_param.indic_encourage_split_above[indic]
+            if kind == "project_cmp":
+                return comp_indicators[comp][indic] * tcn / global_means[indic]
+
+    def get_index_weight(comp, kind, indic):
+        if kind == "ref":
+            return p_param.indic_weight_ref[indic]
+        if kind == "osb":
+            return p_param.indic_weight_osb[indic]
+        if kind == "esa":
+            return p_param.indic_weight_esa[indic]
+        if kind == "project_cmp":
+            return p_param.indic_weight_project_cmp[indic]
+
+    def get_coeff(comp, kind, indic):
+        return log(get_count_index(comp, kind, indic)) * get_index_weight(comp, kind, indic)
+
+    node_activity = 0
+
+    for indic in [param.num_of_posts, param.num_of_tags, param.num_of_tag_use,
+                  param.num_of_citations, param.num_of_cit_use, param.num_of_users,
+                  param.num_of_characters]:
+        node_activity += get_coeff(-1, "ref", indic)
+        node_activity += get_coeff(-1, "project_cmp", indic)
+
+
+
 
 
 '''Global'''
@@ -819,14 +928,14 @@ def attr_list_gen(o, d):
     sample = d.popitem()
     d[sample[0]] = sample[1]
     is_edge_list = type(sample[0]) == tuple
-    if(type(o) == nx.Graph or type(o) == nx.graphviews.SubGraph):
-        if(is_edge_list):
+    if type(o) == nx.Graph or type(o) == nx.graphviews.SubGraph:
+        if is_edge_list:
             lo = list(o.edges)
         else:
             lo = list(o.nodes)
-    if(type(o) == set):
+    if type(o) == set:
         lo = list(o)
-    if(type(o) == list):
+    if type(o) == list:
         lo = o
     lr = ['white']*len(lo)
 
@@ -841,7 +950,7 @@ def attr_list_gen(o, d):
                     lr[i] = 'black'
             else:
                 lr[i] = 'black'
-    return(lr)
+    return lr
 
 
 def gen_and_compare(gen_algo, g_param, split_algo, s_param):

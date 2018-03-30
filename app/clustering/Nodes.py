@@ -70,7 +70,7 @@ class PostNode(BaseNode):
         if "value" in kwargs:
             self.value = kwargs["value"]
         else:
-            self.value = param.post_node_default_value
+            self.value = param.default.post_node_default_value
         self.deleted = False
 
     @staticmethod
@@ -143,14 +143,14 @@ class TagNode(BaseNode):
         return "(" + str(self.database_id) + ") tag node : " + self.slug
 
 
-class QuoteNode(BaseNode):
+class CitationNode(BaseNode):
     def __init__(self, database_id):
         super().__init__(database_id)
 
     @staticmethod
     def class_rep():
-        return "qn"
+        return "cn"
 
     def __str__(self):
-        return "(" + str(self.database_id) + ") tag node"
+        return "(" + str(self.database_id) + ") citation node"
 
