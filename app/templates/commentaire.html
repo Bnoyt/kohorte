@@ -1,97 +1,14 @@
-{% load app_filter %}
+{% extends "msg-abstract.html" %}
 
-<div class="col-md-11 pull-right post">
-	<div class="card card-post">
-		{% if p.0.auteur == utilisateur %}<div class="close title btn-edit" style="padding:10px"><p class=""><a href="javascript:show_edit('{{c.0.id}}')"><i class="ti-pencil"></i> Éditer</a></p></div>
-		{% elif estModo %}<div class="close title btn-edit" style="padding:10px"><p class=""><a href="javascript:show_edit('{{c.0.id}}')"><i class="ti-shield"></i> Éditer</a></p></div>{% endif %}
-		<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Répondre</p></div>
 
-		<div class="content">
-			<div class="contenu" id="msg_{{c.0.id}}" name="{{c.0.id}}">
-				<div class="row">
-					<div class="col-xs-12">
-						<p>
-							{{c.0.contenu|rendusafe:c.0.question.id|safe}}
-						</p>
-					</div>
-				</div>
-					
-				{% include "votes.html" with p=c %}		
-			</div>
-			
-			<div class="contenu" name="edit-{{c.0.id}}" id="edit_{{c.0.id}}" hidden>
-				<div class="row">
-					<div class="col-xs-12">
-						<p>							
-							<form method="post" class="form-edit" id="contenuForm_{{c.0.id}}">
-								{% csrf_token %}
-								<textarea class="form-control message border-input" type="text" rows="1" id="champEdit_{{c.0.id}}">{{c.0.contenu}}</textarea>
-								<p><b>Idées de tag :</b> {% for t in ideesTag %} #{{ t.label }} {% endfor %}</p>
-								<div style="padding-top:10px;padding-bottom:50px">
-									<button type="submit" class="btn btn-primary btn-fill pull-right">Éditer</button>
-									<div onclick="javascript:show_edit('{{c.0.id}}');" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
-								</div>
-							</form>
-							
-						</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="footer">
-			<hr />
-				<div class="stats">
-					<i class="ti-calendar"></i> Posté le {{c.0.date}} par {{c.0.auteur.user.username}}
-				</div>
-				</p>
-				<div class="row" style="width:100%">
-					{% if c.1 %}
-					<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">		
-						
-						<p id="s_{{c.0.id}}"><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-down"></i> Développer les réponses</a></p>
-						<p id="h_{{c.0.id}}" hidden><a href="javascript:show_posts('{{c.0.id}}')"><i class="ti-angle-up"></i> Masquer les réponses</a></p>
-
-						
-					</div>
-					{% endif %}
-				</div>
-
-			</div>
-
+{% block msg_fils %}
+<div id="c_{{p.0.id}}" hidden>
+	<div class="row">
+		{% for r in p.1 %}
+		<div class="col-md-11 pull-right post">
+			{% include "reponse.html" with p=r %}
 		</div>
+		{% endfor %}
 	</div>
-
-	<div class="card card-r col-md-11 pull-right"  style="z-index:100" hidden>
-
-
-		<div class="content">
-
-			<form method="post" class="form-reponse" id="form_{{c.0.id}}">
-				
-				{% csrf_token %}
-
-				<textarea class="form-control reponse border-input" type="text" rows="1" id="champ_{{c.0.id}}" placeholder="Répondre"></textarea>
-				<p><b>Idées de tag :</b> {% for t in ideesTag %} #{{ t.label }} {% endfor %}</p>
-				<div style="padding-top:10px;padding-bottom:50px">
-					<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
-					<div onclick="javascript:openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
-				</div>
-			</form>
-
-		</div>
-
-	</div>
-
-	<div id="c_{{c.0.id}}" hidden>
-		<div class="row">
-
-			{% for r in c.1 %}
-
-				{% include "reponse.html" with r=r %}
-
-			{% endfor %}
-		</div>
-
-	</div>
-
 </div>
+{% endblock %}

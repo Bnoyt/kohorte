@@ -15,15 +15,26 @@ def remplacer_citations(texte, limit=0):
 		a = Citation.objects.filter(pk=int(c[2:][:-2]))
 		if len(a) > 0:
 			date = a[0].post.date
-			k = """<blockquote>
-			<p>""" + BeautifulSoup(a[0].contenu, "lxml").text + """
-			</p>
-			<small> 
-			""" + a[0].post.auteur.user.username + """ le """ + (date.ctime()) + """ dans le noeud <strong>""" + a[0].post.noeud.label + """</strong>
-			</small>
-			</blockquote>"""
+			if a[0].post.disabled:
+				k = """<blockquote>
+				<p>Post source supprimé</p>
+				<small> 
+				le """ + (date.ctime()) + """ dans le noeud <strong>""" + a[0].post.noeud.label + """</strong>
+				</small>
+				</blockquote>"""
+				pass
+			else:
+				k = """<blockquote>
+				<p>""" + BeautifulSoup(a[0].contenu, "lxml").text + """
+				</p>
+				<small> 
+				""" + a[0].post.auteur.user.username + """ le """ + (date.ctime()) + """ dans le noeud <strong>""" + a[0].post.noeud.label + """</strong>
+				</small>
+				</blockquote>"""
 			texte = texte.replace(c,k)
 	return texte
+
+
 
 def remplacer_code(texte):
 	codes = re.findall(r"\{%c%(.+)%c%\}",texte,re.S)
