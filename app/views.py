@@ -21,6 +21,11 @@ from app.backend.api import GraphModifier as GraphModifier
 
 MAIL_DEV = ['alice.andres+django@polytechnique.edu']
 
+
+def tri_anatole(votes,importance,vieillesse):
+    return 0
+
+
 def trouver_hashtags(texte):
     #utiliser regex
     n = len(texte)
@@ -133,8 +138,15 @@ def ancetres(noeud):
         l = [parente.ideeSource for parente in AreteReflexion.objects.filter(ideeDest = n)]
     return res
 
+
+def tripost(p):
+    votes = len(Vote.objets.filter(post=p))
+    importance = p.importance
+    vieillesse = int(p.date)
+    return tri_anatole (votes,importance,vieillesse)
+
 def postsDescendants(postPere, node, user):
-    return [(p, postsDescendants(p, node, user), aVote(user, p)) for p in Post.objects.filter(pere=postPere).filter(noeud=node)]
+    return [(p, postsDescendants(p, node, user), aVote(user, p)) for p in Post.objects.filter(pere=postPere).filter(noeud=node)].sort(key=tripost)
 
 def aVote(user, p):
   """renvoie les infos de vote pour un user et un post donné, pour tous les types de votes."""
@@ -193,6 +205,8 @@ def noeud(request,noeud_id):
         ideesTag = Tag.objects.filter(question=noeud.question)[:5]
         
         estModo = noeud.question in user.projetModo.all()
+
+
         
         context.update({
             'suivi':suivi,
