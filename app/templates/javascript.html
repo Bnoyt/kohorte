@@ -65,6 +65,13 @@ function show_edit(id){
     edit.show();
 };
 
+function cancel_edit(id){
+    var edit = $('#edit_' + id);
+    var msg = $('#msg_'+id);
+    msg.show();
+    edit.hide();
+};
+
 
 
 function deplacer_modal(){
@@ -213,26 +220,6 @@ function retour_edit(reponse){
 function retour_delete(reponse){
   var message;
   var type;
-
-
-  if (text=="succes"){
-      message = "Message supprimé avec succès";
-      type = 'success';
-      notifier(message,type);
-      ajout_post(commentaire,"");
-
-  } else {
-      type = "danger";
-      message = "La suppression n'a pas fonctionné";
-      notifier(message,type);
-  
-  }  
-
-}
-
-function retour_delete(reponse){
-  var message;
-  var type;
   var text = reponse['texte'];
 
 
@@ -339,26 +326,16 @@ $("#form_button").click(function(event){
 
 });
 
-
-
 $(".btn-comment").click(
 
     function() {
-
-        
         champ = $(this).parent().next();
-
-
         if(champ.is(":visible")){
             champ.hide();
-
         } else {
             champ.show();
             champ[0].scrollIntoView(true);
         }
-    
-
-
     });
 
 $("#btn-epingle-s").click(

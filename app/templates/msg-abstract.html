@@ -1,0 +1,129 @@
+{% load app_filter %}
+
+
+<div class="card card-post">
+	{%if not p.0.disabled %}
+	{% if p.0.auteur == utilisateur %}<div class="close title" onclick="delete_message({{p.0.id}});" style="padding:10px"><p class=""><i class="ti-na"></i> Supprimer</p></div>
+	{% elif estModo %}<div class="close title" onclick="delete_message('{{p.0.id}}');" style="padding:10px"><p class=""><i class="ti-shield"></i> Supprimer</p></div>{% endif %}
+	{% if p.0.auteur == utilisateur %}<div class="close title" onclick="show_edit('{{p.0.id}}')" style="padding:10px"><p class=""><i class="ti-pencil"></i> Éditer</p></div>
+	{% elif estModo %}<div class="close title btn-edit" onclick="show_edit('{{p.0.id}}')" style="padding:10px"><p class=""><i class="ti-shield"></i> Éditer</p></div>{% endif %}
+	<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Répondre</p></div>
+	{% endif %}
+
+	{% if p.0.titre %}
+		<div class="header">
+		<h4>{%if p.0.disabled %} Post supprimé {% else %}{{p.0.titre}} {% endif %}</h4>
+		</div>
+	{% endif %}
+
+
+
+	<div class="content">
+
+		<div class="contenu" style="padding:5px" id="msg_{{p.0.id}}" name="{{p.0.id}}">
+			<div class="row">
+				<div class="col-xs-12">
+					<p>
+						{%if p.0.disabled %}
+							Post supprimé
+						{% else %}
+							{{p.0.contenu|rendusafe:p.0.question.id|safe}}
+						{% endif %}
+
+					</p>
+				</div>					
+				{%if not p.0.disabled %} {% include "votes.html" with p=p %} {% endif %}
+			</div>	
+		</div>
+		
+		{# formulaire d'édition #}
+		{%if not p.0.disabled %}
+		<div class="contenu" name="edit-{{p.0.id}}" id="edit_{{p.0.id}}" hidden>
+			<div class="row">
+				<div class="col-xs-12">
+					<p>							
+						<form method="post" class="form-edit" id="contenuForm_{{p.0.id}}">
+							{% csrf_token %}
+							<textarea class="form-control message border-input" type="text" rows="8" id="champEdit_{{p.0.id}}">{{p.0.contenu}}</textarea>
+							<p><b>Idées de tag :</b> {% for t in ideesTag %} #{{ t.label }} {% endfor %}</p>
+							<div style="padding-top:10px;padding-bottom:50px">
+								<button type="submit" class="btn btn-primary btn-fill pull-right">Éditer</button>
+								<div onclick="openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
+								<div onclick="cancel_edit({{p.0.id}});" class="btn btn-primary btn-fill pull-right">Annuler</button></div>
+							</div>
+						</form>
+					</p>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		<div class="footer">
+			<hr>
+			<div class="stats">
+					<i class="ti-calendar"></i> Posté le {{p.0.date}} {%if not p.0.disabled %} par {{p.0.auteur.user.username}} {% endif %}
+			</div>
+			
+			{% block afficher_reponses_link %}
+			<div class="row" style="width:100%">
+				{% if p.1 %}
+				<div class="col-lg-6 col-md-12 col-sm-6 col-xs-12">
+					
+					
+					<p id="s_{{p.0.id}}"><a href="javascript:void(0);" onclick="show_posts('{{p.0.id}}')"><i class="ti-angle-down"></i> Développer les commentaires</a></p>
+					<p id="h_{{p.0.id}}" hidden><a href="javascript:void(0);" onclick="show_posts('{{p.0.id}}')"><i class="ti-angle-up"></i> Masquer les commentaires</a></p>
+			
+					
+				</div>
+				{% endif %}
+				
+			</div>
+			{% endblock %}
+
+		</div>
+	</div>
+</div>
+
+{%if not p.0.disabled %}
+
+{% block reponse %}
+<div class="card card-r col-md-11 pull-right" style="z-index:100" hidden>
+	<div class="content">
+
+		<form method="post" class="form-commentaire" id="form_{{p.0.id}}">
+		
+			{% csrf_token %}
+
+			<textarea class="form-control border-input commentaire" rows="1" type="text" id="champ_{{p.0.id}}" placeholder="Commenter"></textarea>
+			<p><b>Idées de tag :</b> {% for t in ideesTag %} #{{ t.label }} {% endfor %}</p>
+			<div style="padding-top:10px;padding-bottom:50px">
+				<button type="submit" class="btn btn-primary btn-fill pull-right">Répondre</button>
+				<div onclick="openNav();" class="btn btn-primary btn-fill pull-right" style="margin-right:5px;"><i class="ti-plus"></i></div>
+			</div>
+		
+		</form>
+	</div>
+</div>
+{% endblock %}
+
+{% endif %}
+
+{% block msg_fils %}
+<div id="c_{{p.0.id}}" hidden>
+	
+	<div class="row">
+		{% for c in p.1 %}
+		<div class="col-md-11 pull-right post">
+			{% include "commentaire.html" with p=c %}
+		</div>
+		{% endfor %}
+
+	</div>
+	
+</div>
+{% endblock %}
+
+
+
+
+

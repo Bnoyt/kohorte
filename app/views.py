@@ -18,6 +18,7 @@ from django.core.mail import send_mail
 
 from app.backend.api import GraphModifier as GraphModifier
 
+
 MAIL_DEV = ['alice.andres+django@polytechnique.edu']
 
 def trouver_hashtags(texte):
@@ -443,7 +444,7 @@ def ajouter_commentaire(request):
             
             include_tags(post, c)
             template = loader.get_template('commentaire.html')
-            context={'c':(c,[], {})}
+            context={'p':(c,[], {})}
             publication = template.render(context,request)
             notify.send(request.user, recipient=pere.auteur.user, actor=request.user, target=pere, verb="répondu", nf_type='answer')
         else:
