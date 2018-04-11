@@ -25,6 +25,10 @@ import app.clustering.parameters as param
 import app.clustering.errors as err
 import app.clustering.ClusteringObjects as co
 
+
+# temp
+import pickle
+
 color_sample = ['blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'red']
 
 
@@ -77,8 +81,7 @@ class GenericProcedure:
 
 
 def get_procedure_table(project_controller):
-    return [Procedure1(project_controller),
-            Procedure2(project_controller)
+    return [AttemptSplit(project_controller)
             ]
 
 
@@ -123,29 +126,43 @@ class GlobalAnalysis(GenericProcedure):
 class AttemptSplit(GenericProcedure):
     def __init__(self, project_controller):
         super().__init__(project_controller)
-        self.period = self.p_param.p_full_analysis
+        self.period = self.p_param.p_attempt_split
+        project_controller.has_ran = False
 
     def run(self, log_channel):
+
+        self.project_controller.has_ran = True
+
         self.last_run_time = param.now()
 
-        node = 1
+        node = self.project_controller.theGraph.databaseNoeudIDMap[10]
         base_node_subgraph = node_members(self.project_controller.theGraph.baseGraph, node)
 
         simplified_graph = simple_graph(base_node_subgraph)
         basic_filter(simplified_graph)
 
         num_wanted = 5
-        seeds = get_central_tags_eigenvectors(simplified_graph, num_wanted)
+        seeds = get_central_tags_eigenvectors(simplified_graph, num_wanted, p_param=self.p_param)
 
         components = ec_balanced(simplified_graph, seeds)
+
+        with open('./app/clustering/memory/algorithm_result.pkl', 'wb') as dump_file:
+            pickle.dump(components, dump_file)
 
         improved_components = ei_uphill_general_conductance(g=simplified_graph, comp_list=components,
                                                             weight="default_weight")
 
-        decision = judge_split(simplified_graph, improved_components)
+        # decision = judge_split(simplified_graph, improved_components)
 
-        for new_comp in decision:
-            register_split_decision(new_comp)
+        # for new_comp in decision:
+        #    register_split_decision(new_comp)
+
+    def next_run(self):
+        print(self.project_controller.has_ran)
+        if self.project_controller.has_ran:
+            return param.never
+        else:
+            return param.now() - dtt.timedelta(minutes=1)
 
 
 '''filtering and preparation'''
@@ -155,7 +172,7 @@ def node_members(mdg, node):
     """ returns a subgraph with all the objects within a given node """
     posts = []
     for e in get_in_edges(mdg, node, base_key=param.belongs_to):
-        posts.append(e)
+        posts.append(e[0])
     tags = set()
     citations = set()
     for p in posts:
@@ -173,7 +190,7 @@ def simple_graph(mdg: nx.MultiDiGraph):
     ng = nx.Graph()
 
     for n in mdg.nodes:
-        if isinstance(n, Nodes.NoeudNode):
+        if isinstance(n, Nodes.PostNode):
             ng.add_node(n)
 
     def add_edge_sum(n1, n2, default_weight):
@@ -197,7 +214,6 @@ def simple_graph(mdg: nx.MultiDiGraph):
             for e2 in get_in_edges(mdg, cit, param.uses_citation):
                 if e2[0] in ng.nodes:
                     add_edge_sum(e[1], e2[0], e[2]["default_weight"])
-
     return ng
 
 
@@ -265,7 +281,7 @@ def get_biconnection_components(g, bridges):
 '''seed and core identification'''
 
 
-def get_central_tags_eigenvectors(g: nx.Graph, num_wanted):
+def get_central_tags_eigenvectors(g: nx.Graph, num_wanted, p_param=param.default):
     """ returns a set of tags to be used as seeds for a clustering algorithms.
     The tags are chosen to convey a lot of information, and eigenvector clustering is used to quantify how interesting
     a post node is. The argument g can be a graph of a single noeud, or a graph of the whole graph,
@@ -273,7 +289,7 @@ def get_central_tags_eigenvectors(g: nx.Graph, num_wanted):
     and that would just be dumb. So, like, it's up to you but I designed it with "just one noeud" in mind.
     And yes there's a reason why I'm using the french word for "noeud".
     Tag nodes must only link to post nodes. """
-    centrality = nx.eigenvector_centrality(g, max_iter=param.eigen_num_iter)
+    centrality = nx.eigenvector_centrality(g, max_iter=p_param.eigen_num_iter)
     tags = []
     total_centrality = 0
 
@@ -350,7 +366,7 @@ def get_central_tags_eigenvectors(g: nx.Graph, num_wanted):
                 a = e[1]
                 b = e[0]
             weight_modifier[b] += ((e[2]["difference"] * (information(a)/information(b) + 1)) - 1) \
-                                * param.tag_weight_transmition
+                                    * p_param.tag_weight_transmition
 
             tags.remove(a)
 
@@ -453,7 +469,6 @@ def appr_page_rank(g, starting_points, tele_prob, precision):
         r[u] = (1-tele_prob)*ru/2
         if r[u] > precision*g.degree(u):
             to_push.put(u)
-    print(len(p) - len(starting_points))
     return p
 
 

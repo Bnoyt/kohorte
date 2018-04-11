@@ -104,11 +104,11 @@ class Parameter:
 
         # Project controler decision parameters
 
-        self.idle_execution_period = dtt.timedelta(seconds=3)
+        self.idle_execution_period = dtt.timedelta(seconds=50)
         self.time_dilation = 1.0
 
         self.p_global_analysis = dtt.timedelta(minutes=2)
-        self.p_attempt_split = dtt.timedelta(minutes=2)
+        self.p_attempt_split = dtt.timedelta(minutes=5)
         self.p_procedure1 = dtt.timedelta(seconds=2)
         self.p_procedure2 = dtt.timedelta(seconds=120)
 

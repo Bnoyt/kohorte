@@ -204,6 +204,9 @@ class ProjectController(Thread):
 
     def run(self):
 
+        if self.database_id == 4:
+            return
+
         try:
 
             self.load_graph(use_memory=self.clean_shutdown)
@@ -231,13 +234,15 @@ class ProjectController(Thread):
                             if proc.next_run() < chosen_procedure.next_run():
                                 chosen_procedure = proc
 
+                        self.LOGGER.info("chosen procedure is " + str(type(chosen_procedure)))
+
                         nr = chosen_procedure.next_run()
 
                         if nr > run_time:
                             if nr < param.never:
                                 self.interuptible_sleep((nr - run_time).total_seconds())
                             else:
-                                self.interuptible_sleep(param.idle_execution_period.total_seconds())
+                                self.interuptible_sleep(self.projectParam.idle_execution_period.total_seconds())
 
                         if self.shutdown_req():
                             break
@@ -251,7 +256,11 @@ class ProjectController(Thread):
                             self.register_instructions.pop()
                             self.open_algo_log_file = self.projectLogger.log_algorithm(chosen_procedure.name)
 
-                        chosen_procedure.run(self.open_algo_log_file)
+                        try:
+                            chosen_procedure.run(self.open_algo_log_file)
+                        except Exception as err:
+                            self.LOGGER.exception(msg="Error while running procedure.", exc_info=True)
+                            break
 
                         self.open_algo_log_file.close() # probably not necessary, but I put it here just in case
                         self.open_algo_log_file = self.projectLogger.log_nothing()
@@ -268,7 +277,7 @@ class ProjectController(Thread):
                         self.running_algorithm = True
                         self.handle_commands()
 
-                    except (errors.GraphError, nx.NetworkXError):
+                    except (errors.GraphError, nx.NetworkXError, nx.NetworkXException):
                         # There are two possibilities for how a GraphError can be caught here
                         # possibility 1 : a procedure below decided that things were out of control and the graph needed
                         # to be reloaded so it raised a CatastrophicGraphFailure
@@ -276,8 +285,10 @@ class ProjectController(Thread):
                         # and if it does this implies a fault in my code
                         # Similarily, all NetworkXError should be caught below
                         # In any case, generic GraphError are only caught in ProjectControler.py
+
+                        self.LOGGER.exception("an error has occured on the algorithm main loop", exc_info=True)
+
                         self.unload_graph()
-                        self.load_graph()
                     finally:
                         self.open_algo_log_file.close()
                         self.running_algorithm = True

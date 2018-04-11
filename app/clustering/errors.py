@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import app.clustering.Nodes
+import app.clustering.Nodes as Nodes
 
 
 class ForbidenModificationRequest(Exception):
