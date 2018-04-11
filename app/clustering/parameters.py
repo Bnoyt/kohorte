@@ -80,12 +80,16 @@ class Parameter:
     p_procedure_1 = duration_pf('__p_procedure_1')
     p_procedure_2 = duration_pf('__p_procedure_2')
 
+    indic_oppose_split_below = non_mutable_pf('_indic_oppose_split_below')
     indic_encourage_split_above = non_mutable_pf('_indic_encourage_split_above')
     indic_value_reference = non_mutable_pf('_indic_value_reference')
     indic_weight_osb = non_mutable_pf('_indic_weight_osb')
     indic_weight_esa = non_mutable_pf('_indic_weight_esa')
     indic_weight_ref = non_mutable_pf('_indic_weight_ref')
     indic_weight_project_cmp = non_mutable_pf('_indic_weight_project_cmp')
+
+    typical_number_of_comps = nn_integer_pf('__typical_number_of_comps')
+    minimal_indicator_ratio = nn_float_pf('__minimal_indicator_ratio')
 
     ppr_tp_prob = zero_to_one_pf('__ppr_tp_prob')
     ppr_precision = zero_to_one_pf('__ppr_precision')
@@ -113,11 +117,31 @@ class Parameter:
         self.p_procedure2 = dtt.timedelta(seconds=120)
 
         self._indic_oppose_split_below = {
-            num_of_posts: 3
+            num_of_posts: 5,
+            num_of_tags: 2,
+            num_of_tag_use: 5,
+            num_of_users: 4,
+            num_of_citations: 1,
+            num_of_cit_use: 5,
+            num_of_characters: 50,
+
+            depth_value: 10,
+
+            num_of_group_recom: 2
         }
 
         self._indic_encourage_split_above = {
-            num_of_posts: 27
+            num_of_posts: 25,
+            num_of_tags: 10,
+            num_of_tag_use: 40,
+            num_of_users: 40,
+            num_of_citations: 10,
+            num_of_cit_use: 20,
+            num_of_characters: 2500,
+
+            depth_value: 40,
+
+            num_of_group_recom: 25
         }
 
         self._indic_value_reference = {
@@ -135,20 +159,63 @@ class Parameter:
         }
 
         self._indic_weight_osb = {
-            num_of_posts: 1.0
+            num_of_posts: 3.0,
+            num_of_tags: 1.0,
+            num_of_tag_use: 2.0,
+            num_of_users: 0.6,
+            num_of_citations: 1.0,
+            num_of_cit_use: 1.0,
+            num_of_characters: 1.0,
+
+            depth_value: 2.5,
+
+            num_of_group_recom: 3.5
         }
 
         self._indic_weight_esa = {
-            num_of_posts: 1.0
+            num_of_posts: 3.0,
+            num_of_tags: 1.0,
+            num_of_tag_use: 2.0,
+            num_of_users: 0.6,
+            num_of_citations: 1.0,
+            num_of_cit_use: 1.0,
+            num_of_characters: 1.0,
+
+            depth_value: 2.5,
+
+            num_of_group_recom: 3.5
         }
 
         self._indic_weight_ref = {
-            num_of_posts: 1.0
+            num_of_posts: 3.0,
+            num_of_tags: 1.0,
+            num_of_tag_use: 2.0,
+            num_of_users: 0.6,
+            num_of_citations: 1.0,
+            num_of_cit_use: 1.0,
+            num_of_characters: 1.0,
+
+            depth_value: 2.5,
+
+            num_of_group_recom: 3.5
         }
 
         self._indic_weight_project_cmp = {
-            num_of_posts: 3.0
+            num_of_posts: 3.0,
+            num_of_tags: 1.0,
+            num_of_tag_use: 2.0,
+            num_of_users: 0.6,
+            num_of_citations: 1.0,
+            num_of_cit_use: 1.0,
+            num_of_characters: 1.0,
+
+            depth_value: 2.5,
+
+            num_of_group_recom: 3.5
         }
+
+        self.typical_number_of_comps = 4
+        self.minimal_indicator_ratio = 0.001
 
         # Algorithms
         # personalised page rank : teleport probability

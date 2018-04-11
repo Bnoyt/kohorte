@@ -146,19 +146,20 @@ class AttemptSplit(GenericProcedure):
 
         components = ec_balanced(simplified_graph, seeds)
 
-        with open('./app/clustering/memory/algorithm_result.pkl', 'wb') as dump_file:
-            pickle.dump(components, dump_file)
-
         improved_components = ei_uphill_general_conductance(g=simplified_graph, comp_list=components,
                                                             weight="default_weight")
 
-        # decision = judge_split(simplified_graph, improved_components)
+        with open('./app/clustering/memory/algorithm_result.pkl', 'wb') as dump_file:
+            pickle.dump(improved_components, dump_file)
 
-        # for new_comp in decision:
+        decision = judge_split(base_node_subgraph, improved_components, self.p_param,
+                               self.project_controller.theGraph.global_mean_indicators)
+        # mdg, comps, p_param, global_means, typical_comp_number
+
+        # for new_comp in decision:
         #    register_split_decision(new_comp)
 
     def next_run(self):
-        print(self.project_controller.has_ran)
         if self.project_controller.has_ran:
             return param.never
         else:
@@ -829,7 +830,7 @@ def eval_indicators(mdg: nx.MultiDiGraph):
     values[param.num_of_cit_use] = len(list(filter(lambda e: e[2][0] == param.uses_citation, mdg.edges(keys=True))))
     values[param.num_of_cit_use] = len(list(filter(lambda e: e[2][0] == param.group_recommended, mdg.edges(keys=True))))
 
-    values[param.num_of_characters] = sum(filter(lambda n: n.size if type(n) == Nodes.PostNode else 0, mdg.nodes))
+    values[param.num_of_characters] = sum(map(lambda n: n.size if type(n) == Nodes.PostNode else 0, mdg.nodes))
 
     values[param.depth_value] = 0
 
@@ -847,7 +848,7 @@ def eval_indicators(mdg: nx.MultiDiGraph):
 
 
 # TODO
-def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
+def judge_split(mdg, comps, p_param: param.Parameter, global_means):
 
     num_c = len(comps)
 
@@ -860,7 +861,7 @@ def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
     def get_count_index(comp, kind, indic):
         if comp == -1:
             if kind == "ref":
-                return noeud_indicators[indic] / p_param.indic_value_reference
+                return noeud_indicators[indic] / p_param.indic_value_reference[indic]
             if kind == "osb":
                 return noeud_indicators[indic] / p_param.indic_oppose_split_below[indic]
             if kind == "esa":
@@ -868,7 +869,7 @@ def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
             if kind == "project_cmp":
                 return noeud_indicators[indic] / global_means[indic]
         else:
-            tcn = typical_comp_number
+            tcn = p_param.typical_number_of_comps
             if kind == "ref":
                 return comp_indicators[comp][indic] * tcn / p_param.indic_value_reference
             if kind == "osb":
@@ -889,7 +890,12 @@ def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
             return p_param.indic_weight_project_cmp[indic]
 
     def get_coeff(comp, kind, indic):
-        return log(get_count_index(comp, kind, indic)) * get_index_weight(comp, kind, indic)
+        indic_ratio = max(get_count_index(comp, kind, indic), p_param.minimal_indicator_ratio)
+        if kind == "osb":
+            indic_ratio = min(1, indic_ratio)
+        if kind == "esa":
+            indic_ratio = max(1, indic_ratio)
+        return log(indic_ratio) * get_index_weight(comp, kind, indic)
 
     node_activity = 0
 
@@ -899,7 +905,7 @@ def judge_split(mdg, comps, p_param, global_means, typical_comp_number):
         node_activity += get_coeff(-1, "ref", indic)
         node_activity += get_coeff(-1, "project_cmp", indic)
 
-
+    return []
 
 
 

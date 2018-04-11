@@ -42,6 +42,8 @@ class ProjectGraph:
             self.databaseCitationIDMap = pg.databaseCitationIDMap
             self.databaseVoteIDMap = pg.databaseVoteIDMap
 
+        self.global_mean_indicators = self.projectParam.indic_value_reference
+
     def load_from_database(self, database_access: dba.DatabaseAccess):
 
         iterables = database_access.get_database_iterable()
