@@ -65,7 +65,7 @@ def get_out_edges(g, node, base_key):
 
 def run():
 
-    path = Path("./app/clustering/memory/3/logs/2018-04-05/07.31.45.830392/initial_graph.pkl")
+    path = Path("./app/clustering/memory/initial_graph.pkl")
     with path.open('rb') as pickle_file:
         pickle_graph = pickle.load(pickle_file)
 

@@ -614,7 +614,7 @@ def ec_closest(g, core_list):
 
 # A finir
 
-def ei_uphill_general_conductance(g, comp_list, weight):
+def ei_uphill_general_conductance(g, comp_list, weight, p_param=param.default):
     """A local uphill algorithm to improve a given graph partition.
     comp_list must be a list of node... containers I think ? In any case they must form a perfect graph partition
     The partitions are modified by repeatidely moving a node from it's component to the component of an adjacent node.
@@ -642,7 +642,7 @@ def ei_uphill_general_conductance(g, comp_list, weight):
         for c1 in range(num_c):
             for c2 in range(c1 + 1, num_c):
                 s += cut_size[c1][c2]
-        return s / (min(volume) + param.conductance_balance_dampener*total_volume)
+        return s / (min(volume) + p_param.conductance_balance_dampener*total_volume)
     # global conductance is a measure for how good a partition is
     # I adapted it from the concept of conductance, which I found as I was researching clustering
     # I'm not sure exactly what it represents or how good it is, but I think it's worth something
@@ -782,7 +782,7 @@ def ei_uphill_general_conductance(g, comp_list, weight):
     # and honestly, it was hard enough to code as is
     # I'll optimize it if optimisation turns out to be necessary.
 
-    while motion_list[-1].get_gain() > 0 and iter_clock < param.max_number_of_iterations:
+    while len(motion_list) > 0 and motion_list[-1].get_gain() > 0 and iter_clock < p_param.max_number_of_iterations:
 
         iter_clock += 1
 
