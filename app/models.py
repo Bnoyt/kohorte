@@ -42,6 +42,8 @@ class Utilisateur(models.Model):
     genre = models.CharField(max_length=1, choices=GENRES, default='0')
     age = models.IntegerField(null=True, blank=True)
 
+
+
     def __str__(self):
         return str(self.user) + ' -> ' + self.profil
 
@@ -301,4 +303,18 @@ class RelationUserSuivi(models.Model):
     def __str__(self):
         return str(self.type_suivi) + " -- " + str(self.user) + " -- " + str(self.noeud)
 
+
+class NouveauNomNoeud(models.Model):
+	noeud = models.ForeignKey(Noeud)
+	label = models.CharField(max_length=200)
+
+	def __str__(self):
+		return str(self.noeud) + ' -> ' + self.label
+
+class RelationUserNouveauNomNoeud(models.Model):
+	utilisateur = models.ForeignKey(Utilisateur)
+	nouveaunom = models.ForeignKey(NouveauNomNoeud)
+
+	def __str__(self):
+		return str(self.nouveaunom) + " ----> " + str(self.utilisateur)
 
