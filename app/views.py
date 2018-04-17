@@ -64,10 +64,14 @@ def page_login(request):
     if request.user.is_authenticated:
         logout(request)
     if 'username' in request.POST:
-        return authentification(request)
+        user = User.objects.get(username = request.POST['username']).utilisateur
+        if not user.ban:
+            return authentification(request)
+        else:
+            context={'titre_page': 'Se connecter', 'etat_connexion' : False, 'notif':"Votre compte a été désactivé par un modérateur"}
+            return render(request, 'login.html',context)
     else:
-        context={'titre_page': 'Se connecter'}
-        context['etat_connexion'] = False
+        context={'titre_page': 'Se connecter', 'etat_connexion' : False}
         return render(request, 'login.html',context)
 
 def page_register(request):
@@ -690,3 +694,15 @@ def signaler_bug(request):
           fail_silently=False)
         return HttpResponseRedirect(reverse('index'))
     return render(request, 'signaler_bug.html', locals())
+
+def modo_ban_user(request, project_id):
+	projet = Question.objects.get(pk=project_id)
+	listeNoeuds = Noeud.objects.filter(question=projet)
+	listeRel = RelationUserSuivi.objects.filter(noeud__in=listeNoeuds)
+	listeUser = [r.user for r in listeRel]
+	context = {
+		'titre_page' : "Liste d'utilisateurs",
+		'listeUser' : listeUser,
+		}
+	return render(request, 'modo_ban_user.html')
+		

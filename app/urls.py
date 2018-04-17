@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^suivi_noeud/$',views.suivi_noeud,name='suivi_noeud'),
     url(r'^vote/$',views.vote,name='vote'),
     url(r'^(?P<project_id>[0-9]+)/modo/signal$', views.posts_signales, name='posts_signales'),
+    url(r'^(?P<project_id>[0-9]+)/modo/users$', views.modo_ban_user, name='modo_ban_user'),
     url(r'^signaler_bug/$', views.signaler_bug, name="signaler_bug"),
 ]

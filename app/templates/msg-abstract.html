@@ -10,11 +10,13 @@
 	<div class="close title btn-comment" style="padding:10px"><p class=""><i class="ti-back-right"></i> Répondre</p></div>
 	{% endif %}
 
+	{% block titre %}
 	{% if p.0.titre %}
 		<div class="header">
 		<h4>{%if p.0.disabled %} Post supprimé {% else %}{{p.0.titre}} {% endif %}</h4>
 		</div>
 	{% endif %}
+	{% endblock %}
 
 
 
