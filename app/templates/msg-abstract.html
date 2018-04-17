@@ -110,20 +110,20 @@
 
 {% endif %}
 
-{% block msg_fils %}
-<div id="c_{{p.0.id}}" hidden>
-	
-	<div class="row">
-		{% for c in p.1 %}
-		<div class="col-md-11 pull-right post">
-			{% include "commentaire.html" with p=c %}
-		</div>
-		{% endfor %}
+	{% block msg_fils %}
+	<div id="c_{{p.0.id}}" hidden>
+		
+		<div class="row">
+			{% for c in p.1 %}
+			<div class="col-md-11 pull-right post">
+				{% include "commentaire.html" with p=c %}
+			</div>
+			{% endfor %}
 
+		</div>
+		
 	</div>
-	
-</div>
-{% endblock %}
+	{% endblock %}
 
 
 

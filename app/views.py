@@ -151,7 +151,7 @@ def tripost(p):
     return tri_anatole (votes,importance,vieillesse)
 
 def postsDescendants(postPere, node, user):
-    return [(p, postsDescendants(p, node, user), aVote(user, p)) for p in Post.objects.filter(pere=postPere).filter(noeud=node)].sort(key=tripost)
+    return sorted([(p, postsDescendants(p, node, user), aVote(user, p)) for p in Post.objects.filter(pere=postPere).filter(noeud=node)], key=tripost)
 
 def aVote(user, p):
   """renvoie les infos de vote pour un user et un post donné, pour tous les types de votes."""
