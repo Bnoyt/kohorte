@@ -23,7 +23,7 @@ MAIL_DEV = ['alice.andres+django@polytechnique.edu']
 
 
 def tri_anatole(votes,importance,vieillesse):
-    return 0
+    return vieillesse
 
 
 def trouver_hashtags(texte):
@@ -144,9 +144,10 @@ def ancetres(noeud):
 
 
 def tripost(p):
-    votes = len(Vote.objets.filter(post=p))
-    importance = p.importance
-    vieillesse = int(p.date)
+    """p est de type (Post; enfants, votes)"""
+    votes = len(Vote.objects.filter(post=p[0]))
+    importance = p[0].importance
+    vieillesse = p[0].date.timestamp()
     return tri_anatole (votes,importance,vieillesse)
 
 def postsDescendants(postPere, node, user):
