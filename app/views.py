@@ -18,12 +18,14 @@ from django.core.mail import send_mail
 
 from app.backend.api import GraphModifier as GraphModifier
 
+import random as random
+
 
 MAIL_DEV = ['alice.andres+django@polytechnique.edu']
 
 
 def tri_anatole(votes,importance,vieillesse):
-    return vieillesse
+    return random.randint(1,10000)
 
 
 def trouver_hashtags(texte):
@@ -195,7 +197,7 @@ def noeud(request,noeud_id):
         #fin ajouter_post
         
         #calcul de l'affichage
-        posts = [(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres] #les descendants des postsPere encore dans le noeud.
+        posts = sorted([(p, postsDescendants(p, noeud, user), aVote(user, p)) for p in postPeres], key=tripost) #les descendants des postsPere encore dans le noeud.
 
         #pour la navigation entre les noeuds dans l'alpha
         noeudsFamille = [(parente.ideeSource, [a.ideeDest for a in AreteReflexion.objects.filter(ideeSource = parente.ideeSource)]) for parente in AreteReflexion.objects.filter(ideeDest = noeud)]
@@ -545,8 +547,10 @@ def profil(request) :
         whatsUpId = (-1 if len(projets)!=1 else projets[0].id)
         
         posts = [(p, [], aVote(utilisateur, p)) for p in Post.objects.filter(auteur=utilisateur)]
-            # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
-            #type_suivi=get_object_or_404(TypeSuivi,pk=1)
+        # a completer pour creer la liste des noeuds suivis aprs modification de la class "utilisateur" dans models.py
+        #type_suivi=get_object_or_404(TypeSuivi,pk=1)
+           
+        form = UtilisateurProfileForm(request.POST or None)
     
         context = {
                 'user':utilisateur,
@@ -557,34 +561,35 @@ def profil(request) :
                 'titre_page':'Profil',
                 'whatsUpId':whatsUpId,
                 'GENRES':Utilisateur.GENRES,
+                'form' : form
             }
             
-        post = request.POST
+        #post = request.POST
         
-        if ('username' in post and user.username != post['username']) or \
-        ('email' in post and  user.email != post['email']) or \
-        ('mdp' in post or 'mdp2' in post and len(post['mdp']) > 0):
-                if 'mdpOld' in post and user.check_password(post['mdpOld']):
-                    if 'username' in post and user.username != post['username']:
-                        if User.objects.filter(username=post['username']).exists():
-                            context['notif'] = "Ce nom d'utilisateur est déjà pris"
-                        else:
-                            user.username = post['username']
-                            user.save()
-                    if 'email' in post and user.email != post['email']:
-                        if User.objects.filter(email=post['email']).exists():
-                            context['notif'] = "Cette adresse mail est déjà prise"
-                        else:
-                            user.email = post['email']
-                            user.save()
-                    if 'mdp' in post and post['mdp'] != "":
-                        if 'mdp2' in post and post['mdp2']==post['mdp']:
-                            user.set_password(post['mdp'])
-                            user.save()
-                        else:
-                            context['notif'] = "Veuillez confirmer votre nouveau mot de passe"
-                else:
-                    context['notif']="Veuillez entrer votre mot de passe actuel pour valider la modification"
+        #if ('username' in post and user.username != post['username']) or \
+        #('email' in post and  user.email != post['email']) or \
+        #('mdp' in post or 'mdp2' in post and len(post['mdp']) > 0):
+                #if 'mdpOld' in post and user.check_password(post['mdpOld']):
+                    #if 'username' in post and user.username != post['username']:
+                        #if User.objects.filter(username=post['username']).exists():
+                            #context['notif'] = "Ce nom d'utilisateur est déjà pris"
+                        #else:
+                            #user.username = post['username']
+                            #user.save()
+                    #if 'email' in post and user.email != post['email']:
+                        #if User.objects.filter(email=post['email']).exists():
+                            #context['notif'] = "Cette adresse mail est déjà prise"
+                        #else:
+                            #user.email = post['email']
+                            #user.save()
+                    #if 'mdp' in post and post['mdp'] != "":
+                        #if 'mdp2' in post and post['mdp2']==post['mdp']:
+                            #user.set_password(post['mdp'])
+                            #user.save()
+                        #else:
+                            #context['notif'] = "Veuillez confirmer votre nouveau mot de passe"
+                #else:
+                    #context['notif']="Veuillez entrer votre mot de passe actuel pour valider la modification"
     
 
         return render(request,'profil.html',context)

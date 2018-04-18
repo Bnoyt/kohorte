@@ -35,7 +35,7 @@ class Utilisateur(models.Model):
         ('1', 'femme'),
         ('2', 'homme'),
     )
-    projetModo = models.ManyToManyField('Question', related_name='projetModo', null=True, blank = True)
+    projetModo = models.ManyToManyField('Question', related_name='projetModo', blank = True)
     profil = models.CharField(max_length=1, choices=DROITS, default='2')
     genre = models.CharField(max_length=1, choices=GENRES, default='0')
     age = models.IntegerField(null=True, blank=True)
