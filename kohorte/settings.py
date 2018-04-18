@@ -211,7 +211,7 @@ LOGGING = {
             'propagate': False,
         },
         'agorado': {
-            'handlers': ['simple_console', 'detailed_console', 'mail_admins',# ],
+            'handlers': ['simple_console', 'detailed_console', 'mail_admins',
                          'file'],
             'level': 'INFO'
         }
