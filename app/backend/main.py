@@ -3,7 +3,7 @@ import queue
 import logging
 
 
-from app.backend.config import SERVER_PORT, CONTROLLERS_AS_DAEMON, ERROR_HANDLING
+from app.backend.config import SERVER_PORT, CONTROLLERS_AS_DAEMON
 from app.backend.network import MessageHandler, Server, RoutingError
 from app.clustering.ProjectController import ProjectController
 

@@ -8,12 +8,13 @@ https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/
 """
 
 import os
-import kohorte.startup as startup
+
 
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kohorte.settings")
 
+import kohorte.startup as startup
 startup.run()
 
 application = get_wsgi_application()
