@@ -1,0 +1,2 @@
+## non-interactive backend, for compatibility with server
+backend      : Agg
