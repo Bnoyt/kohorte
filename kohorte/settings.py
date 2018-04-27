@@ -210,6 +210,7 @@ LOGGING = {
         'django': {
             'handlers': ['django_console', 'file_django'],
             'propagate': True,
+            'level':'DEBUG'
         },
         'django.request': {
             'handlers': ['mail_admins', 'detailed_console', 'file_django'],
