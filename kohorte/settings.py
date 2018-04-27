@@ -193,27 +193,33 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True
         },
-        'file': {
+        'file_agorado': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': './debug_level.log',
+            'filename': './logs/agorado_debug.log',
+            'formatter': 'verbose'
+        },
+        'file_django': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': './logs/django_debug.log',
             'formatter': 'verbose'
         }
     },
     'loggers': {
         'django': {
-            'handlers': ['django_console'],
+            'handlers': ['django_console', 'file_django'],
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'detailed_console'],
+            'handlers': ['mail_admins', 'detailed_console', 'file_django'],
             'level': 'DEBUG',
             'propagate': False,
         },
         'agorado': {
             'handlers': ['simple_console', 'detailed_console', 'mail_admins',
-                         'file'],
-            'level': 'INFO'
+                         'file_agorado'],
+            'level': 'DEBUG'
         }
     }
 }
