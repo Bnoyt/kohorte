@@ -17,23 +17,26 @@ class Main(Server):
         self.command_queues = {}
         self.controllers = {}
         self.LOGGER = logging.getLogger('agorado.backend.main')
-
+    
+    def _init_project(self, project_id):
+        command_queue = queue.Queue()
+        self.LOGGER.info('Creating thread for project %s' % project_id)
+        controller = ProjectController(project_id, command_queue)
+        self.controllers[project_id] = controller
+        self.destinations[project_id] = controller.get_graph_modifier()
+        self.command_queues[project_id] = command_queue
+        controller.daemon = CONTROLLERS_AS_DAEMON
+        self.LOGGER.info('Starting thread for project %s' % project_id)
+        controller.start()
+        self.LOGGER.info('Started ProjectController thread for project %s' % project_id)
+    
     def _init_projects(self):
         import app.models
         project_ids = [int(p.id) for p in app.models.Question.objects.all()]
         self.print('The list of projects is as follows : %s' % project_ids)
 
         for project_id in project_ids:
-            command_queue = queue.Queue()
-            self.LOGGER.info('Creating thread for project %s' % project_id)
-            controller = ProjectController(project_id, command_queue)
-            self.controllers[project_id] = controller
-            self.destinations[project_id] = controller.get_graph_modifier()
-            self.command_queues[project_id] = command_queue
-            controller.daemon = CONTROLLERS_AS_DAEMON
-            self.LOGGER.info('Starting thread for project %s' % project_id)
-            controller.start()
-            self.LOGGER.info('Started ProjectController thread for project %s' % project_id)
+            self._init_project(project_id)
         pass
 
     def handle_message(self, msg, client, info):

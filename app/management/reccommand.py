@@ -3,6 +3,7 @@ from importlib import import_module
 import sys
 from glob import glob
 import traceback
+from platform import system as syst
 
 from django.core.management.base import (CommandError, SystemCheckError,
                                          BaseCommand, handle_default_options)
@@ -16,12 +17,13 @@ class RecCommand(BaseCommand):
 
     def get_subcommands(self):
         subcommands = []
-        path = __file__.split('/')[:-3] + self.__module__.split('.')[:-1] + [self.folder]
-        path = '/'.join(path)
+        sep = ('\\' if syst() == 'Windows' else '/')
+        path = __file__.split(sep)[:-3] + self.__module__.split('.')[:-1] + [self.folder]
+        path = sep.join(path)
         pkg = self.__module__
-        files = glob(path + '/*.py')
+        files = glob(path + sep + '*.py')
         for filename in files:
-            subcommand = filename.split('/')[-1].replace('.py', '')
+            subcommand = filename.split(sep)[-1].replace('.py', '')
             if not subcommand.startswith('_'):
                 try:
                     module = import_module(
