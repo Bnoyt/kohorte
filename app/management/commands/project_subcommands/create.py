@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         question = options['question']
         
-        
+        #INIT FILE SYSTEM HERE
         
         msg = {'type': 'command',
                'method_name': 'init_project',
