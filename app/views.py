@@ -528,7 +528,7 @@ def faq(request):
     if request.user.is_authenticated:
         utilisateur = get_object_or_404(Utilisateur,user=request.user)
         user = utilisateur.user
-        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=user)]
+        projSuivis = [r.noeud.question for r in RelationUserSuivi.objects.filter(user=utilisateur)]
         if len(projSuivis)==1:
             context['whatsUpId'] = projSuivis[0].id
      
