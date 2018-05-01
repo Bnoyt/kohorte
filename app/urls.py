@@ -5,7 +5,8 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^(?P<project_id>[0-9]+)/$', views.whatsup, name='whatsup'),
-    url(r'^login/$',views.page_login, name='login'),
+    url(r'^login/$',views.page_login, name='login'),    
+    url(r'^accounts/login/$',views.page_login, name='login_mess'),
     url(r'^register/$',views.page_register, name='register'),
     url(r'^noeud/(?P<noeud_id>[0-9]+)/$', views.noeud, name='noeud'),
     url(r'^parametres/$',views.parametres,name='parametres'),
