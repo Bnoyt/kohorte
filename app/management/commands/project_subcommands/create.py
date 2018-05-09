@@ -17,18 +17,24 @@ class Command(BaseCommand):
         
 
     def handle(self, *args, **options):
-        question = options['question']
-        authorname = options['authorname']
+        try:
+            question = options['question']
+            authorname = options['authorname']
+            #FileSytem Initialisation
+            
+            
+            #Database Initialisation
+            if authorname:
+                usermatch = User.objects.all().filter(username=authorname)
+                if len(usermatch) == 1:
+                    new_project = models.Question(label=question, auteur=usermatch[0])
+                    new_project.save()
+                    self.stdout.write("Created new project with id " + str(new_project.id) + "\n")
+                else:
+                    self.stderr.write("Unknown username for author or multiple users\n")
+        except Exception as e:
+            pass
+        else:
+            msg = {'type': 'command', 'method_name': '_init_project', 'args': (new_project.id,)}
+            MessageHandler.send_python(msg)
         
-        
-        #INIT FILE SYSTEM HERE
-        if authorname:
-            usermatch = User.objects.all().filter(username=authorname)
-            if len(usermatch) == 1:
-                new_project = models.Question(label=question, auteur=usermatch[0])
-                new_project.save()
-                self.stdout.write("Created new project with id " + str(new_project.id) + "\n")
-                msg = {'type': 'command', 'method_name': '_init_project', 'args': (new_project.id,)}
-                MessageHandler.send_python(msg)
-            else:
-                self.stderr.write("Unknown username for author or multiple users\n")
