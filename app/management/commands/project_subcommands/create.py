@@ -37,7 +37,8 @@ class Command(BaseCommand):
             new_noeud_base.save()
             self.stdout.write("Created new node with id " + str(new_noeud_base.id) + "\n")
             if description:
-                new_post_base = models.Post(titre=question, auteur=usermatch[0],
+                utilisateur = models.Utilisateur.objects.get(user=usermatch[0])
+                new_post_base = models.Post(titre=question, auteur=utilisateur,
                                             question=new_project,
                                             contenu=description,
                                             noeud=new_noeud_base)
@@ -51,13 +52,13 @@ class Command(BaseCommand):
             project_path.mkdir()
 
             with (project_path / "control.txt").open('w') as control_file:
-                control_file.writeline("project " + str(new_project.id))
-                control_file.writeline(str(new_project.id))
+                control_file.writelines("project " + str(new_project.id))
+                control_file.writelines(str(new_project.id))
                 control_file.write("true")
             (project_path / "logs").mkdir()
             
         except Exception as e:
-            self.stderr.write(e)
+            self.stderr.write(str(e))
         else:
             #Starting Backend thread for the new project
             msg = {'type': 'command', 'method_name': '_init_project', 'args': (new_project.id,)}
