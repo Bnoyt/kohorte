@@ -20,6 +20,7 @@ class Command(BaseCommand):
         try:
             question = options['question']
             authorname = options['authorname']
+            description = options['description']
             #FileSytem Initialisation
             
             
@@ -30,6 +31,13 @@ class Command(BaseCommand):
                     new_project = models.Question(label=question, auteur=usermatch[0])
                     new_project.save()
                     self.stdout.write("Created new project with id " + str(new_project.id) + "\n")
+                    new_noeud_base = models.Noeud(type_noeud=1, label=question, question=new_project)
+                    new_noeud_base.save()
+                    self.stdout.write("Created new node with id " + str(new_noeud_base.id) + "\n")
+                    new_post_base = models.Post(titre=question, auteur=usermatch[0],
+						question=new_project, contenu=description, noeud=new_noeud_base)
+                    new_post_base.save()
+                    self.stdout.write("Created new post with id " + str(new_post_base.id) + "\n")
                 else:
                     self.stderr.write("Unknown username for author or multiple users\n")
         except Exception as e:
