@@ -10,7 +10,7 @@ object est le noeud qui se fait créer
 
 ## notify-x
 
-*nf_type
+* nf_type
 branch d'un noeud : "branch"
 réponse à un post : "answer"
 action de modération (édition, suppression) : "modo"
@@ -18,14 +18,14 @@ message privé : "mp"
 
 ## labels django
 
-*TypeArete
+* TypeArete
 
-*TypeSuivi
+* TypeSuivi
 l'utilisateur a cliqué sur suivre : "suivi simple"
 l'utilisateur a posté : "auto apres post"
 branch :  "auto pendant branch"
 l'utilisateur a posté puis s'est désabonné : "post puis unfollow"
 
-*TypeVote
+* TypeVote
 upvote : "upvote"
 signalement de posts : "signal"
