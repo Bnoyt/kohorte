@@ -52,9 +52,13 @@ def authentification(request):
     context = {}
     user = authenticate(request, username=username, password=password)
     if user is not None:
-        login(request, user)
-        # Redirect to a success page.
-        return HttpResponseRedirect(reverse('index'))
+        if not user.ban:
+            login(request, user)
+            # Redirect to a success page.
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            context={'titre_page': 'Se connecter', 'etat_connexion' : False, 'notif':"Votre compte a été désactivé par un modérateur"}
+            return render(request, 'login.html',context)
     else:
         context['etat_connexion'] = True
         context['titre_page'] = 'Se connecter'
@@ -66,12 +70,7 @@ def page_login(request):
     if request.user.is_authenticated:
         logout(request)
     if 'username' in request.POST:
-        user = User.objects.get(username = request.POST['username']).utilisateur
-        if not user.ban:
             return authentification(request)
-        else:
-            context={'titre_page': 'Se connecter', 'etat_connexion' : False, 'notif':"Votre compte a été désactivé par un modérateur"}
-            return render(request, 'login.html',context)
     else:
         context={'titre_page': 'Se connecter', 'etat_connexion' : False}
         return render(request, 'login.html',context)
