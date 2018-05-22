@@ -21,7 +21,7 @@ def format_exception(exception, pre_message='', printf=None):
     if not printf:
         printf = print
     msg = pre_message + '\nThe traceback is as follows:\n'
-    msg += '\n'.join(*traceback.format_list(traceback.extract_tb(exception.__traceback__)))
+    msg += '\n'.join(traceback.format_list(traceback.extract_tb(exception.__traceback__)))
     msg += str(exception)
     printf(msg)
 
