@@ -1,0 +1,60 @@
+{% load static %}
+
+
+{% include "header.html" %}
+
+{% load staticfiles %}
+
+
+
+
+<body>
+
+{% include "panneau_citations.html" %}
+
+
+
+
+
+
+<div class="wrapper" id="main">
+	{% block side-menu %}
+        {% include "side-menu.html" %}
+	{% endblock %}
+
+    <div class="main-panel">
+        {% include "top-menu.html" %} 
+	{% block extrahead %}{% endblock %} 
+        <div class="container-fluid">
+            <div class="card" id="page-content"  style="background-color:#F4F4F4;padding-top:10px;">
+	{% block postman_menu %}{% endblock %}
+        {% block content %}
+	
+        {% endblock %} 
+            </div>
+        </div>
+        
+
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <nav class="pull-left">
+                    <ul class="list-inline">
+                      <li>Licence ???TODO????</li>
+                      <li><a href="{% url 'signaler_bug' %}"> Signaler un bug</a></li>
+                    </ul>
+                </nav>
+            
+            </div>
+        </footer>
+
+    </div>
+</div>
+
+
+</body>
+{% include "javascript.html" %}
+{% load notification_tags %}
+{% include_notify_js_variables %}
+<script src="{% static "notify/notifyX.js" %}"></script>
+
