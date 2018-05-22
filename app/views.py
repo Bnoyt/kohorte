@@ -52,7 +52,8 @@ def authentification(request):
     context = {}
     user = authenticate(request, username=username, password=password)
     if user is not None:
-        if not user.ban:
+        utilisateur = Utilisateur.objects.get(user=user)
+        if not utilisateur.ban:
             login(request, user)
             # Redirect to a success page.
             return HttpResponseRedirect(reverse('index'))

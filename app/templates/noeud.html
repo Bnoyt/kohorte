@@ -15,15 +15,15 @@
 
 
 <div class="modal fade" id="nouveau_post" tabindex="-1" role="dialog" aria-labelledby="nouveau_postLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
-      </div>
-      <div class="modal-body">
-      
-      <form action="{% url 'noeud' noeud.id %}" method="post" id="#formajouterpost">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="nouveau_postLabel">Écrire un nouveau post</h4>
+			</div>
+			<div class="modal-body">
+
+				<form action="{% url 'noeud' noeud.id %}" method="post" id="#formajouterpost">
 
 					{% csrf_token %}
 
@@ -31,75 +31,75 @@
 
 					<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
 					<input type="submit" id="form_button" class="btn btn-default" data-dismiss="modal" value="Poster" />
-				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
+					<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
 
-			</form>
-			
-      
-       		<form method="post" class="card-body" id="#formajouterpost">
-				{% csrf_token %}
-				{% comment %}
-				<div style="margin-bottom:10px;">
-					<input class="form-control border-input" id="id_titre" name="titre" placeholder="Titre" type="text"> 
-				</div>
+				</form>
 
-				<div style="margin-bottom:10px;">
-					<textarea class="form-control border-input" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
-				</div>
-				
-				<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
-				<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
-				<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
-		 
-			</form>
-			{% endcomment %}
-      </div>
-    </div>
-  </div>
+
+				<form method="post" class="card-body" id="#formajouterpost">
+					{% csrf_token %}
+					{% comment %}
+					<div style="margin-bottom:10px;">
+						<input class="form-control border-input" id="id_titre" name="titre" placeholder="Titre" type="text"> 
+					</div>
+
+					<div style="margin-bottom:10px;">
+						<textarea class="form-control border-input" id="id_contenu" row="2" name="contenu" placeholder="Qu'émane-t-il de votre esprit ?"></textarea>
+					</div>
+
+					<p>Ce serait super chouette si tu pouvais mettre des hashtags représentatifs :) !</p>
+					<button id="form_button" class="btn btn-default" data-dismiss="modal">Poster</button>
+					<div onclick="javascript:openNav();" class="btn btn-default"><i class="ti-plus"></i></div>
+
+				</form>
+				{% endcomment %}
+			</div>
+		</div>
+	</div>
 </div>
 
 {% if nouveau_nom %}
 
 <div class="modal fade" id="modalnom" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Quel nom souhaitez vous donner à ce noeud ?</h4>
-      </div>
-      <div class="modal-body">
-        Sur Agorado, lorsque nous trouvons qu'un noeud est déjà très développé, mais que les discussions divergent à l'intérieur, nous décidons de le scinder en plusieurs sous-noeuds afin de favoriser l'appartition de nouvelles idées.
-        Quel nom souhaiterais-tu donner à ce sous-noeud ?
-        {% for nom in noms %}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Quel nom souhaitez vous donner à ce noeud ?</h4>
+			</div>
+			<div class="modal-body">
+				Sur Agorado, lorsque nous trouvons qu'un noeud est déjà très développé, mais que les discussions divergent à l'intérieur, nous décidons de le scinder en plusieurs sous-noeuds afin de favoriser l'appartition de nouvelles idées.
+				Quel nom souhaiterais-tu donner à ce sous-noeud ?
+				{% for nom in noms %}
 
-        <label class="checkbox checkbox-blue" for="checkbox1">
-    
-	        <input type="checkbox" value="" id="checkbox1" data-toggle="checkbox" {% if nom.1 %} checked {% endif %}>
-	    
-	    	{{nom.0}}   
-	    
-	    </label>
-        {% endfor %}
+				<label class="checkbox checkbox-blue" for="checkbox1">
 
-    </p>
+					<input type="checkbox" value="" id="checkbox1" data-toggle="checkbox" {% if nom.1 %} checked {% endif %}>
 
-        <div style="margin-bottom:10px;">
-			<input class="form-control" id="id_titre" name="titre" placeholder="Donner un nouveau nom" type="text"> 
+					{{nom.0}}   
+
+				</label>
+				{% endfor %}
+
+				</p>
+
+				<div style="margin-bottom:10px;">
+					<input class="form-control" id="id_titre" name="titre" placeholder="Donner un nouveau nom" type="text"> 
+				</div>
+				<button id="form_button" class="btn btn-default">Ajouter</button>
+
+			</div>
+			<div class="modal-footer">
+				<div class="left-side">
+					<button type="button" class="btn btn-danger btn-simple">Je m'en tape</button>
+				</div>
+				<div class="divider"></div>
+				<div class="right-side">
+					<button type="button" class="btn btn-default btn-simple" data-dismiss="modal">Je donne mon avis</button>
+				</div>
+			</div>
 		</div>
-		<button id="form_button" class="btn btn-default">Ajouter</button>
-
-      </div>
-      <div class="modal-footer">
-      	<div class="left-side">
-            <button type="button" class="btn btn-danger btn-simple">Je m'en tape</button>
-        </div>
-        <div class="divider"></div>
-         <div class="right-side">
-            <button type="button" class="btn btn-default btn-simple" data-dismiss="modal">Je donne mon avis</button>
-        </div>
-      </div>
-    </div>
-  </div>
+	</div>
 </div>
 
 {% endif %}
@@ -107,46 +107,46 @@
 
 
 
- <div class="container-fluid">
-   
-   
-  <div class="row">
+<div class="container-fluid">
 
-      <div class="col-md-12 col-sm-12 pull-right" id="fildepost">
-	
-	<div class="col-md-12 post">
 
-		    
-	    <div class="card">
-	      <div class="content" >
-		{% for n in noeudsAncetres %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> > {% endfor %}  <a href =  {% url 'noeud' noeud.id %}>{{ noeud.label }}</a>
-	      </div>
-	  </div>
-	  
-	  {% if noeudsFils %}
-	  <div class="alert alert-warning">
-	    <span><b> Nœud split - </b> Ce nœud a maintenant des enfants : {% for n in noeudsFils %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> - {% endfor %} </span>
-	  </div>
-	  {% endif %}
-	  
+	<div class="row">
+
+		<div class="col-md-12 col-sm-12 pull-right" id="fildepost">
+
+			<div class="col-md-12 post">
+
+
+				<div class="card">
+					<div class="content" >
+						{% for n in noeudsAncetres %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> > {% endfor %}  <a href =  {% url 'noeud' noeud.id %}>{{ noeud.label }}</a>
+					</div>
+				</div>
+
+				{% if noeudsFils %}
+				<div class="alert alert-warning">
+					<span><b> Nœud split - </b> Cette discussion a été séparée en de nouveaux fils : {% for n in noeudsFils %} <a href =  {% url 'noeud' n.id %}>{{ n.label }}</a> - {% endfor %} </span>
+				</div>
+				{% endif %}
+
+			</div>
+
+			{% for p in posts %}
+			<div class="col-md-12 post">
+				{% include "post.html" with p=p %}
+			</div>
+			{% endfor %}
+
+
+
+		</div>
+
+
+
+
+
+
 	</div>
-	
-	{% for p in posts %}
-	  <div class="col-md-12 post">
-	  {% include "post.html" with p=p %}
-	  </div>
-	{% endfor %}
-	
 
 
-      </div>
-
-
-
-
-
-
-</div>
-
-
-{% endblock %}
+	{% endblock %}
